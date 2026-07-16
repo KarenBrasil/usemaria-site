@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Loja oficial da Use Maria. Moda feminina, coleções exclusivas.",
 };
 
+import WhatsAppButton from "@/components/WhatsAppButton";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +29,10 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <WhatsAppButton />
+      </body>
     </html>
   );
 }
