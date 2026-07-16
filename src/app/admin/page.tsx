@@ -40,7 +40,7 @@ export default async function AdminPage() {
                 </td>
               </tr>
             ) : (
-              products.map(p => (
+              products.map((p: any) => (
                 <tr key={p.id} className="border-b border-zinc-100 hover:bg-zinc-50">
                   <td className="p-4 flex items-center gap-4">
                     {p.image ? (
@@ -54,7 +54,7 @@ export default async function AdminPage() {
                   </td>
                   <td className="p-4 font-medium">R$ {p.price.toFixed(2).replace('.', ',')}</td>
                   <td className="p-4">
-                    {p.sizes.length === 0 ? <span className="text-red-500">Esgotado</span> : p.sizes.map(s => `${s.size} (${s.stock})`).join(', ')}
+                    {p.sizes.length === 0 ? <span className="text-red-500">Esgotado</span> : p.sizes.map((s: any) => `${s.size} (${s.stock})`).join(', ')}
                   </td>
                   <td className="p-4">
                     {p.isNew ? (
