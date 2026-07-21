@@ -1,11 +1,11 @@
 import Link from "next/link"
-import { createProduct } from "../../actions"
+import { createProduct } from "../../../actions"
 
 export default function NewProductPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/admin" className="text-zinc-500 hover:text-black">&larr; Voltar</Link>
+        <Link href="/admin/produtos" className="text-zinc-500 hover:text-black">&larr; Voltar</Link>
         <h2 className="text-2xl font-bold tracking-wide">Adicionar Peça</h2>
       </div>
       
@@ -43,6 +43,27 @@ export default function NewProductPage() {
             />
             <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">
               Como já importamos o catálogo, você pode digitar o caminho de uma das imagens importadas.
+            </p>
+          </div>
+
+          <div className="pt-4 border-t border-zinc-100">
+            <label className="text-sm font-semibold uppercase tracking-wider block mb-4">Grade de Estoque Inicial</label>
+            <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
+              {['PP', 'P', 'M', 'G', 'GG', 'U'].map(size => (
+                <div key={size} className="flex flex-col gap-1">
+                  <label className="text-xs text-center text-zinc-500 font-bold">{size}</label>
+                  <input 
+                    name={`stock_${size}`}
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    className="p-2 border border-zinc-300 rounded text-center focus:border-black outline-none transition-colors"
+                  />
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-2">
+              Deixe em branco ou 0 para tamanhos indisponíveis.
             </p>
           </div>
           

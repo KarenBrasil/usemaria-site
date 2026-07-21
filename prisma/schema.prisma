@@ -21,18 +21,59 @@ model Product {
   isNew       Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  sizes       ProductSize[]
-  
-  categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])
+
+  sizes ProductSize[]
+
+  categoryId String?
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
 }
 
 model ProductSize {
-  id        String   @id @default(cuid())
-  size      String   // PP, P, M, G, GG
-  stock     Int      @default(0)
-  
+  id    String @id @default(cuid())
+  size  String // PP, P, M, G, GG
+  stock Int    @default(0)
+
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Customer {
+  id    String  @id @default(cuid())
+  name  String
+  email String?
+  phone String?
+  cpf   String?
+
+  orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id     String @id @default(cuid())
+  status String @default("PENDING") // PENDING, PAID, SHIPPED, DELIVERED, CANCELLED
+  total  Float
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  quantity Int
+  price    Float
+  size     String
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 }

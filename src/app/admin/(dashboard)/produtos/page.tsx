@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import Image from "next/image"
 import Link from "next/link"
+import { deleteProduct } from "../../actions"
 
 export default async function AdminPage() {
   const products = await prisma.product.findMany({ 
@@ -63,9 +64,15 @@ export default async function AdminPage() {
                       <span className="text-zinc-500 text-[10px] uppercase tracking-wider font-bold">Ativo</span>
                     )}
                   </td>
-                  <td className="p-4 text-right">
-                    <button className="text-zinc-500 hover:text-black font-medium mr-4">Editar</button>
-                    <button className="text-red-500 hover:text-red-700 font-medium">Excluir</button>
+                  <td className="p-4 text-right flex items-center justify-end gap-4">
+                    <Link href={`/admin/produtos/${p.id}/editar`} className="text-zinc-500 hover:text-black font-medium text-xs uppercase tracking-widest">
+                      Editar
+                    </Link>
+                    <form action={deleteProduct.bind(null, p.id)}>
+                      <button type="submit" className="text-red-500 hover:text-red-700 font-medium text-xs uppercase tracking-widest">
+                        Excluir
+                      </button>
+                    </form>
                   </td>
                 </tr>
               ))
