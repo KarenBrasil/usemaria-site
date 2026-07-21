@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { updateOrderStatus } from "../../../actions"
+import { updateOrderStatus } from "../../actions"
 
 export default async function SalesPage() {
   const orders = await prisma.order.findMany({
