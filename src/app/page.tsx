@@ -1,20 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
-// Fake data based on extracted catalog images to mimic a real store
-const firstCollection = [
-  { id: 2, name: "Conjunto Classic Floral", price: "R$ 149,90", image: "/images/catalog/page-0002.jpg", sizes: ["P", "M", "G", "GG"] },
-  { id: 3, name: "Vestido Midi Estampado", price: "R$ 189,90", image: "/images/catalog/page-0003.jpg", sizes: ["PP", "P", "M"] },
-  { id: 4, name: "Blusa Estruturada", price: "R$ 99,90", image: "/images/catalog/page-0004.jpg", sizes: ["M", "G", "GG"] },
-  { id: 5, name: "Calça Pantalona Fina", price: "R$ 169,90", image: "/images/catalog/page-0005.jpg", sizes: ["36", "38", "40", "42"] },
-];
+import prisma from "@/lib/prisma";
 
-const secondCollection = [
-  { id: 7, name: "Blazer Alongado", price: "R$ 229,90", image: "/images/catalog/page-0007.jpg", sizes: ["P", "M", "G"] },
-  { id: 8, name: "Shorts Alfaiataria", price: "R$ 119,90", image: "/images/catalog/page-0008.jpg", sizes: ["34", "36", "38"] },
-  { id: 9, name: "Cropped Delicado", price: "R$ 89,90", image: "/images/catalog/page-0009.jpg", sizes: ["P", "M", "G"] },
-  { id: 10, name: "Saia Elegance", price: "R$ 139,90", image: "/images/catalog/page-0010.jpg", sizes: ["M", "G", "GG"] },
-];
+// We will fetch real data from the database inside the component
+
 
 const SearchIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -28,7 +18,16 @@ const CartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
 );
 
-export default function Home() {
+export default async function Home() {
+  const products = await prisma.product.findMany({
+    include: { sizes: true },
+    orderBy: { createdAt: 'desc' },
+    take: 8 // Fetch latest 8 products
+  });
+
+  const firstCollection = products.slice(0, 4);
+  const secondCollection = products.slice(4, 8);
+
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white text-black">
       
@@ -88,7 +87,7 @@ export default function Home() {
                   Novo
                 </span>
                 <Image
-                  src={product.image}
+                  src={product.image || "/images/catalog/page-0001.jpg"}
                   alt={product.name}
                   fill
                   className="object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out"
@@ -96,10 +95,10 @@ export default function Home() {
               </Link>
               <Link href={`/product/${product.id}`} className="flex flex-col items-center px-2">
                 <h3 className="text-xs font-bold text-zinc-900 mb-1 tracking-wide">{product.name}</h3>
-                <p className="text-xs text-zinc-500 mb-3">{product.price}</p>
+                <p className="text-xs text-zinc-500 mb-3">R$ {product.price.toFixed(2).replace('.', ',')}</p>
                 <div className="flex gap-3 text-[10px] uppercase text-zinc-400 font-medium justify-center flex-wrap">
-                  {product.sizes.map((size) => (
-                    <span key={size} className="hover:text-black cursor-pointer transition-colors border-b border-transparent hover:border-black">{size}</span>
+                  {product.sizes.filter((s: any) => s.stock > 0).map((s: any) => (
+                    <span key={s.size} className="hover:text-black cursor-pointer transition-colors border-b border-transparent hover:border-black">{s.size}</span>
                   ))}
                 </div>
               </Link>
@@ -144,7 +143,7 @@ export default function Home() {
                   Novo
                 </span>
                 <Image
-                  src={product.image}
+                  src={product.image || "/images/catalog/page-0001.jpg"}
                   alt={product.name}
                   fill
                   className="object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out"
@@ -152,10 +151,10 @@ export default function Home() {
               </Link>
               <Link href={`/product/${product.id}`} className="flex flex-col items-center px-2">
                 <h3 className="text-xs font-bold text-zinc-900 mb-1 tracking-wide">{product.name}</h3>
-                <p className="text-xs text-zinc-500 mb-3">{product.price}</p>
+                <p className="text-xs text-zinc-500 mb-3">R$ {product.price.toFixed(2).replace('.', ',')}</p>
                 <div className="flex gap-3 text-[10px] uppercase text-zinc-400 font-medium justify-center flex-wrap">
-                  {product.sizes.map((size) => (
-                    <span key={size} className="hover:text-black cursor-pointer transition-colors border-b border-transparent hover:border-black">{size}</span>
+                  {product.sizes.filter((s: any) => s.stock > 0).map((s: any) => (
+                    <span key={s.size} className="hover:text-black cursor-pointer transition-colors border-b border-transparent hover:border-black">{s.size}</span>
                   ))}
                 </div>
               </Link>
