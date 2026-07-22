@@ -77,3 +77,18 @@ model OrderItem {
   productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 }
+
+model StoreSettings {
+  id             String @id @default("default")
+  storeName      String @default("USE MARIA")
+  hero1Image     String @default("/images/catalog/page-0001.jpg")
+  hero1Subtitle  String @default("Lançamento Exclusivo Online")
+  hero1Title     String @default("A Coleção Divina")
+  hero2Image     String @default("/images/catalog/page-0006.jpg")
+  hero2Subtitle  String @default("Escolha da Estilista")
+  hero2Title     String @default("O Look Perfeito")
+  hero2Text      String @default("Capturado por @fotografo")
+  whatsappNumber String @default("5585994277446")
+  instagramUrl   String @default("#")
+  tiktokUrl      String @default("#")
+}

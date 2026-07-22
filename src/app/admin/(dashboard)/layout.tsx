@@ -13,6 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin" className="p-3 hover:bg-zinc-100 text-zinc-600 rounded text-sm font-medium tracking-wide transition-colors">Visão Geral</Link>
           <Link href="/admin/produtos" className="p-3 hover:bg-zinc-100 text-zinc-600 rounded text-sm font-medium tracking-wide transition-colors">Produtos</Link>
           <Link href="/admin/vendas" className="p-3 hover:bg-zinc-100 text-zinc-600 rounded text-sm font-medium tracking-wide transition-colors">Pedidos</Link>
+          <Link href="/admin/configuracoes" className="p-3 hover:bg-zinc-100 text-zinc-600 rounded text-sm font-medium tracking-wide transition-colors">Configurações (Site)</Link>
           
           <div className="mt-auto">
             <form action={logout}>

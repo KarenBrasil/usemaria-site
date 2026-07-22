@@ -16,15 +16,21 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     notFound();
   }
 
+  const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
+  const defaultSettings = settings || {
+    storeName: "USE MARIA",
+    whatsappNumber: "5585994277446"
+  }
+
   const availableSizes = product.sizes.filter(s => s.stock > 0).map(s => s.size);
-  const phoneNumber = "5585994277446"; // From WhatsAppButton
+  const phoneNumber = defaultSettings.whatsappNumber; // From StoreSettings
   const waLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(`Olá, gostaria de encomendar a peça *${product.name}* (ID: ${product.id}). Qual o valor do frete?`)}`;
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white text-black">
       {/* HEADER (Navigation) - Mesmo da Home */}
       <header className="w-full z-10 flex items-center justify-between px-8 py-6 text-black uppercase text-xs tracking-widest font-semibold border-b border-zinc-100">
-        <Link href="/" className="text-xl tracking-[0.2em] font-bold">USE MARIA</Link>
+        <Link href="/" className="text-xl tracking-[0.2em] font-bold">{defaultSettings.storeName}</Link>
         <nav className="hidden md:flex gap-8">
           <Link href="/" className="hover:opacity-70 transition-opacity">Shop</Link>
           <a href="#" className="hover:opacity-70 transition-opacity">Coleções</a>
@@ -49,16 +55,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               className="object-cover object-[center_20%] scale-110 mix-blend-multiply"
               priority
             />
-          </div>
-          {/* Aqui entrariam os thumbnails de outras fotos da camisa */}
-          <div className="grid grid-cols-2 gap-4">
-             <div className="relative aspect-[3/4] bg-zinc-100 overflow-hidden">
-                <Image src={product.image || "/images/catalog/page-0001.jpg"} alt="Detalhe 1" fill className="object-cover object-[center_20%] scale-110 opacity-70 hover:opacity-100 transition-opacity cursor-pointer mix-blend-multiply" />
-             </div>
-             <div className="relative aspect-[3/4] bg-zinc-100 overflow-hidden">
-                <Image src={product.image || "/images/catalog/page-0001.jpg"} alt="Detalhe 2" fill className="object-cover object-[center_20%] scale-110 opacity-70 hover:opacity-100 transition-opacity cursor-pointer mix-blend-multiply" />
-             </div>
-          </div>
         </div>
 
         {/* Lado Direito - Informações de Compra */}

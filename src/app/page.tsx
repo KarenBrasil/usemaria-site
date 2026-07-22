@@ -23,18 +23,34 @@ export default async function Home() {
   const products = await prisma.product.findMany({
     include: { sizes: true },
     orderBy: { createdAt: 'desc' },
-    take: 8 // Fetch latest 8 products
+    take: 50 // Fetch latest 50 products
   });
 
-  const firstCollection = products.slice(0, 4);
-  const secondCollection = products.slice(4, 8);
+  const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
+  const defaultSettings = settings || {
+    storeName: "USE MARIA",
+    hero1Title: "A Coleção Divina",
+    hero1Subtitle: "Lançamento Exclusivo Online",
+    hero1Image: "/images/catalog/page-0001.jpg",
+    hero2Title: "O Look Perfeito",
+    hero2Subtitle: "Escolha da Estilista",
+    hero2Text: "Capturado por @fotografo",
+    hero2Image: "/images/catalog/page-0006.jpg",
+    whatsappNumber: "5585994277446",
+    instagramUrl: "#",
+    tiktokUrl: "#"
+  }
+
+  const half = Math.ceil(products.length / 2);
+  const firstCollection = products.slice(0, half);
+  const secondCollection = products.slice(half);
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white text-black">
       
       {/* HEADER (Transparent, absolute positioned over hero) */}
       <header className="absolute top-0 left-0 w-full z-20 flex items-center justify-between px-8 py-6 text-white uppercase text-xs tracking-[0.15em] font-medium mix-blend-difference">
-        <Link href="/" className="text-xl tracking-[0.25em] font-bold">USE MARIA</Link>
+        <Link href="/" className="text-xl tracking-[0.25em] font-bold">{defaultSettings.storeName}</Link>
         <nav className="hidden lg:flex gap-8">
           <Link href="#" className="hover:opacity-70 transition-opacity">Loja</Link>
           <Link href="#" className="hover:opacity-70 transition-opacity">Novidades</Link>
@@ -55,15 +71,15 @@ export default async function Home() {
       {/* HERO SECTION 1 */}
       <section className="relative w-full h-[85vh] bg-zinc-900 overflow-hidden flex items-center justify-center">
         <Image
-          src="/images/catalog/page-0001.jpg"
-          alt="Coleção Principal Use Maria"
+          src={defaultSettings.hero1Image}
+          alt={defaultSettings.hero1Title}
           fill
           className="object-cover object-top opacity-80"
           priority
         />
         <div className="relative z-10 flex flex-col items-center justify-center text-white text-center mt-20">
-          <p className="text-xs uppercase tracking-[0.2em] mb-4 font-semibold">Lançamento Exclusivo Online</p>
-          <h1 className="text-6xl md:text-8xl font-serif italic mb-8 drop-shadow-lg">A Coleção Divina</h1>
+          <p className="text-xs uppercase tracking-[0.2em] mb-4 font-semibold">{defaultSettings.hero1Subtitle}</p>
+          <h1 className="text-6xl md:text-8xl font-serif italic mb-8 drop-shadow-lg">{defaultSettings.hero1Title}</h1>
           <button className="bg-white text-black uppercase text-xs tracking-widest font-bold py-4 px-10 rounded-full hover:bg-black hover:text-white hover:border-transparent border border-white transition-all duration-300">
             Comprar Agora
           </button>
@@ -111,15 +127,15 @@ export default async function Home() {
       {/* HERO SECTION 2 (EDITORIAL) */}
       <section className="relative w-full h-[70vh] bg-zinc-900 overflow-hidden flex items-center justify-center">
         <Image
-          src="/images/catalog/page-0006.jpg"
-          alt="Destaque Use Maria"
+          src={defaultSettings.hero2Image}
+          alt={defaultSettings.hero2Title}
           fill
           className="object-cover object-center opacity-70"
         />
         <div className="relative z-10 flex flex-col items-center justify-center text-white text-center">
-          <p className="text-[10px] uppercase tracking-[0.3em] mb-3">Escolha da Estilista</p>
-          <h2 className="text-5xl md:text-6xl font-serif italic mb-4">O Look Perfeito</h2>
-          <p className="text-xs tracking-widest uppercase mb-8 opacity-90">Capturado por @fotografo</p>
+          <p className="text-[10px] uppercase tracking-[0.3em] mb-3">{defaultSettings.hero2Subtitle}</p>
+          <h2 className="text-5xl md:text-6xl font-serif italic mb-4">{defaultSettings.hero2Title}</h2>
+          <p className="text-xs tracking-widest uppercase mb-8 opacity-90">{defaultSettings.hero2Text}</p>
           <button className="bg-white text-black uppercase text-xs tracking-widest font-bold py-3 px-8 rounded-full hover:bg-black hover:text-white transition-all duration-300">
             Explorar Peças
           </button>
@@ -166,11 +182,11 @@ export default async function Home() {
 
       {/* FOOTER PREVIEW */}
       <footer className="bg-[#f8f8f8] border-t border-zinc-200 text-black py-16 px-8 flex flex-col items-center mt-auto">
-         <div className="text-2xl tracking-[0.2em] font-bold mb-6">USE MARIA</div>
+         <div className="text-2xl tracking-[0.2em] font-bold mb-6">{defaultSettings.storeName}</div>
          <div className="flex gap-6 mb-12 text-xs uppercase tracking-widest font-medium">
-            <Link href="#" className="hover:text-zinc-500">Instagram</Link>
-            <Link href="#" className="hover:text-zinc-500">TikTok</Link>
-            <Link href="#" className="hover:text-zinc-500">Contato</Link>
+            <Link href={defaultSettings.instagramUrl} className="hover:text-zinc-500">Instagram</Link>
+            <Link href={defaultSettings.tiktokUrl} className="hover:text-zinc-500">TikTok</Link>
+            <Link href={`https://wa.me/${defaultSettings.whatsappNumber}`} className="hover:text-zinc-500">Contato</Link>
          </div>
          <p className="text-[10px] tracking-widest uppercase mb-4 opacity-40">© 2026 UseMaria. Todos os direitos reservados.</p>
       </footer>
