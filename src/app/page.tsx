@@ -43,6 +43,8 @@ export default async function Home() {
             className="object-cover object-top opacity-90 mix-blend-multiply"
             priority
           />
+          {/* Mobile overlay for text readability */}
+          <div className="absolute inset-0 bg-[#F5F3EF]/70 md:hidden"></div>
         </div>
         
         {/* Hero Content aligned to left */}
