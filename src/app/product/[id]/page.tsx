@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductImageZoom from "@/components/ProductImageZoom";
+import AddToCartSection from "@/components/AddToCartSection";
 
 export const dynamic = 'force-dynamic';
 
@@ -46,29 +47,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           <h1 className="text-3xl md:text-4xl font-serif mb-4">{product.name}</h1>
           <p className="text-xl text-zinc-600 mb-8">R$ {product.price.toFixed(2).replace('.', ',')}</p>
           
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-xs uppercase tracking-widest font-semibold">Tamanho (Disponíveis)</span>
-              <button className="text-xs text-zinc-400 underline hover:text-black">Guia de Medidas</button>
-            </div>
-            
-            <div className="flex gap-3">
-              {availableSizes.length > 0 ? availableSizes.map((size) => (
-                <button 
-                  key={size}
-                  className="w-12 h-12 border border-zinc-200 flex items-center justify-center text-sm hover:border-black hover:bg-black hover:text-white transition-all"
-                >
-                  {size}
-                </button>
-              )) : (
-                <span className="text-sm text-red-500">Esgotado</span>
-              )}
-            </div>
-          </div>
-
-          <a href={waLink} target="_blank" rel="noopener noreferrer" className="w-full bg-black text-white uppercase text-sm tracking-widest font-bold py-5 hover:bg-zinc-800 transition-colors mb-12 flex justify-center items-center text-center">
-            Fazer Pedido (WhatsApp)
-          </a>
+          <AddToCartSection product={product} availableSizes={availableSizes} />
 
           {/* Acordeão de Informações */}
           <div className="border-t border-zinc-200">

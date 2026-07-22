@@ -91,4 +91,8 @@ model StoreSettings {
   whatsappNumber String @default("5585994277446")
   instagramUrl   String @default("#")
   tiktokUrl      String @default("#")
+  
+  // PIX Settings
+  pixKey         String @default("CNPJ: 00.000.000/0001-00")
+  pixName        String @default("USE MARIA OFICIAL")
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { StoreSettings } from "@prisma/client";
+import CartDrawer from "./CartDrawer";
 
 const SearchIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -31,10 +32,7 @@ export default function Header({ settings }: { settings: Partial<StoreSettings> 
         <div className="flex gap-6 items-center">
           <button className="hover:opacity-70 transition-opacity"><SearchIcon /></button>
           <Link href="/admin" className="hover:opacity-70 transition-opacity hidden md:block"><UserIcon /></Link>
-          <button className="hover:opacity-70 transition-opacity relative">
-            <CartIcon />
-            <span className="absolute -top-1 -right-2 bg-zinc-200 text-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
-          </button>
+          <CartDrawer />
         </div>
       </header>
     </>

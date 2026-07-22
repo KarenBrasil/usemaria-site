@@ -19,7 +19,9 @@ export default async function SettingsPage() {
     hero2Image: "/images/catalog/page-0006.jpg",
     whatsappNumber: "5585994277446",
     instagramUrl: "#",
-    tiktokUrl: "#"
+    tiktokUrl: "#",
+    pixKey: "CNPJ: 00.000.000/0001-00",
+    pixName: "USE MARIA OFICIAL"
   }
 
   async function saveSettings(formData: FormData) {
@@ -35,19 +37,21 @@ export default async function SettingsPage() {
     const whatsappNumber = formData.get('whatsappNumber') as string
     const instagramUrl = formData.get('instagramUrl') as string
     const tiktokUrl = formData.get('tiktokUrl') as string
+    const pixKey = formData.get('pixKey') as string
+    const pixName = formData.get('pixName') as string
 
     await prisma.storeSettings.upsert({
       where: { id: "default" },
       update: {
         storeName, hero1Title, hero1Subtitle, hero1Image,
         hero2Title, hero2Subtitle, hero2Text, hero2Image,
-        whatsappNumber, instagramUrl, tiktokUrl
+        whatsappNumber, instagramUrl, tiktokUrl, pixKey, pixName
       },
       create: {
         id: "default",
         storeName, hero1Title, hero1Subtitle, hero1Image,
         hero2Title, hero2Subtitle, hero2Text, hero2Image,
-        whatsappNumber, instagramUrl, tiktokUrl
+        whatsappNumber, instagramUrl, tiktokUrl, pixKey, pixName
       }
     })
 
@@ -65,11 +69,39 @@ export default async function SettingsPage() {
         
         {/* Identidade */}
         <section>
-          <h2 className="text-lg font-bold mb-4 border-b pb-2">Identidade Visual</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold">Nome da Loja (Logo Texto)</label>
-              <input name="storeName" defaultValue={defaultSettings.storeName} className="border p-2 rounded" required />
+          <h2 className="text-lg font-bold mb-4 border-b pb-2">Identidade Visual & Contato</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-zinc-500 mb-1">Nome da Loja (Logo Texto)</label>
+                <input type="text" name="storeName" defaultValue={defaultSettings.storeName} className="w-full border border-zinc-300 p-2 text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-zinc-500 mb-1">Número do WhatsApp</label>
+                <input type="text" name="whatsappNumber" defaultValue={defaultSettings.whatsappNumber} className="w-full border border-zinc-300 p-2 text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-zinc-500 mb-1">Link do Instagram</label>
+                <input type="text" name="instagramUrl" defaultValue={defaultSettings.instagramUrl} className="w-full border border-zinc-300 p-2 text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-zinc-500 mb-1">Link do TikTok</label>
+                <input type="text" name="tiktokUrl" defaultValue={defaultSettings.tiktokUrl} className="w-full border border-zinc-300 p-2 text-sm focus:outline-none focus:border-black" />
+              </div>
+            </div>
+
+            {/* Pagamento */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-widest mb-2 text-black">Pagamento PIX</h3>
+              <p className="text-xs text-zinc-500 mb-4">Dados mostrados na finalização da compra via PIX.</p>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-zinc-500 mb-1">Chave PIX</label>
+                <input type="text" name="pixKey" defaultValue={defaultSettings.pixKey} placeholder="Ex: CNPJ, Email ou Celular" className="w-full border border-zinc-300 p-2 text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-zinc-500 mb-1">Nome do Recebedor (Opcional)</label>
+                <input type="text" name="pixName" defaultValue={defaultSettings.pixName} placeholder="Ex: Loja Maria LTDA" className="w-full border border-zinc-300 p-2 text-sm focus:outline-none focus:border-black" />
+              </div>
             </div>
           </div>
         </section>
@@ -89,7 +121,6 @@ export default async function SettingsPage() {
             <div className="flex flex-col gap-2 md:col-span-2">
               <label className="text-sm font-semibold">Caminho da Imagem Principal</label>
               <input name="hero1Image" defaultValue={defaultSettings.hero1Image} className="border p-2 rounded" required />
-              <p className="text-xs text-zinc-500">Ex: /images/catalog/page-0001.jpg</p>
             </div>
           </div>
         </section>
@@ -113,26 +144,6 @@ export default async function SettingsPage() {
             <div className="flex flex-col gap-2 md:col-span-2">
               <label className="text-sm font-semibold">Caminho da Imagem Editorial</label>
               <input name="hero2Image" defaultValue={defaultSettings.hero2Image} className="border p-2 rounded" required />
-            </div>
-          </div>
-        </section>
-
-        {/* Contatos */}
-        <section>
-          <h2 className="text-lg font-bold mb-4 border-b pb-2">Contatos e Redes</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold">WhatsApp (Só números)</label>
-              <input name="whatsappNumber" defaultValue={defaultSettings.whatsappNumber} className="border p-2 rounded" required />
-              <p className="text-xs text-zinc-500">Ex: 5585994277446</p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold">Link Instagram</label>
-              <input name="instagramUrl" defaultValue={defaultSettings.instagramUrl} className="border p-2 rounded" required />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold">Link TikTok</label>
-              <input name="tiktokUrl" defaultValue={defaultSettings.tiktokUrl} className="border p-2 rounded" required />
             </div>
           </div>
         </section>
