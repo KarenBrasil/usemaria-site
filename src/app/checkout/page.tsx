@@ -262,14 +262,15 @@ function CheckoutContent() {
 }
 
 export default function CheckoutPage() {
-  const { cartTotal } = useCartStore();
+  const { items, cartTotal } = useCartStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  // Wait for hydration and cart to be loaded
+  if (!mounted || items.length === 0) return null;
 
   if (!isValidKey || !stripePromise) {
     return <CheckoutContent />;
