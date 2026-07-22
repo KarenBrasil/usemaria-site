@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export const dynamic = 'force-dynamic';
 
@@ -27,20 +29,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const waLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(`Olá, gostaria de encomendar a peça *${product.name}* (ID: ${product.id}). Qual o valor do frete?`)}`;
 
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-white text-black">
-      {/* HEADER (Navigation) - Mesmo da Home */}
-      <header className="w-full z-10 flex items-center justify-between px-8 py-6 text-black uppercase text-xs tracking-widest font-semibold border-b border-zinc-100">
-        <Link href="/" className="text-xl tracking-[0.2em] font-bold">{defaultSettings.storeName}</Link>
-        <nav className="hidden md:flex gap-8">
-          <Link href="/" className="hover:opacity-70 transition-opacity">Shop</Link>
-          <a href="#" className="hover:opacity-70 transition-opacity">Coleções</a>
-          <a href="#" className="hover:opacity-70 transition-opacity">Sobre Nós</a>
-        </nav>
-        <div className="flex gap-4">
-          <button className="hover:opacity-70 transition-opacity">Buscar</button>
-          <button className="hover:opacity-70 transition-opacity">Carrinho (0)</button>
-        </div>
-      </header>
+    <div className="flex flex-col min-h-screen bg-white font-sans text-black">
+      <Header settings={defaultSettings} />
 
       {/* PRODUCT DETAILS SECTION */}
       <main className="flex-grow flex flex-col md:flex-row w-full max-w-[1400px] mx-auto px-4 md:px-8 py-12 gap-12 lg:gap-24">
@@ -102,9 +92,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-black text-white py-12 px-8 flex flex-col items-center mt-24">
-         <p className="text-xs tracking-widest uppercase mb-4 opacity-50">© 2026 UseMaria. Todos os direitos reservados.</p>
-      </footer>
+      <Footer settings={defaultSettings} />
     </div>
   );
 }

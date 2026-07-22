@@ -3,6 +3,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { deleteProduct } from "../../actions"
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPage() {
   const products = await prisma.product.findMany({ 
     include: { sizes: true },
