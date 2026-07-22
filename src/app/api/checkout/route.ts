@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 
 // Use a placeholder if no key is provided yet
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-  apiVersion: '2025-01-27.acacia',
+  apiVersion: '2026-06-24.dahlia',
 });
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
