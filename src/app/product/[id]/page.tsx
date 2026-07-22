@@ -26,7 +26,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     whatsappNumber: "5585994277446"
   }
 
-  const availableSizes = product.sizes.filter(s => s.stock > 0).map(s => s.size);
+  const availableSizes = product.sizes.filter(s => s.stock > 0 && s.size !== 'GG').map(s => s.size);
   const phoneNumber = defaultSettings.whatsappNumber; // From StoreSettings
   const waLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(`Olá, gostaria de encomendar a peça *${product.name}* (ID: ${product.id}). Qual o valor do frete?`)}`;
 

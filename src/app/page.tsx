@@ -122,12 +122,10 @@ export default async function Home() {
               </Link>
               <Link href={`/product/${product.id}`} className="flex flex-col items-center">
                 <h3 className="text-xs font-bold text-zinc-900 mb-1 tracking-widest uppercase">{product.name}</h3>
-                <p className="text-xs text-zinc-500 mb-2 font-medium">R$ {product.price.toFixed(2).replace('.', ',')}</p>
-                <div className="flex gap-2 text-[9px] uppercase text-zinc-400 font-bold justify-center flex-wrap">
-                  {['P', 'M', 'G', 'GG'].map((s) => (
-                    <span key={s} className="px-1">{s}</span>
-                  ))}
-                </div>
+                <p className="text-xs text-zinc-500 mb-4 font-medium">R$ {product.price.toFixed(2).replace('.', ',')}</p>
+                <span className="w-full border border-black text-black uppercase text-[10px] tracking-widest font-bold py-2 hover:bg-black hover:text-white transition-colors">
+                  Ver Detalhes
+                </span>
               </Link>
             </div>
           ))}
