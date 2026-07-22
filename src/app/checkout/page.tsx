@@ -94,6 +94,13 @@ function CheckoutContent() {
           clientSecret: data.clientSecret,
           confirmParams: {
             return_url: `${window.location.origin}/checkout/sucesso`,
+            payment_method_data: {
+              billing_details: {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone
+              }
+            }
           },
         });
 
@@ -171,14 +178,7 @@ function CheckoutContent() {
                {paymentMethod === 'CARD' && (
                  <div className="p-4 bg-white">
                     <PaymentElement options={{ 
-                      layout: 'accordion',
-                      defaultValues: {
-                        billingDetails: {
-                          name: formData.name,
-                          email: formData.email,
-                          phone: formData.phone
-                        }
-                      }
+                      layout: 'accordion'
                     }} />
                  </div>
                )}
