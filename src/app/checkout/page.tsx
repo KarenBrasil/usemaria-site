@@ -8,12 +8,18 @@ import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-// Load Stripe (ensure env var is set)
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder");
+// Check keys safely
+const rawKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+const isSecretKey = rawKey.startsWith("sk_");
+const isPlaceholder = !rawKey || rawKey.includes("placeholder");
+const isValidKey = rawKey.startsWith("pk_");
+
+const stripePromise = isValidKey ? loadStripe(rawKey) : null;
 
 function CheckoutContent() {
   const { items, cartTotal, clearCart } = useCartStore();
   const router = useRouter();
+  
   const stripe = useStripe();
   const elements = useElements();
   
@@ -47,22 +53,25 @@ function CheckoutContent() {
     setError(null);
 
     try {
-      // 1. Create order on backend (returns orderId and optionally clientSecret if CARD)
+      if (paymentMethod === 'CARD') {
+        if (!stripe || !elements) {
+          throw new Error("O sistema de cartão não carregou corretamente. Verifique as chaves do Stripe e faça um Redeploy.");
+        }
+        
+        // 1. Submit the local elements
+        const { error: submitError } = await elements.submit();
+        if (submitError) {
+          throw new Error(submitError.message);
+        }
+      }
+
+      // 2. Create order on backend
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customer: {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-          },
-          items: items.map(i => ({
-            productId: i.productId,
-            size: i.size,
-            quantity: i.quantity,
-            price: i.price
-          })),
+          customer: { name: formData.name, email: formData.email, phone: formData.phone },
+          items: items.map(i => ({ productId: i.productId, size: i.size, quantity: i.quantity, price: i.price })),
           total: cartTotal(),
           paymentMethod
         })
@@ -71,24 +80,14 @@ function CheckoutContent() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Erro ao gerar pedido.");
+        throw new Error(data.error || "Erro ao gerar pedido no servidor.");
       }
       
       if (paymentMethod === 'PIX') {
         clearCart();
         router.push(`/checkout/sucesso?orderId=${data.orderId}`);
-      } else if (paymentMethod === 'CARD') {
-        if (!stripe || !elements) {
-          throw new Error("Stripe não carregou corretamente.");
-        }
-        
-        // 2. Submit the local elements
-        const { error: submitError } = await elements.submit();
-        if (submitError) {
-          throw new Error(submitError.message);
-        }
-
-        // 3. Confirm the payment with the newly created clientSecret
+      } else if (paymentMethod === 'CARD' && stripe && elements) {
+        // 3. Confirm the payment
         const { error: confirmError } = await stripe.confirmPayment({
           elements,
           clientSecret: data.clientSecret,
@@ -118,9 +117,17 @@ function CheckoutContent() {
   if (items.length === 0) return null;
 
   return (
-    <div className="min-h-screen bg-[#F5F3EF] flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-[#F5F3EF] flex flex-col md:flex-row font-sans relative">
+      
+      {isSecretKey && (
+        <div className="absolute top-0 left-0 w-full z-50 bg-red-600 text-white p-4 text-center font-bold text-sm shadow-lg">
+          ERRO CRÍTICO: Você colocou a sua CHAVE SECRETA (sk_...) no campo da Chave Pública (NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) na Vercel.<br/>
+          Por favor, vá na Vercel, troque o valor pela sua Publishable Key (que começa com pk_...) e faça um novo Redeploy!
+        </div>
+      )}
+
       {/* Left Column - Form */}
-      <div className="w-full md:w-3/5 bg-white p-6 md:p-16 overflow-y-auto border-r border-zinc-200">
+      <div className="w-full md:w-3/5 bg-white p-6 md:p-16 overflow-y-auto border-r border-zinc-200 mt-10 md:mt-0">
         <Link href="/" className="text-2xl font-serif tracking-[0.2em] font-bold mb-10 block text-center md:text-left">USE MARIA</Link>
         
         <form onSubmit={handlePlaceOrder} className="max-w-xl mx-auto md:mx-0">
@@ -156,7 +163,7 @@ function CheckoutContent() {
             </div>
           </div>
 
-          {/* SECTION 3: Pagamento (Accordion Style) */}
+          {/* SECTION 3: Pagamento */}
           <div className="mb-10">
             <h2 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-4 border-b pb-2">Forma de Pagamento</h2>
             
@@ -175,15 +182,14 @@ function CheckoutContent() {
                </label>
                
                {paymentMethod === 'CARD' && (
-                 <div className="p-4 bg-white">
-                    {(!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.includes('placeholder')) ? (
-                      <div className="text-red-500 text-xs text-center font-bold p-4">
-                        O sistema de cartão de crédito está offline no momento. O administrador precisa configurar as chaves do Stripe e fazer um Redeploy na Vercel.
+                 <div className="p-4 bg-white min-h-[150px] relative">
+                    {!isValidKey ? (
+                      <div className="text-red-500 text-xs text-center font-bold p-4 bg-red-50 rounded border border-red-200">
+                        O sistema de cartão de crédito não encontrou as chaves corretas (começando com pk_...).<br/>
+                        Verifique a configuração na Vercel.
                       </div>
                     ) : (
-                      <PaymentElement options={{ 
-                        layout: 'tabs'
-                      }} />
+                      <PaymentElement options={{ layout: 'tabs' }} />
                     )}
                  </div>
                )}
@@ -197,7 +203,6 @@ function CheckoutContent() {
                  <span className="text-xs text-green-600 font-bold bg-green-100 px-2 py-1 rounded">Aprovação Imediata</span>
                </label>
                
-               {/* PIX Body */}
                {paymentMethod === 'PIX' && (
                  <div className="p-4 bg-white text-sm text-zinc-600 border-t border-zinc-200">
                     Ao finalizar o pedido, mostraremos a chave PIX para você realizar o pagamento no aplicativo do seu banco. Sem taxas extras.
@@ -206,11 +211,11 @@ function CheckoutContent() {
             </div>
           </div>
 
-          {error && <div className="p-4 bg-red-50 text-red-600 border border-red-200 mb-6 text-sm">{error}</div>}
+          {error && <div className="p-4 bg-red-50 text-red-600 border border-red-200 mb-6 text-sm font-bold">{error}</div>}
 
           <button 
             type="submit"
-            disabled={loading}
+            disabled={loading || (paymentMethod === 'CARD' && !isValidKey)}
             className="w-full bg-black text-white uppercase text-xs tracking-widest font-bold py-5 hover:bg-zinc-800 disabled:bg-zinc-400 transition-colors flex justify-center items-center"
           >
             {loading ? "Processando..." : "Fazer pedido"}
@@ -266,13 +271,17 @@ export default function CheckoutPage() {
 
   if (!mounted) return null;
 
+  if (!isValidKey || !stripePromise) {
+    return <CheckoutContent />;
+  }
+
   return (
     <Elements 
       stripe={stripePromise} 
       options={{ 
         mode: 'payment',
         paymentMethodTypes: ['card'],
-        amount: Math.max(100, Math.round(cartTotal() * 100)),
+        amount: Math.max(100, Math.round(cartTotal() * 100)), // minimum 1 BRL
         currency: 'brl',
         appearance: {
           theme: 'stripe',
