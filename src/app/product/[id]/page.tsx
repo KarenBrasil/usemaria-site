@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ProductImageZoom from "@/components/ProductImageZoom";
 
 export const dynamic = 'force-dynamic';
 
@@ -37,15 +38,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         
         {/* Lado Esquerdo - Galeria de Imagens */}
         <div className="w-full md:w-1/2 flex flex-col gap-4">
-          <div className="relative aspect-[3/4] w-full bg-zinc-100 overflow-hidden">
-            <Image
-              src={product.image || "/images/catalog/page-0001.jpg"}
-              alt={product.name}
-              fill
-              className="object-cover object-[center_20%] scale-110 mix-blend-multiply"
-              priority
-            />
-          </div>
+          <ProductImageZoom src={product.image || "/images/catalog/page-0001.jpg"} alt={product.name} />
         </div>
 
         {/* Lado Direito - Informações de Compra */}
