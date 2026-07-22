@@ -266,6 +266,7 @@ export default function CheckoutPage() {
       stripe={stripePromise} 
       options={{ 
         mode: 'payment',
+        paymentMethodTypes: ['card'],
         amount: Math.max(100, Math.round(cartTotal() * 100)), // minimum 1 BRL to avoid stripe init error if cart is 0 briefly
         currency: 'brl',
         appearance: {
