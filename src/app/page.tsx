@@ -90,7 +90,7 @@ export default async function Home() {
                   src={product.image || "/images/catalog/page-0001.jpg"}
                   alt={product.name}
                   fill
-                  className="object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                  className="object-cover object-[center_20%] scale-110 mix-blend-multiply group-hover:scale-125 transition-transform duration-700 ease-in-out"
                 />
               </Link>
               <Link href={`/product/${product.id}`} className="flex flex-col items-center px-2">
@@ -146,7 +146,7 @@ export default async function Home() {
                   src={product.image || "/images/catalog/page-0001.jpg"}
                   alt={product.name}
                   fill
-                  className="object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                  className="object-cover object-[center_20%] scale-110 mix-blend-multiply group-hover:scale-125 transition-transform duration-700 ease-in-out"
                 />
               </Link>
               <Link href={`/product/${product.id}`} className="flex flex-col items-center px-2">

@@ -18,3 +18,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Utility to crop the catalog images (zoom in and move up slightly to cut bottom text) */
+.catalog-crop {
+  object-fit: cover;
+  object-position: center 20%;
+  transform: scale(1.2);
+}

@@ -1,23 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import prisma from "@/lib/prisma";
 
-// Mock de produtos (em um app real isso viria do banco de dados/Stripe)
-const products = [
-  { 
-    id: "1", 
-    name: "Camisa Classic Maria Branca", 
-    price: "R$ 149,90", 
-    description: "A clássica t-shirt branca reimaginada. Confeccionada em algodão egípcio 100% com caimento estruturado e toque incrivelmente macio. Estampa minimalista em silk relevo.",
-    details: ["100% Algodão Premium", "Estampa em Silk Relevo", "Gola canelada 2x1", "Produzida no Brasil"],
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80", 
-    sizes: ["P", "M", "G", "GG"] 
-  },
-  // ...outros produtos podem ser adicionados aqui
-];
+export default async function ProductPage({ params }: { params: { id: string } }) {
+  const product = await prisma.product.findUnique({
+    where: { id: parseInt(params.id) },
+    include: { sizes: true }
+  });
 
-export default function ProductPage({ params }: { params: { id: string } }) {
-  // Para fins de demonstração, sempre pegamos o primeiro produto
-  const product = products[0];
+  if (!product) {
+    notFound();
+  }
+
+  const availableSizes = product.sizes.filter(s => s.stock > 0).map(s => s.size);
+  const phoneNumber = "5585994277446"; // From WhatsAppButton
+  const waLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(`Olá, gostaria de encomendar a peça *${product.name}* (ID: ${product.id}). Qual o valor do frete?`)}`;
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white text-black">
@@ -40,22 +38,22 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         
         {/* Lado Esquerdo - Galeria de Imagens */}
         <div className="w-full md:w-1/2 flex flex-col gap-4">
-          <div className="relative aspect-[3/4] w-full bg-zinc-100">
+          <div className="relative aspect-[3/4] w-full bg-zinc-100 overflow-hidden">
             <Image
-              src={product.image}
+              src={product.image || "/images/catalog/page-0001.jpg"}
               alt={product.name}
               fill
-              className="object-cover"
+              className="object-cover object-[center_20%] scale-110 mix-blend-multiply"
               priority
             />
           </div>
           {/* Aqui entrariam os thumbnails de outras fotos da camisa */}
           <div className="grid grid-cols-2 gap-4">
-             <div className="relative aspect-[3/4] bg-zinc-100">
-                <Image src={product.image} alt="Detalhe 1" fill className="object-cover opacity-70 hover:opacity-100 transition-opacity cursor-pointer" />
+             <div className="relative aspect-[3/4] bg-zinc-100 overflow-hidden">
+                <Image src={product.image || "/images/catalog/page-0001.jpg"} alt="Detalhe 1" fill className="object-cover object-[center_20%] scale-110 opacity-70 hover:opacity-100 transition-opacity cursor-pointer mix-blend-multiply" />
              </div>
-             <div className="relative aspect-[3/4] bg-zinc-100">
-                <Image src={product.image} alt="Detalhe 2" fill className="object-cover opacity-70 hover:opacity-100 transition-opacity cursor-pointer" />
+             <div className="relative aspect-[3/4] bg-zinc-100 overflow-hidden">
+                <Image src={product.image || "/images/catalog/page-0001.jpg"} alt="Detalhe 2" fill className="object-cover object-[center_20%] scale-110 opacity-70 hover:opacity-100 transition-opacity cursor-pointer mix-blend-multiply" />
              </div>
           </div>
         </div>
@@ -63,47 +61,41 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         {/* Lado Direito - Informações de Compra */}
         <div className="w-full md:w-1/2 flex flex-col pt-8 md:pt-16 md:sticky md:top-24 h-fit">
           <h1 className="text-3xl md:text-4xl font-serif mb-4">{product.name}</h1>
-          <p className="text-xl text-zinc-600 mb-8">{product.price}</p>
+          <p className="text-xl text-zinc-600 mb-8">R$ {product.price.toFixed(2).replace('.', ',')}</p>
           
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-xs uppercase tracking-widest font-semibold">Tamanho</span>
+              <span className="text-xs uppercase tracking-widest font-semibold">Tamanho (Disponíveis)</span>
               <button className="text-xs text-zinc-400 underline hover:text-black">Guia de Medidas</button>
             </div>
             
             <div className="flex gap-3">
-              {product.sizes.map((size) => (
+              {availableSizes.length > 0 ? availableSizes.map((size) => (
                 <button 
                   key={size}
                   className="w-12 h-12 border border-zinc-200 flex items-center justify-center text-sm hover:border-black hover:bg-black hover:text-white transition-all"
                 >
                   {size}
                 </button>
-              ))}
+              )) : (
+                <span className="text-sm text-red-500">Esgotado</span>
+              )}
             </div>
           </div>
 
-          <button className="w-full bg-black text-white uppercase text-sm tracking-widest font-bold py-5 hover:bg-zinc-800 transition-colors mb-12">
-            Adicionar ao Carrinho
-          </button>
+          <a href={waLink} target="_blank" rel="noopener noreferrer" className="w-full bg-black text-white uppercase text-sm tracking-widest font-bold py-5 hover:bg-zinc-800 transition-colors mb-12 flex justify-center items-center text-center">
+            Fazer Pedido (WhatsApp)
+          </a>
 
           {/* Acordeão de Informações */}
           <div className="border-t border-zinc-200">
             <div className="py-6 border-b border-zinc-200">
               <h3 className="text-xs uppercase tracking-widest font-bold mb-4">Descrição</h3>
-              <p className="text-sm text-zinc-600 leading-relaxed">{product.description}</p>
-            </div>
-            <div className="py-6 border-b border-zinc-200">
-              <h3 className="text-xs uppercase tracking-widest font-bold mb-4">Detalhes e Composição</h3>
-              <ul className="list-disc pl-4 text-sm text-zinc-600 space-y-2">
-                {product.details.map((detail, idx) => (
-                  <li key={idx}>{detail}</li>
-                ))}
-              </ul>
+              <p className="text-sm text-zinc-600 leading-relaxed whitespace-pre-wrap">{product.description || "Peça exclusiva com design autoral."}</p>
             </div>
             <div className="py-6 border-b border-zinc-200">
               <h3 className="text-xs uppercase tracking-widest font-bold mb-4">Envio e Devolução</h3>
-              <p className="text-sm text-zinc-600 leading-relaxed">Frete grátis para todo o Brasil nas compras acima de R$ 299. Primeira troca grátis em até 7 dias.</p>
+              <p className="text-sm text-zinc-600 leading-relaxed">Combine o frete ou retirada pelo WhatsApp. Trocas em até 7 dias após o recebimento.</p>
             </div>
           </div>
 
