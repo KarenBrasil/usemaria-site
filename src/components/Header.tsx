@@ -25,12 +25,8 @@ export default function Header({ settings }: { settings: Partial<StoreSettings> 
           <span className="text-[8px] tracking-[0.3em] font-bold text-zinc-500 mt-1">Camisas Católicas</span>
         </Link>
         <nav className="hidden lg:flex gap-8">
-          <Link href="#" className="hover:opacity-70 transition-opacity font-bold">Lançamentos</Link>
-          <Link href="#" className="hover:opacity-70 transition-opacity font-bold">Masculino</Link>
-          <Link href="#" className="hover:opacity-70 transition-opacity font-bold">Feminino</Link>
-          <Link href="#" className="hover:opacity-70 transition-opacity font-bold">Acessórios</Link>
-          <Link href="/colecoes" className="hover:opacity-70 transition-opacity font-bold">Coleções</Link>
-          <Link href="#" className="hover:opacity-70 transition-opacity font-bold text-red-700">Sale</Link>
+          <Link href="/colecoes" className="hover:opacity-70 transition-opacity font-bold uppercase tracking-widest text-xs">Coleções</Link>
+          <Link href={`https://wa.me/${settings.whatsappNumber}`} className="hover:opacity-70 transition-opacity font-bold uppercase tracking-widest text-xs">Contato</Link>
         </nav>
         <div className="flex gap-6 items-center">
           <button className="hover:opacity-70 transition-opacity"><SearchIcon /></button>

@@ -10,7 +10,7 @@ export default async function Home() {
   const products = await prisma.product.findMany({
     include: { sizes: true },
     orderBy: { createdAt: 'desc' },
-    take: 4 // Just 4 for the "Escolhas de Estilo" section on homepage
+    take: 50 // Show 50 products on the homepage as requested
   });
 
   const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
