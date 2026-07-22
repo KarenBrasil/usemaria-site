@@ -4,6 +4,7 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 
 // We will fetch real data from the database inside the component
+export const dynamic = 'force-dynamic';
 
 
 const SearchIcon = () => (
