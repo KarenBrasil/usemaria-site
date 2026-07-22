@@ -45,6 +45,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               className="object-cover object-[center_20%] scale-110 mix-blend-multiply"
               priority
             />
+          </div>
         </div>
 
         {/* Lado Direito - Informações de Compra */}
