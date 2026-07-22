@@ -174,12 +174,17 @@ function CheckoutContent() {
                  </div>
                </label>
                
-               {/* Cartão de Crédito Body (Stripe Elements) */}
                {paymentMethod === 'CARD' && (
                  <div className="p-4 bg-white">
-                    <PaymentElement options={{ 
-                      layout: 'accordion'
-                    }} />
+                    {(!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.includes('placeholder')) ? (
+                      <div className="text-red-500 text-xs text-center font-bold p-4">
+                        O sistema de cartão de crédito está offline no momento. O administrador precisa configurar as chaves do Stripe e fazer um Redeploy na Vercel.
+                      </div>
+                    ) : (
+                      <PaymentElement options={{ 
+                        layout: 'tabs'
+                      }} />
+                    )}
                  </div>
                )}
 
@@ -267,7 +272,7 @@ export default function CheckoutPage() {
       options={{ 
         mode: 'payment',
         paymentMethodTypes: ['card'],
-        amount: Math.max(100, Math.round(cartTotal() * 100)), // minimum 1 BRL to avoid stripe init error if cart is 0 briefly
+        amount: Math.max(100, Math.round(cartTotal() * 100)),
         currency: 'brl',
         appearance: {
           theme: 'stripe',
