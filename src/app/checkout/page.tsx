@@ -264,10 +264,29 @@ function CheckoutContent() {
 export default function CheckoutPage() {
   const { items, cartTotal } = useCartStore();
   const [mounted, setMounted] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [intentError, setIntentError] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (mounted && items.length > 0 && isValidKey) {
+      // Create intent on the server to guarantee Stripe account validity
+      fetch('/api/checkout/intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: Math.max(200, Math.round(cartTotal() * 100)) })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) setIntentError(data.error);
+        else setClientSecret(data.clientSecret);
+      })
+      .catch(err => setIntentError(err.message));
+    }
+  }, [mounted, items.length, cartTotal]);
 
   // Wait for hydration and cart to be loaded
   if (!mounted || items.length === 0) return null;
@@ -276,14 +295,32 @@ export default function CheckoutPage() {
     return <CheckoutContent />;
   }
 
+  if (intentError) {
+    return (
+      <div className="min-h-screen bg-[#F5F3EF] p-10 flex flex-col items-center justify-center">
+         <div className="bg-red-50 p-6 rounded border border-red-200 max-w-lg text-center">
+            <h3 className="font-bold text-red-600 mb-2">Erro na Conta do Stripe</h3>
+            <p className="text-sm text-red-700">{intentError}</p>
+            <p className="text-xs text-red-500 mt-4">Por favor, verifique se a sua conta do Stripe está ativa e configurada para aceitar pagamentos em Reais (BRL).</p>
+         </div>
+         <Link href="/" className="mt-6 text-sm underline">Voltar para a loja</Link>
+      </div>
+    );
+  }
+
+  if (!clientSecret) {
+    return (
+      <div className="min-h-screen bg-[#F5F3EF] flex items-center justify-center">
+         <div className="text-sm text-zinc-500 animate-pulse uppercase tracking-widest font-bold">Carregando Checkout Seguro...</div>
+      </div>
+    );
+  }
+
   return (
     <Elements 
       stripe={stripePromise} 
       options={{ 
-        mode: 'payment',
-        paymentMethodTypes: ['card'],
-        amount: Math.max(100, Math.round(cartTotal() * 100)), // minimum 1 BRL
-        currency: 'brl',
+        clientSecret,
         appearance: {
           theme: 'stripe',
           variables: {
