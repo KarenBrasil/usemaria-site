@@ -31,6 +31,7 @@ function CheckoutContent() {
   const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CARD'>('CARD');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [stripeReady, setStripeReady] = useState(false);
 
   useEffect(() => {
     if (items.length === 0) {
@@ -189,7 +190,16 @@ function CheckoutContent() {
                         Verifique a configuração na Vercel.
                       </div>
                     ) : (
-                      <PaymentElement options={{ layout: 'tabs' }} />
+                      <>
+                        {!stripeReady && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-white z-10 text-sm text-zinc-500 animate-pulse">
+                            Conectando ao banco seguro...
+                          </div>
+                        )}
+                        <PaymentElement 
+                          onReady={() => setStripeReady(true)} 
+                        />
+                      </>
                     )}
                  </div>
                )}
