@@ -31,6 +31,10 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Frete Simulado
+  const [shippingOption, setShippingOption] = useState<'PAC' | 'SEDEX' | null>(null);
+  const shippingCost = shippingOption === 'PAC' ? 25 : shippingOption === 'SEDEX' ? 45 : 0;
+  
   // Nuvemshop style steps: 1 = Contato, 2 = Entrega, 3 = Pagamento
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
@@ -57,6 +61,10 @@ function CheckoutContent() {
         setError("Preencha todos os dados de entrega obrigatórios.");
         return;
       }
+      if (!shippingOption) {
+        setError("Selecione uma opção de frete (PAC ou SEDEX) para continuar.");
+        return;
+      }
       setCurrentStep(3);
     }
   };
@@ -80,8 +88,9 @@ function CheckoutContent() {
         body: JSON.stringify({
           customer: { name: formData.name, email: formData.email, phone: formData.phone },
           items: items.map(i => ({ productId: i.productId, size: i.size, quantity: i.quantity, price: i.price })),
-          total: cartTotal(),
-          paymentMethod
+          total: cartTotal() + shippingCost, // Soma o frete ao total enviado ao Stripe e BD
+          paymentMethod,
+          shipping: { method: shippingOption, cost: shippingCost }
         })
       });
 
@@ -247,12 +256,42 @@ function CheckoutContent() {
                       
                       <input name="complement" placeholder="Apto, Bloco, Referência (opcional)" value={formData.complement} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                       
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-3 gap-4 mb-6">
                         <input required name="neighborhood" placeholder="Bairro" value={formData.neighborhood} onChange={handleInputChange} className="border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                         <input required name="city" placeholder="Cidade" value={formData.city} onChange={handleInputChange} className="border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                         <input required name="state" placeholder="Estado (UF)" value={formData.state} onChange={handleInputChange} className="border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                       </div>
                       
+                      {/* Simulação de Frete - Aparece após preencher um CEP mínimo */}
+                      {formData.zipcode.length >= 8 && (
+                        <div className="border-t border-zinc-200 pt-6 mt-6">
+                          <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-4">Opções de Frete (Simulação)</h3>
+                          <div className="space-y-3">
+                            <label className={`p-4 flex items-center justify-between cursor-pointer border rounded-sm transition-colors ${shippingOption === 'PAC' ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 bg-white'}`}>
+                              <div className="flex items-center gap-3">
+                                <input type="radio" name="shipping" checked={shippingOption === 'PAC'} onChange={() => setShippingOption('PAC')} className="w-4 h-4 text-zinc-900 accent-zinc-900" />
+                                <div>
+                                  <span className="font-medium text-sm block">Correios - PAC</span>
+                                  <span className="text-xs text-zinc-500">Chega em até 8 dias úteis</span>
+                                </div>
+                              </div>
+                              <span className="text-sm font-medium">R$ 25,00</span>
+                            </label>
+                            
+                            <label className={`p-4 flex items-center justify-between cursor-pointer border rounded-sm transition-colors ${shippingOption === 'SEDEX' ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 bg-white'}`}>
+                              <div className="flex items-center gap-3">
+                                <input type="radio" name="shipping" checked={shippingOption === 'SEDEX'} onChange={() => setShippingOption('SEDEX')} className="w-4 h-4 text-zinc-900 accent-zinc-900" />
+                                <div>
+                                  <span className="font-medium text-sm block">Correios - SEDEX</span>
+                                  <span className="text-xs text-zinc-500">Chega em até 3 dias úteis</span>
+                                </div>
+                              </div>
+                              <span className="text-sm font-medium">R$ 45,00</span>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
                       {error && <div className="text-red-600 text-xs mt-2">{error}</div>}
                       <button type="button" onClick={nextStep} className="mt-6 w-full md:w-auto px-8 bg-[#C2A3A1] hover:bg-[#b09290] text-white font-medium text-sm py-4 rounded-sm transition-colors uppercase tracking-widest float-right">Continuar para Pagamento</button>
                       <div className="clear-both"></div>
@@ -303,11 +342,11 @@ function CheckoutContent() {
                           </div>
                           
                           <div className="pt-2">
-                             <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-2 block">Parcelas</label>
+                             <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-2 block">Parcelas (com frete)</label>
                              <select className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 text-zinc-800">
-                               <option>1x de R$ {cartTotal().toFixed(2).replace('.', ',')} sem juros</option>
-                               <option>2x de R$ {(cartTotal() / 2).toFixed(2).replace('.', ',')} sem juros</option>
-                               <option>3x de R$ {(cartTotal() / 3).toFixed(2).replace('.', ',')} sem juros</option>
+                               <option>1x de R$ {(cartTotal() + shippingCost).toFixed(2).replace('.', ',')} sem juros</option>
+                               <option>2x de R$ {((cartTotal() + shippingCost) / 2).toFixed(2).replace('.', ',')} sem juros</option>
+                               <option>3x de R$ {((cartTotal() + shippingCost) / 3).toFixed(2).replace('.', ',')} sem juros</option>
                              </select>
                           </div>
                           
@@ -327,7 +366,7 @@ function CheckoutContent() {
                       <input type="radio" name="payment" checked={paymentMethod === 'PIX'} onChange={() => setPaymentMethod('PIX')} className="w-4 h-4 text-zinc-900 border-zinc-300 focus:ring-zinc-900 accent-zinc-900" />
                       <span className="font-medium text-sm">Pix</span>
                     </div>
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">PAGUE R$ {cartTotal().toFixed(2).replace('.', ',')}</span>
+                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">PAGUE R$ {(cartTotal() + shippingCost).toFixed(2).replace('.', ',')}</span>
                   </label>
                   
                   {paymentMethod === 'PIX' && (
@@ -380,13 +419,17 @@ function CheckoutContent() {
                 </div>
                 <div className="flex justify-between items-center text-xs text-zinc-600">
                    <span>Custo de frete</span>
-                   <span className="font-bold text-green-600">Grátis</span>
+                   {shippingOption ? (
+                     <span className="text-zinc-900 font-medium">R$ {shippingCost.toFixed(2).replace('.', ',')}</span>
+                   ) : (
+                     <span className="text-zinc-400 italic">A calcular</span>
+                   )}
                 </div>
               </div>
               
               <div className="border-t border-zinc-200 pt-4 flex justify-between items-center">
                  <span className="text-sm font-medium text-zinc-900">Total</span>
-                 <span className="text-xl text-zinc-900">R$ {cartTotal().toFixed(2).replace('.', ',')}</span>
+                 <span className="text-xl text-zinc-900">R$ {(cartTotal() + shippingCost).toFixed(2).replace('.', ',')}</span>
               </div>
               
            </div>
