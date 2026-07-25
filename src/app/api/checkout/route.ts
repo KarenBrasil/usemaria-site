@@ -68,7 +68,11 @@ export async function POST(request: Request) {
     }
 
     if (paymentMethod === 'CARD') {
-      // If Stripe secret key is the placeholder, mock it (to not break the UI before the client adds the key)
+      // Se a chave secreta começar com pk_, o usuário colou a chave errada na Vercel
+      if (process.env.STRIPE_SECRET_KEY?.trim().startsWith('pk_')) {
+        return NextResponse.json({ error: "Erro de Configuração na Vercel: Você colou a Chave Pública (pk_...) no lugar da STRIPE_SECRET_KEY. Por favor, coloque a Chave Secreta (sk_...) no painel da Vercel." }, { status: 400 });
+      }
+
       if (!process.env.STRIPE_SECRET_KEY) {
          // Return a fake client secret or fail gracefully
          return NextResponse.json({ error: "Stripe não configurado no servidor. Adicione a chave na Vercel." }, { status: 400 });
