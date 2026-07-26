@@ -3,11 +3,6 @@ import Stripe from 'stripe';
 import { Resend } from 'resend';
 import prisma from '@/lib/prisma';
 
-// Use a placeholder if no key is provided yet
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-  apiVersion: '2026-06-24.dahlia',
-});
-
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 export async function POST(request: Request) {
@@ -77,6 +72,11 @@ export async function POST(request: Request) {
          // Return a fake client secret or fail gracefully
          return NextResponse.json({ error: "Stripe não configurado no servidor. Adicione a chave na Vercel." }, { status: 400 });
       }
+
+      // Safe instantiation inside the handler to prevent module-level crash
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: '2026-06-24.dahlia',
+      });
 
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(total * 100), // Stripe expects cents
