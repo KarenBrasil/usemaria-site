@@ -31,9 +31,8 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Frete Simulado
-  const [shippingOption, setShippingOption] = useState<'PAC' | 'SEDEX' | null>(null);
-  const shippingCost = shippingOption === 'PAC' ? 25 : shippingOption === 'SEDEX' ? 45 : 0;
+  // Frete Grátis Fixo
+  const shippingCost = 0;
   
   // Nuvemshop style steps: 1 = Contato, 2 = Entrega, 3 = Pagamento
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
@@ -61,10 +60,6 @@ function CheckoutContent() {
         setError("Preencha todos os dados de entrega obrigatórios.");
         return;
       }
-      if (!shippingOption) {
-        setError("Selecione uma opção de frete (PAC ou SEDEX) para continuar.");
-        return;
-      }
       setCurrentStep(3);
     }
   };
@@ -88,9 +83,9 @@ function CheckoutContent() {
         body: JSON.stringify({
           customer: { name: formData.name, email: formData.email, phone: formData.phone },
           items: items.map(i => ({ productId: i.productId, size: i.size, quantity: i.quantity, price: i.price })),
-          total: cartTotal() + shippingCost, // Soma o frete ao total enviado ao Stripe e BD
+          total: cartTotal() + shippingCost,
           paymentMethod,
-          shipping: { method: shippingOption, cost: shippingCost }
+          shipping: { method: 'GRATIS', cost: 0 }
         })
       });
 
@@ -262,36 +257,8 @@ function CheckoutContent() {
                         <input required name="state" placeholder="Estado (UF)" value={formData.state} onChange={handleInputChange} className="border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                       </div>
                       
-                      {/* Simulação de Frete - Aparece após preencher um CEP mínimo */}
-                      {formData.zipcode.length >= 8 && (
-                        <div className="border-t border-zinc-200 pt-6 mt-6">
-                          <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-4">Opções de Frete (Simulação)</h3>
-                          <div className="space-y-3">
-                            <label className={`p-4 flex items-center justify-between cursor-pointer border rounded-sm transition-colors ${shippingOption === 'PAC' ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 bg-white'}`}>
-                              <div className="flex items-center gap-3">
-                                <input type="radio" name="shipping" checked={shippingOption === 'PAC'} onChange={() => setShippingOption('PAC')} className="w-4 h-4 text-zinc-900 accent-zinc-900" />
-                                <div>
-                                  <span className="font-medium text-sm block">Correios - PAC</span>
-                                  <span className="text-xs text-zinc-500">Chega em até 8 dias úteis</span>
-                                </div>
-                              </div>
-                              <span className="text-sm font-medium">R$ 25,00</span>
-                            </label>
-                            
-                            <label className={`p-4 flex items-center justify-between cursor-pointer border rounded-sm transition-colors ${shippingOption === 'SEDEX' ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 bg-white'}`}>
-                              <div className="flex items-center gap-3">
-                                <input type="radio" name="shipping" checked={shippingOption === 'SEDEX'} onChange={() => setShippingOption('SEDEX')} className="w-4 h-4 text-zinc-900 accent-zinc-900" />
-                                <div>
-                                  <span className="font-medium text-sm block">Correios - SEDEX</span>
-                                  <span className="text-xs text-zinc-500">Chega em até 3 dias úteis</span>
-                                </div>
-                              </div>
-                              <span className="text-sm font-medium">R$ 45,00</span>
-                            </label>
-                          </div>
-                        </div>
-                      )}
-
+                      </div>
+                      
                       {error && <div className="text-red-600 text-xs mt-2">{error}</div>}
                       <button type="button" onClick={nextStep} className="mt-6 w-full md:w-auto px-8 bg-[#C2A3A1] hover:bg-[#b09290] text-white font-medium text-sm py-4 rounded-sm transition-colors uppercase tracking-widest float-right">Continuar para Pagamento</button>
                       <div className="clear-both"></div>
@@ -419,11 +386,7 @@ function CheckoutContent() {
                 </div>
                 <div className="flex justify-between items-center text-xs text-zinc-600">
                    <span>Custo de frete</span>
-                   {shippingOption ? (
-                     <span className="text-zinc-900 font-medium">R$ {shippingCost.toFixed(2).replace('.', ',')}</span>
-                   ) : (
-                     <span className="text-zinc-400 italic">A calcular</span>
-                   )}
+                   <span className="text-zinc-900 font-medium">Grátis</span>
                 </div>
               </div>
               
