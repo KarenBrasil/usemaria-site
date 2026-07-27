@@ -63,9 +63,9 @@ export async function POST(request: Request) {
     }
 
     if (paymentMethod === 'CARD') {
-      // Se a chave secreta começar com pk_, o usuário colou a chave errada na Vercel
-      if (process.env.STRIPE_SECRET_KEY?.trim().startsWith('pk_')) {
-        return NextResponse.json({ error: "Erro de Configuração na Vercel: Você colou a Chave Pública (pk_...) no lugar da STRIPE_SECRET_KEY. Por favor, coloque a Chave Secreta (sk_...) no painel da Vercel." }, { status: 400 });
+      // Se a chave secreta contiver pk_, o usuário colou a chave errada na Vercel
+      if (process.env.STRIPE_SECRET_KEY?.includes('pk_')) {
+        return NextResponse.json({ error: "ERRO GRAVE NA VERCEL: Você colocou a Chave Pública (pk_test...) na variável STRIPE_SECRET_KEY. Por favor, coloque a CHAVE SECRETA (que começa com sk_test...) no painel da Vercel." }, { status: 400 });
       }
 
       if (!process.env.STRIPE_SECRET_KEY) {
