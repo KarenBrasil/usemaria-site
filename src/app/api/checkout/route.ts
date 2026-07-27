@@ -63,19 +63,21 @@ export async function POST(request: Request) {
     }
 
     if (paymentMethod === 'CARD') {
+      const rawSecret = (process.env.STRIPE_SECRET_KEY || '').trim().replace(/['"]/g, '');
+
       // Se a chave secreta contiver pk_, o usuário colou a chave errada na Vercel
-      if (process.env.STRIPE_SECRET_KEY?.includes('pk_')) {
+      if (rawSecret.includes('pk_')) {
         return NextResponse.json({ error: "ERRO GRAVE NA VERCEL: Você colocou a Chave Pública (pk_test...) na variável STRIPE_SECRET_KEY. Por favor, coloque a CHAVE SECRETA (que começa com sk_test...) no painel da Vercel." }, { status: 400 });
       }
 
-      if (!process.env.STRIPE_SECRET_KEY) {
+      if (!rawSecret) {
          // Return a fake client secret or fail gracefully
          return NextResponse.json({ error: "Stripe não configurado no servidor. Adicione a chave na Vercel." }, { status: 400 });
       }
 
       // Safe instantiation inside the handler to prevent module-level crash
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-        apiVersion: '2026-06-24.dahlia',
+      const stripe = new Stripe(rawSecret, {
+        apiVersion: '2023-10-16',
       });
 
       const paymentIntent = await stripe.paymentIntents.create({

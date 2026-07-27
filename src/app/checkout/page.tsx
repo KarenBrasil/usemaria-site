@@ -9,7 +9,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
 // Check keys safely
-const rawKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+const rawKey = (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "").trim().replace(/['"]/g, '');
 const isSecretKey = rawKey.startsWith("sk_");
 const isValidKey = rawKey.startsWith("pk_");
 
