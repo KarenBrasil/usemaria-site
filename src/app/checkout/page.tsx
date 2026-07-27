@@ -108,7 +108,7 @@ function CheckoutContent() {
       
       if (paymentMethod === 'PIX') {
         clearCart();
-        router.push(`/checkout/sucesso?orderId=${data.orderId}`);
+        router.push(`/checkout/sucesso?orderId=${data.orderId}&method=PIX`);
       } else if (paymentMethod === 'CARD' && stripe && elements) {
         const cardElement = elements.getElement(CardNumberElement);
         if (!cardElement) throw new Error("Preencha os dados do cartão.");
@@ -130,7 +130,7 @@ function CheckoutContent() {
         }
         
         clearCart();
-        router.push(`/checkout/sucesso?orderId=${data.orderId}`);
+        router.push(`/checkout/sucesso?orderId=${data.orderId}&method=CARD`);
       }
     } catch (err: any) {
       setError(err.message || "Ocorreu um erro ao processar seu pedido.");

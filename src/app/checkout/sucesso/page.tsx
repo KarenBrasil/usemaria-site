@@ -6,12 +6,13 @@ export const dynamic = 'force-dynamic';
 export default async function CheckoutSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ orderId?: string, payment_intent?: string, payment_intent_client_secret?: string, redirect_status?: string }>
+  searchParams: Promise<{ orderId?: string, payment_intent?: string, payment_intent_client_secret?: string, redirect_status?: string, method?: string }>
 }) {
   const resolvedSearchParams = await searchParams;
   const orderId = resolvedSearchParams?.orderId;
   const paymentIntent = resolvedSearchParams?.payment_intent;
   const redirectStatus = resolvedSearchParams?.redirect_status;
+  const method = resolvedSearchParams?.method;
 
   const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } });
   const defaultSettings = settings || {
@@ -30,7 +31,7 @@ export default async function CheckoutSuccessPage({
     if (!order) return <div>Pedido não encontrado</div>;
 
     // Se for Cartão de Crédito
-    if (order.paymentMethod === 'CARD' || (paymentIntent && redirectStatus === 'succeeded')) {
+    if (method === 'CARD' || (paymentIntent && redirectStatus === 'succeeded')) {
       return (
         <div className="min-h-screen bg-[#F5F3EF] flex flex-col items-center justify-center p-8 text-center font-sans">
           <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6 text-green-600">
