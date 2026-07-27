@@ -8,8 +8,9 @@ import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-// Check keys safely
-const rawKey = (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "").trim().replace(/['"]/g, '');
+// Chave pública embutida diretamente (é seguro - chaves públicas são projetadas para serem visíveis)
+const STRIPE_PK = "pk_test_51TvvOr2IBFEeEE6mrNqDllUuUEo9GWTcPfsUdf5bGwKWi3tiHSwGUl6uZxjEEJHhdRtr7vjEldm1fY8O1Eg7NJ2B00DC1jPtSu";
+const rawKey = (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || STRIPE_PK).trim().replace(/['"]/g, '');
 const isSecretKey = rawKey.startsWith("sk_");
 const isValidKey = rawKey.startsWith("pk_");
 
