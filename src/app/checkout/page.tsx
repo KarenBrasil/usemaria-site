@@ -268,8 +268,6 @@ function CheckoutContent() {
                         <input required name="state" placeholder="Estado (UF)" value={formData.state} onChange={handleInputChange} className="border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                       </div>
                       
-                      </div>
-                      
                       {error && <div className="text-red-600 text-xs mt-2">{error}</div>}
                       <button type="button" onClick={nextStep} className="mt-6 w-full md:w-auto px-8 bg-[#C2A3A1] hover:bg-[#b09290] text-white font-medium text-sm py-4 rounded-sm transition-colors uppercase tracking-widest float-right">Continuar para Pagamento</button>
                       <div className="clear-both"></div>
