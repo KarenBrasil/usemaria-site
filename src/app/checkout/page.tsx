@@ -43,8 +43,19 @@ function CheckoutContent() {
     }
   }, [items, router]);
 
+  useEffect(() => {
+    const saved = localStorage.getItem('useMariaCheckoutData');
+    if (saved) {
+      try {
+        setFormData(JSON.parse(saved));
+      } catch (e) {}
+    }
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const newData = { ...formData, [e.target.name]: e.target.value };
+    setFormData(newData);
+    localStorage.setItem('useMariaCheckoutData', JSON.stringify(newData));
   };
 
   const nextStep = () => {
