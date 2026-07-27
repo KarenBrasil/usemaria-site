@@ -76,10 +76,9 @@ export async function POST(request: Request) {
       }
 
       // Safe instantiation inside the handler to prevent module-level crash
-      // @ts-ignore - Bypass strict apiVersion type check from newer Stripe SDKs
       const stripe = new Stripe(rawSecret, {
         apiVersion: '2023-10-16',
-      });
+      } as any);
 
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(total * 100), // Stripe expects cents
