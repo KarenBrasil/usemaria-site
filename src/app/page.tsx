@@ -155,42 +155,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* BANNERS SECTION */}
-      <section className="px-4 md:px-8 max-w-[1400px] mx-auto w-full mb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Black Banner */}
-          <div className="bg-[#1A1A1A] text-white p-8 md:p-12 rounded flex items-center justify-between overflow-hidden relative">
-            <div className="relative z-10 flex items-center gap-6">
-               <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-               </div>
-               <div>
-                  <p className="text-[10px] uppercase tracking-widest text-white/70 font-bold mb-1">Oferta por tempo limitado</p>
-                  <h3 className="text-2xl md:text-3xl font-serif text-[#F5F3EF]">Até 50% OFF</h3>
-               </div>
-            </div>
-            <button className="relative z-10 border border-white/30 px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-white hover:text-black transition-colors flex items-center gap-2">
-              Aproveite <span>→</span>
-            </button>
-          </div>
-          
-          {/* Beige Banner */}
-          <div className="bg-[#F5F3EF] text-black p-8 md:p-12 rounded flex items-center justify-between">
-            <div className="flex items-center gap-6">
-               <div className="w-16 h-16 rounded-full border border-black/10 flex items-center justify-center shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
-               </div>
-               <div>
-                  <h3 className="text-sm font-bold uppercase tracking-widest mb-1">Frete Grátis Nacional</h3>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Em compras acima de R$199</p>
-               </div>
-            </div>
-            <button className="border border-black/20 px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-black hover:text-white transition-colors flex items-center gap-2">
-              Eu quero <span>→</span>
-            </button>
-          </div>
-        </div>
-      </section>
 
       {/* EDITORIAL SECTION */}
       <section className="px-4 md:px-8 max-w-[1400px] mx-auto w-full mb-10">
