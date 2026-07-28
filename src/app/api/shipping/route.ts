@@ -8,7 +8,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'CEP de destino não informado' }, { status: 400 });
     }
     const token = process.env.MELHOR_ENVIO_TOKEN || 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOThiYjg1N2RjM2MzNTIzZDQ1NjNiZmNlY2U5ZDlhMjM0NTBkYjAzN2EzZTZmMGVlYjQzMDdhMTEyZGZiMThmZDI1ODlhNzY2MmI1MTZjNzQiLCJpYXQiOjE3ODUyMTA1NTMuNjQ2NDA4LCJuYmYiOjE3ODUyMTA1NTMuNjQ2NDExLCJleHAiOjE4MTY3NDY1NTMuNjMxOTE4LCJzdWIiOiJhMjU2OGVhYS1kM2VjLTRjYzYtOThjOC02MjJiZGZlOWI0YzEiLCJzY29wZXMiOlsic2hpcHBpbmctY2FsY3VsYXRlIiwic2hpcHBpbmctY29tcGFuaWVzIiwic2hpcHBpbmctdHJhY2tpbmciLCJjYXJ0LXJlYWQiLCJjYXJ0LXdyaXRlIiwiZWNvbW1lcmNlLXNoaXBwaW5nIl19.XywC3aBRiUqWaaRUY25zU1OBN4GnuXsUYyE9VrzTlQjtHU93o-k_C4mkIG8vq6dnP7vzN51hERCYfiw1WuY_RHkALuZKcKuNYwCCDF-doltRv6l3OQSzQHBskSRESMB-fcfn7aIC7jUuXLg2HCH152meeiq8F9tDrslEhlkA-Zv1p_hGum6bfTHGJ_X77MAIZa1Sgj8iobMAZdPEYh6rCDUNjlwa3kH5A3U5_gYvUkz8Ms_P9YmJUrgkSg5HiCQw015pTblAXBPQVdYldRvgDKFpSeiNp1G-8sF4KmqvJR_3_QAvqbB09x7KtftYa4MKOcCtTttXMv1vSmPwoif97KuIpuXm4-fx8PvzGAoqwBarVRhfR-MzixjQl_DU572q8-jOdH8_IZXapMfAmaQY6Ca6P-DP1y4Xv23pv3RtoL15RHHEF8Dhq4odVlRl0DuGYUgmmUdHKJFtlaNH5G1TcjSEOT1GszJ9hE64JHpBRazkxxmn-5X0oLoJadOsUxvpqss51fbngoWPKmeDLj5eY6buMaVGEWX_JzEfRA7o86dL_KZ2kbl94hoqKtpBhvup48OiusvsCzYbU2lYP_io6Zo-FoWJjIkYzocNBT_V8YiDH1VUpLNjMhFZ10rd3USEzFHvW516dIRHnVXSjRSUPsWgSzH6dgflpKtxKLImHos';
-    const originCep = process.env.STORE_CEP || '60060090';
+    const originCep = process.env.STORE_CEP || '60811660';
 
     if (!token) {
       return NextResponse.json({ error: 'Token do Melhor Envio não configurado' }, { status: 500 });
