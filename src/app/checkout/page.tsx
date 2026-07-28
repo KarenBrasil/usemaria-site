@@ -66,7 +66,7 @@ function CheckoutContent() {
       fetch('/api/shipping', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ zipcode: cep, weight: items.reduce((acc, item) => acc + item.quantity, 0) })
+        body: JSON.stringify({ zipcode: cep, weight: items.reduce((acc, item) => acc + (item.quantity * 0.3), 0) })
       })
       .then(res => res.json())
       .then(data => {

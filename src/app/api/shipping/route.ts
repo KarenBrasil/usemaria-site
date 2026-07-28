@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     // Filtrar apenas Correios (PAC e SEDEX) ou outras transportadoras desejadas
     // No Melhor Envio: 1 = PAC, 2 = SEDEX (Normalmente)
     const options = data
-      .filter((option: any) => !option.error)
+      .filter((option: any) => !option.error && option.company.name === 'Correios')
       .map((option: any) => ({
         id: option.id,
         name: option.name,
