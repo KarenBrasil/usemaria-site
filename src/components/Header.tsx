@@ -17,8 +17,10 @@ const CartIcon = () => (
 export default function Header({ settings }: { settings: Partial<StoreSettings> }) {
   return (
     <>
-      <div className="w-full bg-[#F5F3EF] text-center py-2 text-[10px] tracking-widest font-bold text-black uppercase">
-        Fé que veste. Propósito que transforma.
+      <div className="w-full bg-[#F5F3EF] text-center py-2 text-[10px] tracking-widest font-bold text-black uppercase flex flex-col md:flex-row items-center justify-center gap-1 md:gap-4">
+        <span>Fé que veste. Propósito que transforma.</span>
+        <span className="hidden md:inline">•</span>
+        <span className="bg-[#4a5d23] text-white px-2 py-0.5 rounded-sm">Atacado: R$ 34,90 (10+ peças)</span>
       </div>
       <header className="w-full bg-white text-black z-20 flex items-center justify-between px-8 py-5 uppercase text-xs tracking-widest font-medium border-b border-zinc-100">
         <Link href="/" className="flex flex-col items-start">
