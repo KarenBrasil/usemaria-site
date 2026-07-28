@@ -8,6 +8,7 @@ type AddToCartProps = {
     id: string;
     name: string;
     price: number;
+    wholesalePrice: number | null;
     image: string | null;
   };
   availableSizes: string[];
@@ -25,6 +26,7 @@ export default function AddToCartSection({ product, availableSizes }: AddToCartP
       productId: product.id,
       name: product.name,
       price: product.price,
+      wholesalePrice: product.wholesalePrice || 34.90,
       size: selectedSize,
       image: product.image || "/images/catalog/page-0001.jpg",
     });

@@ -520,18 +520,27 @@ function CheckoutContent() {
            <div className="bg-[#F9F8F6] p-6 sticky top-10 border border-zinc-200/50 rounded-sm">
               
               <div className="flex flex-col gap-4 mb-6">
-                {items.map(item => (
-                  <div key={item.id} className="flex gap-4 items-center">
-                    <div className="relative w-16 h-16 bg-zinc-100 shrink-0 border border-zinc-200 rounded-sm overflow-hidden">
-                      <Image src={item.image} alt={item.name} fill className="object-cover mix-blend-multiply" />
+                {items.map(item => {
+                  const isWholesale = items.reduce((count, i) => count + i.quantity, 0) >= 10;
+                  const itemPrice = isWholesale ? (item.wholesalePrice || 34.90) : item.price;
+                  return (
+                    <div key={item.id} className="flex gap-4 items-center">
+                      <div className="relative w-16 h-16 bg-zinc-100 shrink-0 border border-zinc-200 rounded-sm overflow-hidden">
+                        <Image src={item.image} alt={item.name} fill className="object-cover mix-blend-multiply" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xs text-zinc-900 font-medium">{item.name}</h3>
+                        <p className="text-[10px] text-zinc-500 uppercase mt-1 tracking-wider">Tam: {item.size} × {item.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        {isWholesale && (
+                           <p className="text-[10px] text-zinc-400 line-through">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</p>
+                        )}
+                        <p className="text-xs font-medium text-zinc-900">R$ {(itemPrice * item.quantity).toFixed(2).replace('.', ',')}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xs text-zinc-900 font-medium">{item.name}</h3>
-                      <p className="text-[10px] text-zinc-500 uppercase mt-1 tracking-wider">Tam: {item.size} × {item.quantity}</p>
-                    </div>
-                    <p className="text-xs font-medium text-zinc-900">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               
               <div className="border-t border-zinc-200 pt-4 mb-4">

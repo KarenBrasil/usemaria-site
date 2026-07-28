@@ -39,26 +39,56 @@ export default function CartDrawer() {
                   <p className="text-xs uppercase tracking-widest">Sua sacola está vazia.</p>
                 </div>
               ) : (
-                items.map(item => (
-                  <div key={item.id} className="flex gap-4">
-                    <div className="relative w-20 h-24 bg-zinc-100 shrink-0">
-                      <Image src={item.image} alt={item.name} fill className="object-cover object-[center_20%] mix-blend-multiply" />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between items-start mb-1">
-                          <h3 className="text-[10px] font-bold uppercase tracking-widest">{item.name}</h3>
-                          <button onClick={() => removeItem(item.id)} className="text-zinc-400 hover:text-red-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                          </button>
-                        </div>
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Tam: {item.size}</p>
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Qtd: {item.quantity}</p>
+                <>
+                  {/* Wholesale Progress Bar */}
+                  <div className="mb-2">
+                    {cartCount() >= 10 ? (
+                      <div className="bg-green-100 text-green-800 p-3 rounded border border-green-200 text-center flex items-center justify-center gap-2 shadow-sm">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+                         <span className="text-xs font-bold uppercase tracking-widest">Preços de Atacado Ativados!</span>
                       </div>
-                      <p className="text-xs font-medium">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</p>
-                    </div>
+                    ) : (
+                      <div className="bg-zinc-100 p-3 rounded border border-zinc-200 text-center flex flex-col gap-2">
+                         <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-600">
+                           Faltam {10 - cartCount()} peças para o Atacado!
+                         </span>
+                         <div className="w-full bg-zinc-300 h-1.5 rounded-full overflow-hidden">
+                           <div className="bg-black h-full transition-all duration-500" style={{ width: `${(cartCount() / 10) * 100}%` }}></div>
+                         </div>
+                      </div>
+                    )}
                   </div>
-                ))
+
+                  {items.map(item => {
+                    const isWholesale = cartCount() >= 10;
+                    const itemPrice = isWholesale ? (item.wholesalePrice || 34.90) : item.price;
+                    return (
+                      <div key={item.id} className="flex gap-4">
+                        <div className="relative w-20 h-24 bg-zinc-100 shrink-0">
+                          <Image src={item.image} alt={item.name} fill className="object-cover object-[center_20%] mix-blend-multiply" />
+                        </div>
+                        <div className="flex-1 flex flex-col justify-between">
+                          <div>
+                            <div className="flex justify-between items-start mb-1">
+                              <h3 className="text-[10px] font-bold uppercase tracking-widest pr-4 line-clamp-2">{item.name}</h3>
+                              <button onClick={() => removeItem(item.id)} className="text-zinc-400 hover:text-red-500 shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                              </button>
+                            </div>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Tam: {item.size}</p>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Qtd: {item.quantity}</p>
+                          </div>
+                          <div>
+                            {isWholesale && (
+                              <p className="text-[10px] text-zinc-400 line-through">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</p>
+                            )}
+                            <p className="text-xs font-bold text-green-700">R$ {(itemPrice * item.quantity).toFixed(2).replace('.', ',')}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
               )}
             </div>
 

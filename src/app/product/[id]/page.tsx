@@ -45,7 +45,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         {/* Lado Direito - Informações de Compra */}
         <div className="w-full md:w-1/2 flex flex-col pt-8 md:pt-16 md:sticky md:top-24 h-fit">
           <h1 className="text-3xl md:text-4xl font-serif mb-4">{product.name}</h1>
-          <p className="text-xl text-zinc-600 mb-8">R$ {product.price.toFixed(2).replace('.', ',')}</p>
+          <div className="flex flex-col mb-8">
+            <p className="text-xl text-zinc-900 font-bold">R$ {product.price.toFixed(2).replace('.', ',')} <span className="text-sm font-normal text-zinc-500">no varejo</span></p>
+            <div className="mt-2 text-sm bg-green-50 text-green-700 px-3 py-2 rounded font-medium border border-green-100 flex items-center gap-2 w-fit">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+               Atacado: R$ {product.wholesalePrice ? product.wholesalePrice.toFixed(2).replace('.', ',') : '34,90'} <span className="opacity-70 text-xs">(a partir de 10 peças variadas)</span>
+            </div>
+          </div>
           
           <AddToCartSection product={product} availableSizes={availableSizes} />
 

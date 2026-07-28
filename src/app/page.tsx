@@ -110,25 +110,46 @@ export default async function Home() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {products.map((product) => (
-            <div key={product.id} className="group flex flex-col text-center">
+            <div key={product.id} className="group flex flex-col text-center bg-white border border-zinc-200 shadow-sm hover:shadow-md transition-shadow pb-4">
               <Link href={`/product/${product.id}`} className="relative aspect-[4/5] bg-[#f5f5f5] mb-4 overflow-hidden block">
-                <span className="absolute top-3 left-3 z-10 text-[9px] font-bold uppercase tracking-widest bg-white px-3 py-1 shadow-sm">
-                  Novo
-                </span>
+                {product.isNew && (
+                  <span className="absolute top-3 left-3 z-10 text-[9px] font-bold uppercase tracking-widest bg-white px-3 py-1 shadow-sm">
+                    Novo
+                  </span>
+                )}
                 <Image
                   src={product.image || "/images/catalog/page-0001.jpg"}
                   alt={product.name}
                   fill
-                  className="object-cover object-[center_20%] scale-[1.3] mix-blend-multiply group-hover:scale-[1.4] transition-transform duration-700 ease-in-out"
+                  className="object-cover object-[center_20%] scale-[1.02] mix-blend-multiply group-hover:scale-[1.05] transition-transform duration-700 ease-in-out"
                 />
               </Link>
-              <Link href={`/product/${product.id}`} className="flex flex-col items-center">
-                <h3 className="text-xs font-bold text-zinc-900 mb-1 tracking-widest uppercase">{product.name}</h3>
-                <p className="text-xs text-zinc-500 mb-4 font-medium">R$ {product.price.toFixed(2).replace('.', ',')}</p>
-                <span className="w-full border border-black text-black uppercase text-[10px] tracking-widest font-bold py-2 hover:bg-black hover:text-white transition-colors">
-                  Ver Detalhes
-                </span>
-              </Link>
+              <div className="flex flex-col items-center px-4 flex-1">
+                <Link href={`/product/${product.id}`} className="block w-full">
+                  <h3 className="text-[11px] font-bold text-zinc-900 mb-2 tracking-widest uppercase line-clamp-2 min-h-[32px] flex items-center justify-center">
+                    {product.name}
+                  </h3>
+                </Link>
+                
+                <div className="flex flex-col items-center mb-4">
+                  <span className="text-sm font-bold text-black">
+                    R$ {product.price.toFixed(2).replace('.', ',')}
+                  </span>
+                  <span className="text-[9px] uppercase tracking-widest text-zinc-400 mt-1">
+                    OU 2X DE R$ {(product.price / 2).toFixed(2).replace('.', ',')} SEM JUROS
+                  </span>
+                  
+                  <div className="mt-2 text-[10px] bg-green-50 text-green-700 px-2 py-1 rounded font-medium border border-green-100 flex items-center gap-1">
+                    Atacado: R$ {product.wholesalePrice ? product.wholesalePrice.toFixed(2).replace('.', ',') : '34,90'} <span className="opacity-70">(10+ peças)</span>
+                  </div>
+                </div>
+                
+                <div className="mt-auto w-full px-2">
+                  <Link href={`/product/${product.id}`} className="block w-full bg-[#1c1a1a] text-white uppercase text-[12px] font-bold py-3 rounded hover:bg-black transition-colors shadow-sm">
+                    Comprar
+                  </Link>
+                </div>
+              </div>
             </div>
           ))}
         </div>

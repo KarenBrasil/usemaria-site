@@ -16,11 +16,12 @@ model Product {
   id          String   @id @default(cuid())
   name        String
   description String?
-  price       Float
-  image       String?
-  isNew       Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  price          Float
+  wholesalePrice Float?
+  image          String?
+  isNew          Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   sizes ProductSize[]
 

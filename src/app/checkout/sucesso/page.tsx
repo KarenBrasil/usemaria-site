@@ -1,5 +1,6 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import CopyPixButton from "@/components/CopyPixButton";
 
 export const dynamic = 'force-dynamic';
 
@@ -52,37 +53,54 @@ export default async function CheckoutSuccessPage({
     const waLink = `https://wa.me/${defaultSettings.whatsappNumber}?text=${encodeURIComponent(`Olá! Realizei o pedido #${order.id.slice(-6).toUpperCase()} no site e gostaria de enviar o comprovante do PIX no valor de R$ ${order.total.toFixed(2).replace('.', ',')}.`)}`;
 
     return (
-      <div className="min-h-screen bg-[#F5F3EF] flex flex-col items-center justify-center p-4 font-sans text-black py-16">
-        <div className="bg-white p-8 md:p-12 w-full max-w-xl text-center shadow-sm">
-          <h1 className="text-2xl font-serif mb-2">Pedido Reservado!</h1>
-          <p className="text-sm text-zinc-500 mb-8">
-            Para garantir suas peças, realize a transferência PIX em até 30 minutos.
+      <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center p-4 font-sans text-zinc-900 py-12">
+        <div className="bg-white rounded-xl shadow-lg border border-zinc-100 p-8 md:p-10 w-full max-w-lg text-center relative overflow-hidden">
+          {/* Top Decorative bar */}
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#1a1a1a] to-[#4a4a4a]"></div>
+          
+          <div className="w-16 h-16 bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+          </div>
+          
+          <h1 className="text-2xl font-bold mb-2 tracking-tight">Pedido Reservado!</h1>
+          <p className="text-sm text-zinc-500 mb-8 font-medium">
+            Seu pedido <span className="font-bold text-zinc-800">#{order.id.slice(-6).toUpperCase()}</span> foi criado. Faça o pagamento em até 30 minutos.
           </p>
 
-          <div className="bg-zinc-50 border border-zinc-200 p-6 mb-8 text-left">
-             <p className="text-xs uppercase tracking-widest font-bold text-zinc-500 mb-4">Dados para o PIX</p>
-             <div className="mb-4">
-               <span className="block text-[10px] uppercase tracking-widest text-zinc-400">Chave PIX</span>
-               <strong className="text-lg font-serif">{defaultSettings.pixKey}</strong>
-             </div>
-             <div className="mb-4">
-               <span className="block text-[10px] uppercase tracking-widest text-zinc-400">Nome do Recebedor</span>
-               <strong className="text-sm">{defaultSettings.pixName}</strong>
-             </div>
-             <div>
-               <span className="block text-[10px] uppercase tracking-widest text-zinc-400">Valor Total</span>
-               <strong className="text-2xl font-serif text-green-600">R$ {order.total.toFixed(2).replace('.', ',')}</strong>
-             </div>
+          <div className="bg-zinc-50 rounded-lg p-6 mb-6 text-left border border-zinc-200 shadow-inner">
+            <div className="flex justify-between items-end border-b border-zinc-200 pb-4 mb-4">
+               <div>
+                 <span className="block text-[10px] uppercase tracking-widest text-zinc-400 font-bold mb-1">Valor do Pedido</span>
+                 <strong className="text-3xl font-bold text-black tracking-tighter">R$ {order.total.toFixed(2).replace('.', ',')}</strong>
+               </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                 <span className="block text-[10px] uppercase tracking-widest text-zinc-400 font-bold mb-1">Chave PIX</span>
+                 <strong className="text-lg font-mono text-zinc-800 bg-white px-2 py-1 rounded border border-zinc-200 w-full block truncate">
+                   {defaultSettings.pixKey}
+                 </strong>
+                 <CopyPixButton pixKey={defaultSettings.pixKey} />
+              </div>
+              
+              <div className="bg-white p-3 rounded border border-zinc-100 flex items-center gap-3">
+                 <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center shrink-0">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                 </div>
+                 <div className="overflow-hidden">
+                   <span className="block text-[10px] uppercase tracking-widest text-zinc-400 font-bold">Recebedor</span>
+                   <strong className="text-sm text-zinc-800 truncate block">{defaultSettings.pixName}</strong>
+                 </div>
+              </div>
+            </div>
           </div>
 
-          <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs text-left">
-            <strong>Importante:</strong> Após realizar a transferência, clique no botão abaixo para nos enviar o comprovante via WhatsApp e agilizarmos o envio.
-          </div>
-
-          <a href={waLink} target="_blank" rel="noopener noreferrer" className="block w-full bg-black text-white uppercase text-xs tracking-widest font-bold py-5 hover:bg-zinc-800 transition-colors mb-4">
+          <a href={waLink} target="_blank" rel="noopener noreferrer" className="block w-full bg-[#25D366] text-white uppercase text-xs tracking-widest font-bold py-4 rounded shadow-sm hover:bg-[#20b958] transition-colors mb-4 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>
             Enviar Comprovante
           </a>
-          <Link href="/" className="block text-xs uppercase tracking-widest text-zinc-500 hover:text-black underline">
+          <Link href="/" className="block text-xs uppercase tracking-widest text-zinc-500 hover:text-black font-medium transition-colors">
             Voltar para a loja
           </Link>
         </div>

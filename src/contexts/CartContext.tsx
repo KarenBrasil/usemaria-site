@@ -8,6 +8,7 @@ export type CartItem = {
   productId: string;
   name: string;
   price: number;
+  wholesalePrice?: number;
   size: string;
   image: string;
   quantity: number;
@@ -49,7 +50,12 @@ export const useCartStore = create<CartState>()(
       })),
       clearCart: () => set({ items: [] }),
       cartTotal: () => {
-        return get().items.reduce((total, item) => total + (item.price * item.quantity), 0);
+        const totalItems = get().items.reduce((count, item) => count + item.quantity, 0);
+        const isWholesale = totalItems >= 10;
+        return get().items.reduce((total, item) => {
+          const itemPrice = isWholesale ? (item.wholesalePrice || 34.90) : item.price;
+          return total + (itemPrice * item.quantity);
+        }, 0);
       },
       cartCount: () => {
         return get().items.reduce((count, item) => count + item.quantity, 0);
