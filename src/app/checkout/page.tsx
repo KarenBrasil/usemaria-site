@@ -24,7 +24,8 @@ function CheckoutContent() {
   
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", document: "",
-    zipcode: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: ""
+    zipcode: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: "",
+    cardName: "", country: "BR", saveInfo: false
   });
   const numberInputRef = useRef<HTMLInputElement>(null);
   
@@ -181,9 +182,10 @@ function CheckoutContent() {
           payment_method: {
             card: cardElement,
             billing_details: {
-              name: formData.name,
+              name: formData.cardName || formData.name,
               email: formData.email,
-              phone: formData.phone
+              phone: formData.phone,
+              address: { country: formData.country }
             }
           }
         });
@@ -380,53 +382,97 @@ function CheckoutContent() {
                 
                 <div className="border border-zinc-300 rounded-sm overflow-hidden bg-white shadow-sm">
                   
-                  {/* OPÇÃO CARTÃO DE CRÉDITO */}
-                  <label className={`p-5 flex items-center justify-between cursor-pointer border-b border-zinc-200 transition-colors ${paymentMethod === 'CARD' ? 'bg-zinc-50/50' : 'bg-white'}`}>
-                    <div className="flex items-center gap-4">
-                      <input type="radio" name="payment" checked={paymentMethod === 'CARD'} onChange={() => setPaymentMethod('CARD')} className="w-4 h-4 text-zinc-900 border-zinc-300 focus:ring-zinc-900 accent-zinc-900" />
-                      <span className="font-medium text-sm">Cartão de crédito</span>
+                  {/* OPÇÃO CARTÃO DE CRÉDITO - ESTILO STRIPE NATIVO */}
+                  <label className={`p-5 flex items-center justify-between cursor-pointer border-b border-zinc-200 transition-colors ${paymentMethod === 'CARD' ? 'bg-zinc-50/30' : 'bg-white'}`}>
+                    <div className="flex items-center gap-3">
+                      <input type="radio" name="payment" checked={paymentMethod === 'CARD'} onChange={() => setPaymentMethod('CARD')} className="w-4 h-4 text-blue-600 border-zinc-300 focus:ring-blue-600 accent-blue-600" />
+                      <div className="flex items-center gap-2">
+                        <svg className="w-5 h-5 text-zinc-700" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                        <span className="font-bold text-sm text-zinc-800">Cartão</span>
+                      </div>
                     </div>
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">ATÉ 3x SEM JUROS</span>
                   </label>
                   
                   {paymentMethod === 'CARD' && (
-                    <div className="p-6 bg-zinc-50/50 border-b border-zinc-200">
+                    <div className="p-6 bg-white border-b border-zinc-200">
                       {!isValidKey ? (
                         <div className="text-red-500 text-xs text-center font-bold p-4 bg-red-50 rounded border border-red-200">
                           Chave do Stripe ausente ou inválida. Contate o suporte.
                         </div>
                       ) : (
-                        <div className="space-y-4">
-                          {/* Card Number Input (Stripe Native) */}
-                          <div className="border border-zinc-300 rounded-sm bg-white p-3.5 focus-within:border-zinc-500 focus-within:ring-1 focus-within:ring-zinc-500 transition-all">
-                            <CardNumberElement options={CARD_ELEMENT_OPTIONS} />
+                        <div className="space-y-5">
+                          
+                          <div>
+                            <label className="text-sm text-zinc-600 font-medium mb-2 block">Dados do cartão</label>
+                            
+                            {/* AGRUPAMENTO DE CAMPOS STRIPE STYLE */}
+                            <div className="border border-zinc-300 rounded shadow-sm bg-white focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 overflow-hidden transition-all">
+                              
+                              {/* Número do Cartão */}
+                              <div className="p-3 border-b border-zinc-200 relative flex items-center">
+                                <div className="flex-1">
+                                  <CardNumberElement options={{ ...CARD_ELEMENT_OPTIONS, style: { base: { fontSize: '15px', color: '#333' } } }} />
+                                </div>
+                                <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                                  {/* Visa SVG */}
+                                  <svg className="w-8 h-5" viewBox="0 0 32 20"><rect width="32" height="20" rx="3" fill="#fff" stroke="#e5e7eb"/><path d="M12.92 13.91h2.24l1.43-8.82h-2.25l-1.42 8.82zM21.99 5.37c-.39-.18-1-.34-1.74-.34-1.93 0-3.29 1.02-3.3 2.5-.02 1.08.97 1.62 1.7 1.98.75.36 1 .59 1 .9 0 .49-.59.72-1.14.72-.76 0-1.28-.11-1.85-.36l-.26-.12-.32 1.98c.45.21 1.28.38 2.14.39 2.06 0 3.4-1.01 3.42-2.58.01-1.15-.99-1.68-1.75-2.04-.68-.33-1.09-.55-1.09-.89 0-.44.5-.72 1.1-.72.6 0 1.02.13 1.45.31l.18.08.31-1.8zM24.84 13.91h2.15l-1.85-8.82h-1.68c-.44 0-.8.25-.99.66L19 13.91h2.37l.47-1.3h2.9l.27 1.3h-.17zm-2.02-3.05l1.19-3.28 1.43 3.28h-2.62zM10.82 5.1h-1.7c-.51 0-.9.29-1.1.75L4.47 13.9h2.38l.47-1.32h2.91l.27 1.32h2.29L10.82 5.1z" fill="#1434CB"/></svg>
+                                  {/* MC SVG */}
+                                  <svg className="w-8 h-5" viewBox="0 0 32 20"><rect width="32" height="20" rx="3" fill="#141413"/><circle cx="11.5" cy="10" r="5.5" fill="#EB001B"/><circle cx="20.5" cy="10" r="5.5" fill="#F79E1B"/><path d="M16 14.53A5.49 5.49 0 0113.5 10c0-1.78.85-3.36 2.5-4.53a5.49 5.49 0 010 9.06z" fill="#FF5F00"/></svg>
+                                </div>
+                              </div>
+                              
+                              {/* Validade e CVC (Grid 50/50) */}
+                              <div className="grid grid-cols-2 divide-x divide-zinc-200 bg-zinc-50/30">
+                                <div className="p-3">
+                                  <CardExpiryElement options={{ ...CARD_ELEMENT_OPTIONS, style: { base: { fontSize: '15px', color: '#333' } } }} />
+                                </div>
+                                <div className="p-3 flex items-center">
+                                  <div className="flex-1">
+                                    <CardCvcElement options={{ ...CARD_ELEMENT_OPTIONS, style: { base: { fontSize: '15px', color: '#333' } } }} />
+                                  </div>
+                                  <svg className="w-6 h-4 ml-2 text-zinc-400 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 12H4v-2h11v2zm5 0h-3v-2h3v2z"/></svg>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Nome do Titular */}
+                          <div>
+                            <label className="text-sm text-zinc-600 font-medium mb-1 block">Nome do titular do cartão</label>
+                            <input 
+                              type="text" 
+                              name="cardName" 
+                              placeholder="Nome completo" 
+                              value={formData.cardName} 
+                              onChange={handleInputChange} 
+                              className="w-full border border-zinc-300 rounded p-3 text-[15px] text-zinc-800 bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm placeholder:text-zinc-400" 
+                            />
+                          </div>
+
+                          {/* País/Região */}
+                          <div>
+                            <label className="text-sm text-zinc-600 font-medium mb-1 block">País ou região</label>
+                            <select 
+                              name="country" 
+                              value={formData.country} 
+                              onChange={handleInputChange as any} 
+                              className="w-full border border-zinc-300 rounded p-3 text-[15px] text-zinc-800 bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm appearance-none"
+                            >
+                              <option value="BR">Brasil</option>
+                              <option value="US">Estados Unidos</option>
+                              <option value="PT">Portugal</option>
+                            </select>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-4">
-                            {/* Card Expiry Input */}
-                            <div className="border border-zinc-300 rounded-sm bg-white p-3.5 focus-within:border-zinc-500 focus-within:ring-1 focus-within:ring-zinc-500 transition-all">
-                              <CardExpiryElement options={CARD_ELEMENT_OPTIONS} />
-                            </div>
-                            {/* Card CVC Input */}
-                            <div className="border border-zinc-300 rounded-sm bg-white p-3.5 focus-within:border-zinc-500 focus-within:ring-1 focus-within:ring-zinc-500 transition-all">
-                              <CardCvcElement options={CARD_ELEMENT_OPTIONS} />
-                            </div>
-                          </div>
-                          
+                          {/* Parcelas (Oculto na foto da Stripe, mas útil manter o seletor visualmente discreto) */}
                           <div className="pt-2">
-                             <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-2 block">Parcelas (com frete)</label>
-                             <select className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 text-zinc-800">
+                             <select className="w-full border border-zinc-300 p-3 text-sm rounded bg-white text-zinc-600 focus:outline-none focus:border-blue-500 shadow-sm">
                                <option>1x de R$ {(cartTotal() + shippingCost).toFixed(2).replace('.', ',')} sem juros</option>
                                <option>2x de R$ {((cartTotal() + shippingCost) / 2).toFixed(2).replace('.', ',')} sem juros</option>
                                <option>3x de R$ {((cartTotal() + shippingCost) / 3).toFixed(2).replace('.', ',')} sem juros</option>
                              </select>
                           </div>
-                          
-                          <div className="flex gap-2 items-center pt-2 opacity-50">
-                            <div className="w-8 h-5 bg-blue-800 rounded flex items-center justify-center text-white text-[8px] font-bold">VISA</div>
-                            <div className="w-8 h-5 bg-orange-600 rounded flex items-center justify-center text-white text-[8px] font-bold">MC</div>
-                            <span className="text-[10px] ml-2">Cartões processados com segurança</span>
-                          </div>
+
                         </div>
                       )}
                     </div>
@@ -448,16 +494,41 @@ function CheckoutContent() {
                   )}
                 </div>
 
+                {/* Checkbox Link Stripe */}
+                {paymentMethod === 'CARD' && (
+                  <div className="mt-4 p-4 border border-zinc-200 rounded bg-white flex items-start gap-3">
+                    <input 
+                      type="checkbox" 
+                      id="saveInfo"
+                      name="saveInfo"
+                      checked={formData.saveInfo}
+                      onChange={(e) => setFormData(prev => ({...prev, saveInfo: e.target.checked}))}
+                      className="mt-1 w-4 h-4 text-blue-600 border-zinc-300 rounded focus:ring-blue-500" 
+                    />
+                    <div>
+                      <label htmlFor="saveInfo" className="text-sm font-semibold text-zinc-900 cursor-pointer block">
+                        Salve minhas informações para um checkout mais rápido
+                      </label>
+                      <p className="text-[13px] text-zinc-500 mt-1">
+                        Pague com segurança em Use Maria e em qualquer lugar onde a <span className="font-semibold underline decoration-dotted underline-offset-2">Link</span> é aceita.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {error && <div className="p-4 mt-6 bg-red-50 text-red-600 border border-red-200 text-sm font-medium rounded-sm">{error}</div>}
 
-                <div className="mt-8 flex justify-end">
+                <div className="mt-8">
                   <button 
                     type="submit"
                     disabled={loading || (paymentMethod === 'CARD' && !isValidKey)}
-                    className="w-full md:w-auto px-12 bg-[#C2A3A1] hover:bg-[#b09290] disabled:bg-zinc-400 text-white font-medium text-sm py-4 rounded-sm transition-colors uppercase tracking-widest"
+                    className="w-full bg-[#0070DF] hover:bg-[#005ebd] disabled:bg-zinc-400 text-white font-semibold text-[17px] py-3.5 rounded shadow-sm transition-colors"
                   >
-                    {loading ? "Processando..." : "Fazer pedido"}
+                    {loading ? "Processando..." : "Assinar"}
                   </button>
+                  <p className="text-xs text-center text-zinc-500 mt-4 leading-relaxed px-4">
+                    Ao confirmar o pedido, você autoriza a Use Maria a processar o pagamento com segurança.
+                  </p>
                 </div>
 
               </div>
