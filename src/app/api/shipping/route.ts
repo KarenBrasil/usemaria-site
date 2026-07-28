@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     // Filtrar apenas Correios (PAC e SEDEX) ou outras transportadoras desejadas
     // No Melhor Envio: 1 = PAC, 2 = SEDEX (Normalmente)
     const options = data
-      .filter((option: any) => !option.error && option.company.name === 'Correios')
+      .filter((option: any) => !option.error)
       .map((option: any) => ({
         id: option.id,
         name: option.name,
@@ -62,7 +62,9 @@ export async function POST(request: Request) {
         price: parseFloat(option.custom_price || option.price),
         delivery_time: option.custom_delivery_time || option.delivery_time,
         currency: option.currency
-      }));
+      }))
+      .sort((a: any, b: any) => a.price - b.price)
+      .slice(0, 3);
 
     return NextResponse.json({ options });
   } catch (error: any) {
