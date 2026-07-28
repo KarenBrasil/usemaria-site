@@ -31,8 +31,36 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Frete Grátis Fixo
-  const shippingCost = 0;
+  const [shippingOptions, setShippingOptions] = useState<any[]>([]);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [selectedShipping, setSelectedShipping] = useState<any>(null);
+  
+  const shippingCost = selectedShipping ? selectedShipping.price : 0;
+  
+  useEffect(() => {
+    const cep = formData.zipcode.replace(/\D/g, '');
+    if (cep.length === 8) {
+      setShippingLoading(true);
+      fetch('/api/shipping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zipcode: cep, weight: items.reduce((acc, item) => acc + item.quantity, 0) })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.options) {
+          setShippingOptions(data.options);
+          if (data.options.length > 0 && !selectedShipping) {
+            setSelectedShipping(data.options.sort((a: any, b: any) => a.price - b.price)[0]);
+          }
+        }
+      })
+      .catch(console.error)
+      .finally(() => setShippingLoading(false));
+    } else {
+      setShippingOptions([]);
+    }
+  }, [formData.zipcode, items]);
   
   // Nuvemshop style steps: 1 = Contato, 2 = Entrega, 3 = Pagamento
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
@@ -96,7 +124,7 @@ function CheckoutContent() {
           items: items.map(i => ({ productId: i.productId, size: i.size, quantity: i.quantity, price: i.price })),
           total: cartTotal() + shippingCost,
           paymentMethod,
-          shipping: { method: 'GRATIS', cost: 0 }
+          shipping: selectedShipping ? { method: selectedShipping.name, cost: shippingCost, company: selectedShipping.company } : { method: 'GRATIS', cost: 0 }
         })
       });
 
@@ -268,6 +296,39 @@ function CheckoutContent() {
                         <input required name="state" placeholder="Estado (UF)" value={formData.state} onChange={handleInputChange} className="border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                       </div>
                       
+                      {/* Opções de Frete (Dinâmicas) */}
+                      {formData.zipcode.replace(/\D/g, '').length === 8 && (
+                        <div className="border-t border-zinc-200 pt-6 mt-6">
+                          <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-4">Opções de Frete</h3>
+                          {shippingLoading ? (
+                            <div className="text-sm text-zinc-500 animate-pulse">Calculando frete...</div>
+                          ) : shippingOptions.length > 0 ? (
+                            <div className="space-y-3">
+                              {shippingOptions.map(option => (
+                                <label key={option.id} className={`p-4 flex items-center justify-between cursor-pointer border rounded-sm transition-colors ${selectedShipping?.id === option.id ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 bg-white'}`}>
+                                  <div className="flex items-center gap-3">
+                                    <input 
+                                      type="radio" 
+                                      name="shipping" 
+                                      checked={selectedShipping?.id === option.id} 
+                                      onChange={() => setSelectedShipping(option)} 
+                                      className="w-4 h-4 text-zinc-900 accent-zinc-900" 
+                                    />
+                                    <div>
+                                      <span className="font-medium text-sm block">{option.company} - {option.name}</span>
+                                      <span className="text-xs text-zinc-500">Chega em até {option.delivery_time} dias úteis</span>
+                                    </div>
+                                  </div>
+                                  <span className="text-sm font-medium">R$ {option.price.toFixed(2).replace('.', ',')}</span>
+                                </label>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-zinc-500">Não foi possível calcular o frete para este CEP.</div>
+                          )}
+                        </div>
+                      )}
+                      
                       {error && <div className="text-red-600 text-xs mt-2">{error}</div>}
                       <button type="button" onClick={nextStep} className="mt-6 w-full md:w-auto px-8 bg-[#C2A3A1] hover:bg-[#b09290] text-white font-medium text-sm py-4 rounded-sm transition-colors uppercase tracking-widest float-right">Continuar para Pagamento</button>
                       <div className="clear-both"></div>
@@ -395,7 +456,11 @@ function CheckoutContent() {
                 </div>
                 <div className="flex justify-between items-center text-xs text-zinc-600">
                    <span>Custo de frete</span>
-                   <span className="text-zinc-900 font-medium">Grátis</span>
+                   {selectedShipping ? (
+                     <span className="font-bold text-zinc-900">R$ {shippingCost.toFixed(2).replace('.', ',')}</span>
+                   ) : (
+                     <span className="text-zinc-400 italic">A calcular</span>
+                   )}
                 </div>
               </div>
               
