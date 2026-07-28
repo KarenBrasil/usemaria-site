@@ -4,7 +4,7 @@ import { useCartStore } from "@/contexts/CartContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
@@ -26,6 +26,7 @@ function CheckoutContent() {
     name: "", email: "", phone: "", document: "",
     zipcode: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: ""
   });
+  const numberInputRef = useRef<HTMLInputElement>(null);
   
   const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CARD'>('CARD');
   const [loading, setLoading] = useState(false);
@@ -41,6 +42,27 @@ function CheckoutContent() {
     const cep = formData.zipcode.replace(/\D/g, '');
     if (cep.length === 8) {
       setShippingLoading(true);
+
+      // 1. Busca Endereço no ViaCEP
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.erro) {
+            setFormData(prev => ({
+              ...prev,
+              street: data.logradouro || prev.street,
+              neighborhood: data.bairro || prev.neighborhood,
+              city: data.localidade || prev.city,
+              state: data.uf || prev.state
+            }));
+            if (numberInputRef.current) {
+              numberInputRef.current.focus();
+            }
+          }
+        })
+        .catch(console.error);
+
+      // 2. Busca Frete no Melhor Envio
       fetch('/api/shipping', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,7 +103,20 @@ function CheckoutContent() {
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newData = { ...formData, [e.target.name]: e.target.value };
+    let { name, value } = e.target;
+    
+    // Máscara de CEP
+    if (name === 'zipcode') {
+      value = value.replace(/\D/g, '');
+      if (value.length > 5) {
+        value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+      }
+      if (value.length > 9) {
+        value = value.substring(0, 9);
+      }
+    }
+    
+    const newData = { ...formData, [name]: value };
     setFormData(newData);
     localStorage.setItem('useMariaCheckoutData', JSON.stringify(newData));
   };
@@ -281,11 +316,11 @@ function CheckoutContent() {
                   <div>
                     <h2 className="text-lg font-normal mb-6 pt-4">Entrega</h2>
                     <div className="space-y-4">
-                      <input required name="zipcode" placeholder="CEP" value={formData.zipcode} onChange={handleInputChange} className="w-full md:w-1/3 border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
+                      <input required name="zipcode" placeholder="CEP" value={formData.zipcode} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                       
                       <div className="grid grid-cols-4 gap-4">
                         <input required name="street" placeholder="Rua / Avenida" value={formData.street} onChange={handleInputChange} className="col-span-3 border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
-                        <input required name="number" placeholder="Número" value={formData.number} onChange={handleInputChange} className="col-span-1 border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
+                        <input required name="number" ref={numberInputRef} placeholder="Número" value={formData.number} onChange={handleInputChange} className="col-span-1 border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                       </div>
                       
                       <input name="complement" placeholder="Apto, Bloco, Referência (opcional)" value={formData.complement} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />

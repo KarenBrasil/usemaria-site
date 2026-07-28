@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     }
 
     const token = process.env.MELHOR_ENVIO_TOKEN;
-    const originCep = process.env.STORE_CEP || '61760400';
+    const originCep = process.env.STORE_CEP || '60060090';
 
     if (!token) {
       return NextResponse.json({ error: 'Token do Melhor Envio não configurado' }, { status: 500 });
