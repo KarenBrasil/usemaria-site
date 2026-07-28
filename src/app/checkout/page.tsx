@@ -208,6 +208,7 @@ function CheckoutContent() {
 
   // Estilo dos inputs do Stripe para combinar com o design
   const CARD_ELEMENT_OPTIONS = {
+    disableLink: true,
     style: {
       base: {
         color: "#18181b",
@@ -493,28 +494,6 @@ function CheckoutContent() {
                     </div>
                   )}
                 </div>
-
-                {/* Checkbox Link Stripe */}
-                {paymentMethod === 'CARD' && (
-                  <div className="mt-4 p-4 border border-zinc-200 rounded bg-white flex items-start gap-3">
-                    <input 
-                      type="checkbox" 
-                      id="saveInfo"
-                      name="saveInfo"
-                      checked={formData.saveInfo}
-                      onChange={(e) => setFormData(prev => ({...prev, saveInfo: e.target.checked}))}
-                      className="mt-1 w-4 h-4 text-blue-600 border-zinc-300 rounded focus:ring-blue-500" 
-                    />
-                    <div>
-                      <label htmlFor="saveInfo" className="text-sm font-semibold text-zinc-900 cursor-pointer block">
-                        Salve minhas informações para um checkout mais rápido
-                      </label>
-                      <p className="text-[13px] text-zinc-500 mt-1">
-                        Pague com segurança em Use Maria e em qualquer lugar onde a <span className="font-semibold underline decoration-dotted underline-offset-2">Link</span> é aceita.
-                      </p>
-                    </div>
-                  </div>
-                )}
 
                 {error && <div className="p-4 mt-6 bg-red-50 text-red-600 border border-red-200 text-sm font-medium rounded-sm">{error}</div>}
 
