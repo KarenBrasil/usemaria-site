@@ -51,7 +51,7 @@ export async function POST(request: Request) {
          html: `<p>Você recebeu um novo pedido de <strong>${customer.name}</strong> (${customer.phone}).</p>
                 <p>Valor total: R$ ${total.toFixed(2)}</p>
                 <p>Método: ${paymentMethod}</p>
-                <p><a href="https://usemaria-site.vercel.app/admin">Ver no Painel</a></p>`
+                <p><a href="https://lojausemaria.com.br/admin">Ver no Painel</a></p>`
        }).catch(console.error);
     }
 
