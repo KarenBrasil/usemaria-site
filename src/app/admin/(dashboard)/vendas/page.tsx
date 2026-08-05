@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { updateOrderStatus } from "../../actions"
+import { updateOrderStatus, confirmPixOrder } from "../../actions"
 
 export default async function SalesPage() {
   const orders = await prisma.order.findMany({
@@ -89,6 +89,15 @@ export default async function SalesPage() {
                       Salvar Status
                     </button>
                   </form>
+                  
+                  {order.status === 'PENDING' && (
+                    <form action={confirmPixOrder.bind(null, order.id)} className="mt-3 border-t border-zinc-200 pt-3">
+                      <button type="submit" className="w-full bg-green-600 text-white font-bold tracking-widest uppercase text-[10px] py-3 rounded hover:bg-green-700 transition-colors flex flex-col items-center gap-1">
+                        <span>✅ Confirmar PIX Manual</span>
+                        <span className="text-[8px] font-normal opacity-90">E enviar para o Melhor Envio</span>
+                      </button>
+                    </form>
+                  )}
                 </div>
               </div>
             ))}

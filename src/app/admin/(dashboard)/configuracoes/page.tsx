@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
+export const dynamic = 'force-dynamic'
+
 export default async function SettingsPage() {
   const settings = await prisma.storeSettings.findUnique({
     where: { id: "default" }
@@ -55,8 +57,8 @@ export default async function SettingsPage() {
       }
     })
 
-    revalidatePath('/')
-    redirect('/admin/configuracoes')
+    revalidatePath('/') // Revalida a home pública
+    revalidatePath('/admin/configuracoes') // Revalida a página atual
   }
 
   return (

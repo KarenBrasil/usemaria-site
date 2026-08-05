@@ -6,11 +6,18 @@ import Footer from "@/components/Footer";
 
 export const dynamic = 'force-dynamic';
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: { cat?: string } }) {
+  const categoryId = searchParams.cat;
+
   const products = await prisma.product.findMany({
-    include: { sizes: true },
+    where: categoryId ? { categoryId } : undefined,
+    include: { sizes: true, category: true },
     orderBy: { createdAt: 'desc' },
-    take: 50 // Show 50 products on the homepage as requested
+    take: 50
+  });
+
+  const categories = await prisma.category.findMany({
+    orderBy: { name: 'asc' }
   });
 
   const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
@@ -29,13 +36,12 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-white text-black">
+    <div className="flex flex-col min-h-screen font-sans bg-[#FCFBF9] text-zinc-900">
       <Header settings={defaultSettings} />
 
-      {/* HERO SECTION */}
-      <section className="relative w-full h-[70vh] md:h-[85vh] bg-[#F5F3EF] overflow-hidden flex items-center">
-        {/* Lifestyle background image - offset to right on desktop */}
-        <div className="absolute inset-0 md:left-1/4 w-full md:w-3/4 h-full z-0">
+      {/* HERO SECTION - ESTÉTICA CATÓLICA */}
+      <section className="relative w-full h-[60vh] md:h-[80vh] bg-[#FCFBF9] overflow-hidden flex items-center border-b border-amber-200/30">
+        <div className="absolute inset-0 md:left-[30%] w-full md:w-[70%] h-full z-0">
           <Image
             src={defaultSettings.hero1Image}
             alt={defaultSettings.hero1Title}
@@ -43,77 +49,91 @@ export default async function Home() {
             className="object-cover object-top opacity-90 mix-blend-multiply"
             priority
           />
-          {/* Mobile overlay for text readability */}
-          <div className="absolute inset-0 bg-[#F5F3EF]/70 md:hidden"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FCFBF9] via-[#FCFBF9]/80 to-transparent"></div>
         </div>
         
-        {/* Hero Content aligned to left */}
         <div className="relative z-10 w-full max-w-[1400px] mx-auto px-8 md:px-12 flex flex-col items-start pt-10">
-          <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#8B7355] mb-4">
-            {defaultSettings.hero1Subtitle}
-          </p>
-          <h1 className="text-6xl md:text-[100px] font-serif leading-[0.9] text-black mb-6 uppercase tracking-tight flex flex-col">
-            {defaultSettings.hero1Title.split(' ').map((word, i) => (
-              <span key={i}>{word}</span>
-            ))}
+          <div className="flex items-center gap-3 mb-6">
+            <span className="w-8 h-[1px] bg-amber-400"></span>
+            <p className="text-[11px] uppercase tracking-[0.3em] font-medium text-amber-600">
+              {defaultSettings.hero1Subtitle}
+            </p>
+          </div>
+          
+          <h1 className="text-5xl md:text-[80px] font-serif leading-[1.1] text-zinc-900 mb-6 tracking-tight flex flex-col">
+            <span className="font-light italic text-zinc-700">Vestindo</span>
+            <span className="font-medium text-amber-800">Sua Fé</span>
           </h1>
-          <p className="text-lg md:text-xl text-zinc-800 mb-8 max-w-sm">
-            Peças que evangelizam, inspiram e transformam.
+          
+          <p className="text-base md:text-lg text-zinc-600 mb-10 max-w-md font-light leading-relaxed">
+            T-shirts femininas estampadas com delicadeza e propósito. Vista-se de amor e devoção todos os dias.
           </p>
-          <Link href="/colecoes" className="bg-[#1A1A1A] text-white uppercase text-[10px] tracking-widest font-bold py-4 px-8 flex items-center gap-4 hover:bg-black transition-colors">
-            Compre Agora <span className="text-lg leading-none">→</span>
+          
+          <Link href="/colecoes" className="group relative overflow-hidden bg-white border border-amber-200 text-amber-800 uppercase text-[11px] tracking-[0.2em] font-medium py-4 px-10 transition-all hover:bg-amber-50 hover:border-amber-300">
+            <span className="relative z-10 flex items-center gap-4">Ver Coleção Completa <span className="text-lg leading-none group-hover:translate-x-1 transition-transform">→</span></span>
           </Link>
-        </div>
-
-        {/* Floating 50% off badge */}
-        <div className="absolute right-8 top-1/4 z-20 w-32 h-32 bg-[#F5F3EF]/90 rounded-full flex flex-col items-center justify-center shadow-lg border border-white/50 backdrop-blur-sm hidden md:flex">
-           <span className="text-xs uppercase tracking-widest text-[#8B7355] font-bold">Até</span>
-           <span className="text-3xl font-serif text-[#8B7355]">50%</span>
-           <span className="text-xs uppercase tracking-widest text-[#8B7355] font-bold">Off</span>
         </div>
       </section>
 
-      {/* FEATURES BAR */}
-      <section className="bg-[#F5F3EF] py-8 px-4 md:px-12 w-full border-t border-zinc-200/50">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-zinc-300/50">
+      {/* FEATURES BAR - CLEAN */}
+      <section className="bg-white py-10 px-4 md:px-12 w-full border-b border-zinc-100">
+        <div className="max-w-[1200px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-zinc-100">
           <div className="flex flex-col items-center text-center px-4">
-            <svg className="mb-2 text-zinc-800" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-black">Tendência Agora</h4>
-            <p className="text-[10px] text-zinc-500 mt-1">O que está em alta</p>
+            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">Qualidade Premium</h4>
+            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">Algodão sustentável</p>
           </div>
           <div className="flex flex-col items-center text-center px-4">
-            <svg className="mb-2 text-zinc-800" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-black">Mais Vendidos</h4>
-            <p className="text-[10px] text-zinc-500 mt-1">Favoritos da comunidade</p>
+            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">Compre no Atacado</h4>
+            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">A partir de 10 peças</p>
           </div>
           <div className="flex flex-col items-center text-center px-4">
-            <svg className="mb-2 text-zinc-800" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-black">Lançamentos</h4>
-            <p className="text-[10px] text-zinc-500 mt-1">Novas peças toda semana</p>
+            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">Design Exclusivo</h4>
+            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">Estampas católicas</p>
           </div>
           <div className="flex flex-col items-center text-center px-4">
-            <svg className="mb-2 text-zinc-800" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-black">Envio Nacional</h4>
-            <p className="text-[10px] text-zinc-500 mt-1">Com amor e propósito</p>
+            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">Envio para todo Brasil</h4>
+            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">Rapidez e segurança</p>
           </div>
         </div>
       </section>
 
       {/* COLLECTION GRID */}
-      <section className="py-20 px-4 md:px-8 max-w-[1400px] mx-auto w-full">
-        <div className="text-center mb-16">
-          <span className="text-zinc-400 block mb-2 text-lg">✝</span>
-          <h2 className="text-sm font-bold uppercase tracking-[0.3em] text-black px-4">
-            Escolhas de Estilo
+      <section className="py-24 px-4 md:px-8 max-w-[1400px] mx-auto w-full">
+        <div className="text-center mb-12">
+          <span className="text-amber-300 block mb-3 text-xl font-serif">†</span>
+          <h2 className="text-2xl md:text-3xl font-serif text-zinc-900 px-4 mb-4">
+            Nossas Estampas
           </h2>
+          <p className="text-sm text-zinc-500 font-light max-w-md mx-auto">
+            Escolha a devoção que mais toca o seu coração.
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {/* CATEGORY FILTERS */}
+        <div className="flex flex-wrap justify-center gap-4 mb-16 px-4">
+          <Link 
+            href="/" 
+            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${!categoryId ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+          >
+            Todas
+          </Link>
+          {categories.map(cat => (
+            <Link 
+              key={cat.id}
+              href={`/?cat=${cat.id}`} 
+              className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${categoryId === cat.id ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+            >
+              {cat.name}
+            </Link>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-16">
           {products.map((product) => (
-            <div key={product.id} className="group flex flex-col text-center bg-white border border-zinc-200 shadow-sm hover:shadow-md transition-shadow pb-4">
-              <Link href={`/product/${product.id}`} className="relative aspect-[4/5] bg-[#f5f5f5] mb-4 overflow-hidden block">
+            <div key={product.id} className="group flex flex-col text-center">
+              <Link href={`/product/${product.id}`} className="relative aspect-[4/5] bg-white mb-5 overflow-hidden block border border-zinc-100">
                 {product.isNew && (
-                  <span className="absolute top-3 left-3 z-10 text-[9px] font-bold uppercase tracking-widest bg-white px-3 py-1 shadow-sm">
+                  <span className="absolute top-4 left-4 z-10 text-[9px] font-medium uppercase tracking-[0.2em] bg-white text-zinc-800 px-3 py-1 shadow-sm">
                     Novo
                   </span>
                 )}
@@ -121,49 +141,51 @@ export default async function Home() {
                   src={product.image || "/images/catalog/page-0001.jpg"}
                   alt={product.name}
                   fill
-                  className="object-cover object-[center_20%] scale-[1.02] mix-blend-multiply group-hover:scale-[1.05] transition-transform duration-700 ease-in-out"
+                  className="object-cover object-[center_20%] mix-blend-multiply transition-transform duration-1000 ease-in-out group-hover:scale-105"
                 />
+                
+                {/* Overlay Hover Suave */}
+                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </Link>
-              <div className="flex flex-col items-center px-4 flex-1">
+              
+              <div className="flex flex-col items-center flex-1 px-2">
                 <Link href={`/product/${product.id}`} className="block w-full">
-                  <h3 className="text-[11px] font-bold text-zinc-900 mb-2 tracking-widest uppercase line-clamp-2 min-h-[32px] flex items-center justify-center">
+                  <h3 className="text-[13px] font-serif text-zinc-800 mb-1 line-clamp-1">
                     {product.name}
                   </h3>
                 </Link>
                 
-                <div className="flex flex-col items-center mb-4">
-                  <span className="text-sm font-bold text-black">
-                    R$ {product.price.toFixed(2).replace('.', ',')}
-                  </span>
-                  <span className="text-[9px] uppercase tracking-widest text-zinc-400 mt-1">
-                    OU 2X DE R$ {(product.price / 2).toFixed(2).replace('.', ',')} SEM JUROS
-                  </span>
-                  
-                  <div className="mt-2 text-[10px] bg-green-50 text-green-700 px-2 py-1 rounded font-medium border border-green-100 flex items-center gap-1">
-                    Atacado: R$ {product.wholesalePrice ? product.wholesalePrice.toFixed(2).replace('.', ',') : '34,90'} <span className="opacity-70">(10+ peças)</span>
-                  </div>
-                </div>
+                <span className="text-sm font-medium text-zinc-900 mb-2">
+                  R$ {product.price.toFixed(2).replace('.', ',')}
+                </span>
                 
-                <div className="mt-auto w-full px-2">
-                  <Link href={`/product/${product.id}`} className="block w-full bg-[#1c1a1a] text-white uppercase text-[12px] font-bold py-3 rounded hover:bg-black transition-colors shadow-sm">
-                    Comprar
-                  </Link>
-                </div>
+                {product.wholesalePrice && (
+                  <span className="text-[10px] uppercase tracking-widest text-amber-600 font-medium">
+                    Atacado: R$ {product.wholesalePrice.toFixed(2).replace('.', ',')}
+                  </span>
+                )}
               </div>
             </div>
           ))}
+          
+          {products.length === 0 && (
+            <div className="col-span-full text-center py-12 text-zinc-500 font-serif italic">
+              Nenhuma peça encontrada nesta categoria.
+            </div>
+          )}
         </div>
       </section>
 
 
       {/* EDITORIAL SECTION */}
-      <section className="px-4 md:px-8 max-w-[1400px] mx-auto w-full mb-10">
-        <div className="flex items-center justify-between mb-8 border-t border-zinc-200 pt-10">
-          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-black">
-            Use Maria no seu dia
+      <section className="px-4 md:px-8 max-w-[1400px] mx-auto w-full mb-16">
+        <div className="flex flex-col items-center text-center mb-10 border-t border-amber-200/40 pt-16">
+          <h2 className="text-2xl font-serif text-zinc-900 mb-2">
+            Devoção em cada detalhe
           </h2>
-          <Link href={defaultSettings.instagramUrl} className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-black flex items-center gap-2">
-            Ver Mais <span>→</span>
+          <p className="text-xs text-zinc-500 font-light mb-6">Acompanhe nosso trabalho no instagram</p>
+          <Link href={defaultSettings.instagramUrl} target="_blank" className="text-[10px] font-medium uppercase tracking-widest text-amber-700 hover:text-amber-900 flex items-center gap-2 border-b border-amber-200 pb-1 transition-colors">
+            @usemaria <span>→</span>
           </Link>
         </div>
 
