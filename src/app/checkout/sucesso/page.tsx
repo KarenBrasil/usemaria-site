@@ -1,6 +1,7 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import CopyPixButton from "@/components/CopyPixButton";
+import { generatePixPayload } from "@/lib/pix";
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +20,7 @@ export default async function CheckoutSuccessPage({
   const defaultSettings = settings || {
     storeName: "USE MARIA",
     whatsappNumber: "5585994277446",
-    pixKey: "CNPJ: 00.000.000/0001-00",
+    pixKey: "00000000000100", // Needs to be clean key for generator
     pixName: "USE MARIA OFICIAL"
   };
 
@@ -42,14 +43,26 @@ export default async function CheckoutSuccessPage({
           <p className="text-zinc-600 mb-8 max-w-md mx-auto">
             Seu pedido foi recebido com sucesso e já está sendo preparado com muito carinho. Você receberá atualizações no seu e-mail.
           </p>
-          <Link href="/" className="bg-black text-white px-8 py-4 uppercase text-xs tracking-widest font-bold hover:bg-zinc-800 transition-colors">
-            Voltar para a Loja
-          </Link>
+          <div className="flex gap-4">
+            <Link href={`/rastreio?id=${order.id}`} className="bg-black text-white px-8 py-4 uppercase text-xs tracking-widest font-bold hover:bg-zinc-800 transition-colors rounded-sm">
+              Acompanhar Pedido
+            </Link>
+            <Link href="/" className="bg-zinc-200 text-black px-8 py-4 uppercase text-xs tracking-widest font-bold hover:bg-zinc-300 transition-colors rounded-sm">
+              Voltar para Loja
+            </Link>
+          </div>
         </div>
       );
     }
 
     // Se for PIX
+    const pixPayload = generatePixPayload({
+      pixKey: defaultSettings.pixKey.replace(/[^a-zA-Z0-9@.\-_]/g, ''),
+      merchantName: defaultSettings.pixName,
+      amount: order.total,
+      transactionId: `PED${order.id.slice(-6).toUpperCase()}`
+    });
+
     const waLink = `https://wa.me/${defaultSettings.whatsappNumber}?text=${encodeURIComponent(`Olá! Realizei o pedido #${order.id.slice(-6).toUpperCase()} no site e gostaria de enviar o comprovante do PIX no valor de R$ ${order.total.toFixed(2).replace('.', ',')}.`)}`;
 
     return (
@@ -77,11 +90,17 @@ export default async function CheckoutSuccessPage({
 
             <div className="space-y-4">
               <div>
-                 <span className="block text-[10px] uppercase tracking-widest text-zinc-400 font-bold mb-1">Chave PIX</span>
-                 <strong className="text-lg font-mono text-zinc-800 bg-white px-2 py-1 rounded border border-zinc-200 w-full block truncate">
-                   {defaultSettings.pixKey}
+                 <span className="block text-[10px] uppercase tracking-widest text-zinc-400 font-bold mb-2">PIX Copia e Cola (Com valor exato)</span>
+                 
+                 {/* QR Code fallback visual via API externa (opcional, mas muito útil) */}
+                 <div className="flex justify-center mb-4 bg-white p-4 rounded border border-zinc-200">
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixPayload)}`} alt="QR Code PIX" className="w-48 h-48" />
+                 </div>
+
+                 <strong className="text-xs font-mono text-zinc-500 bg-white px-3 py-2 rounded border border-zinc-200 w-full block break-all mb-2">
+                   {pixPayload}
                  </strong>
-                 <CopyPixButton pixKey={defaultSettings.pixKey} />
+                 <CopyPixButton pixKey={pixPayload} />
               </div>
               
               <div className="bg-white p-3 rounded border border-zinc-100 flex items-center gap-3">
@@ -96,10 +115,15 @@ export default async function CheckoutSuccessPage({
             </div>
           </div>
 
-          <a href={waLink} target="_blank" rel="noopener noreferrer" className="block w-full bg-[#25D366] text-white uppercase text-xs tracking-widest font-bold py-4 rounded shadow-sm hover:bg-[#20b958] transition-colors mb-4 flex items-center justify-center gap-2">
+          <a href={waLink} target="_blank" rel="noopener noreferrer" className="block w-full bg-[#25D366] text-white uppercase text-xs tracking-widest font-bold py-4 rounded shadow-sm hover:bg-[#20b958] transition-colors mb-3 flex items-center justify-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>
             Enviar Comprovante
           </a>
+          
+          <Link href={`/rastreio?id=${order.id}`} className="block w-full border border-zinc-300 text-zinc-800 uppercase text-xs tracking-widest font-bold py-4 rounded hover:bg-zinc-50 transition-colors mb-6">
+            Acompanhar Pedido
+          </Link>
+          
           <Link href="/" className="block text-xs uppercase tracking-widest text-zinc-500 hover:text-black font-medium transition-colors">
             Voltar para a loja
           </Link>

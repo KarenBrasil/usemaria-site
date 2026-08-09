@@ -157,6 +157,15 @@ function CheckoutContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customer: { name: formData.name, email: formData.email, phone: formData.phone },
+          address: {
+            zipcode: formData.zipcode,
+            street: formData.street,
+            number: formData.number,
+            complement: formData.complement,
+            neighborhood: formData.neighborhood,
+            city: formData.city,
+            state: formData.state
+          },
           items: items.map(i => ({ productId: i.productId, size: i.size, quantity: i.quantity, price: i.price })),
           total: cartTotal() + shippingCost,
           paymentMethod,
@@ -291,8 +300,8 @@ function CheckoutContent() {
                       <input required name="name" placeholder="Nome Completo" value={formData.name} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <input required name="phone" placeholder="Telefone / WhatsApp" value={formData.phone} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
-                      <input required name="document" placeholder="CPF ou CNPJ" value={formData.document} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
+                      <input required name="phone" type="tel" placeholder="Telefone / WhatsApp" value={formData.phone} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
+                      <input required name="document" type="tel" placeholder="CPF ou CNPJ" value={formData.document} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                     </div>
                     {error && <div className="text-red-600 text-xs mt-2">{error}</div>}
                     <button type="button" onClick={nextStep} className="mt-6 w-full md:w-auto px-8 bg-[#C2A3A1] hover:bg-[#b09290] text-white font-medium text-sm py-4 rounded-sm transition-colors uppercase tracking-widest float-right">Continuar para Entrega</button>
@@ -319,11 +328,11 @@ function CheckoutContent() {
                   <div>
                     <h2 className="text-lg font-normal mb-6 pt-4">Entrega</h2>
                     <div className="space-y-4">
-                      <input required name="zipcode" placeholder="CEP" value={formData.zipcode} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
+                      <input required name="zipcode" type="tel" placeholder="CEP" value={formData.zipcode} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                       
                       <div className="grid grid-cols-4 gap-4">
                         <input required name="street" placeholder="Rua / Avenida" value={formData.street} onChange={handleInputChange} className="col-span-3 border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
-                        <input required name="number" ref={numberInputRef} placeholder="Número" value={formData.number} onChange={handleInputChange} className="col-span-1 border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
+                        <input required name="number" type="tel" ref={numberInputRef} placeholder="Número" value={formData.number} onChange={handleInputChange} className="col-span-1 border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />
                       </div>
                       
                       <input name="complement" placeholder="Apto, Bloco, Referência (opcional)" value={formData.complement} onChange={handleInputChange} className="w-full border border-zinc-300 p-3.5 text-sm rounded-sm bg-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-400" />

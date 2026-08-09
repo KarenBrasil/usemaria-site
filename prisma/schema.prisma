@@ -57,6 +57,15 @@ model Order {
   status String @default("PENDING") // PENDING, PAID, SHIPPED, DELIVERED, CANCELLED
   total  Float
 
+  // Endereço de Entrega
+  zipcode      String?
+  street       String?
+  number       String?
+  complement   String?
+  neighborhood String?
+  city         String?
+  state        String?
+
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id])
 

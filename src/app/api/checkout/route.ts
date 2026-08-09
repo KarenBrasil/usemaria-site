@@ -8,7 +8,7 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { customer, items, total, paymentMethod } = body;
+    const { customer, items, total, paymentMethod, address } = body;
 
     // 1. Create or find customer in database
     let dbCustomer = await prisma.customer.findFirst({
@@ -31,6 +31,13 @@ export async function POST(request: Request) {
         customerId: dbCustomer.id,
         total: total,
         status: 'PENDING',
+        zipcode: address?.zipcode,
+        street: address?.street,
+        number: address?.number,
+        complement: address?.complement,
+        neighborhood: address?.neighborhood,
+        city: address?.city,
+        state: address?.state,
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,
@@ -42,17 +49,61 @@ export async function POST(request: Request) {
       }
     });
 
-    // Send Email to Admin via Resend (fire and forget)
+    // Send Emails via Resend (fire and forget)
     if (process.env.RESEND_API_KEY) {
+       // 1. E-mail para o Administrador
        resend.emails.send({
-         from: 'Vendas Use Maria <onboarding@resend.dev>',
-         to: process.env.ADMIN_EMAIL || 'karen@kyb.com', // fallback
-         subject: `Novo Pedido #${order.id.slice(-6).toUpperCase()} - R$ ${total}`,
-         html: `<p>Você recebeu um novo pedido de <strong>${customer.name}</strong> (${customer.phone}).</p>
-                <p>Valor total: R$ ${total.toFixed(2)}</p>
-                <p>Método: ${paymentMethod}</p>
-                <p><a href="https://lojausemaria.com.br/admin">Ver no Painel</a></p>`
+         from: 'Use Maria <onboarding@resend.dev>',
+         to: process.env.ADMIN_EMAIL || 'karen@kyb.com',
+         subject: `🎉 Nova Venda! Pedido #${order.id.slice(-6).toUpperCase()} - R$ ${total.toFixed(2)}`,
+         html: `
+           <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
+             <h2>Nova Venda Realizada! 🚀</h2>
+             <p>Você acabou de receber um novo pedido de <strong>${customer.name}</strong>.</p>
+             <div style="background: #f4f4f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+               <p style="margin:0 0 10px 0;"><strong>Telefone:</strong> ${customer.phone}</p>
+               <p style="margin:0 0 10px 0;"><strong>E-mail:</strong> ${customer.email}</p>
+               <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
+               <p style="margin:0;"><strong>Método:</strong> ${paymentMethod}</p>
+             </div>
+             <a href="https://lojausemaria.com.br/admin/vendas" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;border-radius:4px;font-weight:bold;display:inline-block;">Ver Painel Administrativo</a>
+           </div>
+         `
        }).catch(console.error);
+
+       // 2. E-mail para o Cliente
+       if (customer.email) {
+         resend.emails.send({
+           from: 'Use Maria <onboarding@resend.dev>',
+           to: customer.email,
+           subject: `Oba! Recebemos seu pedido #${order.id.slice(-6).toUpperCase()} - Use Maria`,
+           html: `
+             <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
+               <h1 style="text-align: center; letter-spacing: 2px;">USE MARIA</h1>
+               <hr style="border: 1px solid #eee; margin: 20px 0;" />
+               <h2>Olá, ${customer.name.split(' ')[0]}!</h2>
+               <p>Recebemos o seu pedido <strong>#${order.id.slice(-6).toUpperCase()}</strong> com sucesso.</p>
+               <p>Estamos muito felizes em ter você como cliente! Seu pedido já está sendo processado com todo o carinho.</p>
+               
+               <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                 <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
+                 <p style="margin:0;"><strong>Método de Pagamento:</strong> ${paymentMethod}</p>
+               </div>
+
+               ${paymentMethod === 'PIX' ? `<p style="color: #d97706; font-weight: bold;">Lembrete: Como você escolheu PIX, o pedido só será confirmado e enviado após o pagamento. Caso já tenha feito, desconsidere.</p>` : ''}
+
+               <p>Você pode acompanhar o status da entrega clicando no botão abaixo:</p>
+               <br/>
+               <div style="text-align: center;">
+                 <a href="https://lojausemaria.com.br/rastreio?id=${order.id}" style="background:#000;color:#fff;padding:14px 28px;text-decoration:none;border-radius:4px;font-weight:bold;display:inline-block;letter-spacing:1px;text-transform:uppercase;font-size:12px;">Acompanhar Meu Pedido</a>
+               </div>
+               <br/><br/>
+               <hr style="border: 1px solid #eee; margin: 20px 0;" />
+               <p style="font-size: 12px; color: #888; text-align: center;">Com carinho,<br/>Equipe Use Maria</p>
+             </div>
+           `
+         }).catch(console.error);
+       }
     }
 
     // 3. Handle Payment Method

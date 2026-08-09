@@ -52,8 +52,8 @@ export default function Footer({ settings }: { settings: Partial<StoreSettings> 
           
           <div className="flex flex-col gap-3">
              <h4 className="text-[10px] font-bold uppercase tracking-widest mb-2">Institucional</h4>
-             <Link href="#" className="text-[11px] text-zinc-500 hover:text-black">Sobre nós</Link>
-             <Link href="#" className="text-[11px] text-zinc-500 hover:text-black">Trocas e devoluções</Link>
+             <Link href="/rastreio" className="text-[11px] text-zinc-500 hover:text-black">Rastrear Pedido</Link>
+             <Link href="/trocas-e-devolucoes" className="text-[11px] text-zinc-500 hover:text-black">Trocas e Devoluções</Link>
              <Link href="#" className="text-[11px] text-zinc-500 hover:text-black">Perguntas frequentes</Link>
              <Link href={`https://wa.me/${settings.whatsappNumber}`} className="text-[11px] text-zinc-500 hover:text-black">Fale conosco</Link>
           </div>
