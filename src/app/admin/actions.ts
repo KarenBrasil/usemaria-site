@@ -3,6 +3,64 @@
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder')
+
+async function sendStatusUpdateEmail(order: any, newStatus: string) {
+  if (!process.env.RESEND_API_KEY || !order.customer?.email) return;
+
+  const statusMessages: Record<string, { subject: string, title: string, message: string }> = {
+    'PAID': {
+      subject: `Pagamento Aprovado! Pedido #${order.id.slice(-6).toUpperCase()}`,
+      title: 'Pagamento Aprovado! 🎉',
+      message: 'Oba! Seu pagamento foi confirmado. Estamos preparando o seu pedido com todo o carinho.'
+    },
+    'SHIPPED': {
+      subject: `Pedido Enviado! #${order.id.slice(-6).toUpperCase()}`,
+      title: 'Seu pedido está a caminho! 🚚',
+      message: 'Ele foi despachado e logo chegará até você. Acompanhe a entrega pelo nosso site!'
+    },
+    'DELIVERED': {
+      subject: `Pedido Entregue! #${order.id.slice(-6).toUpperCase()}`,
+      title: 'Pedido Entregue! 📦',
+      message: 'Seu pedido foi entregue! Esperamos que você ame a sua camiseta Use Maria.'
+    },
+    'CANCELLED': {
+      subject: `Pedido Cancelado - #${order.id.slice(-6).toUpperCase()}`,
+      title: 'Pedido Cancelado',
+      message: 'Infelizmente, seu pedido foi cancelado. Qualquer dúvida, por favor, responda este e-mail.'
+    }
+  };
+
+  const notification = statusMessages[newStatus];
+  if (!notification) return; // Se for PENDING ou desconhecido, não manda e-mail automático
+
+  const html = `
+    <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
+      <h1 style="text-align: center; letter-spacing: 2px;">USE MARIA</h1>
+      <hr style="border: 1px solid #eee; margin: 20px 0;" />
+      <h2>Olá, ${order.customer.name.split(' ')[0]}!</h2>
+      <h3 style="color: #059669;">${notification.title}</h3>
+      <p>${notification.message}</p>
+      
+      <br/>
+      <div style="text-align: center;">
+        <a href="https://lojausemaria.com.br/rastreio?id=${order.id}" style="background:#000;color:#fff;padding:14px 28px;text-decoration:none;border-radius:4px;font-weight:bold;display:inline-block;letter-spacing:1px;text-transform:uppercase;font-size:12px;">Acompanhar Pedido</a>
+      </div>
+      <br/><br/>
+      <hr style="border: 1px solid #eee; margin: 20px 0;" />
+      <p style="font-size: 12px; color: #888; text-align: center;">Com carinho,<br/>Equipe Use Maria</p>
+    </div>
+  `;
+
+  await resend.emails.send({
+    from: 'Use Maria <onboarding@resend.dev>',
+    to: order.customer.email,
+    subject: notification.subject,
+    html
+  }).catch(console.error);
+}
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string
@@ -97,10 +155,12 @@ export async function updateProduct(id: string, formData: FormData) {
 export async function updateOrderStatus(id: string, formData: FormData) {
   const status = formData.get("status") as string
   if (status) {
-    await prisma.order.update({
+    const order = await prisma.order.update({
       where: { id },
-      data: { status }
+      data: { status },
+      include: { customer: true }
     })
+    await sendStatusUpdateEmail(order, status)
   }
   revalidatePath("/admin/vendas")
   revalidatePath("/admin")
@@ -113,10 +173,13 @@ export async function confirmPixOrder(orderId: string) {
 
   if (!order) throw new Error("Pedido não encontrado");
 
-  await prisma.order.update({
+  const updatedOrder = await prisma.order.update({
     where: { id: orderId },
-    data: { status: 'PAID' }
+    data: { status: 'PAID' },
+    include: { customer: true }
   });
+
+  await sendStatusUpdateEmail(updatedOrder, 'PAID');
 
   revalidatePath("/admin/vendas")
   revalidatePath("/admin")
@@ -206,10 +269,13 @@ export async function generateShippingLabel(orderId: string) {
     }
     
     // Atualizar status para SHIPPED para indicar que a etiqueta foi pro carrinho
-    await prisma.order.update({
+    const updatedOrder = await prisma.order.update({
       where: { id: orderId },
-      data: { status: 'SHIPPED' }
+      data: { status: 'SHIPPED' },
+      include: { customer: true }
     });
+    
+    await sendStatusUpdateEmail(updatedOrder, 'SHIPPED');
 
   } catch (e) {
     console.error("Erro interno ao integrar com Melhor Envio:", e);
