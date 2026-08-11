@@ -7,12 +7,34 @@ export const dynamic = 'force-dynamic';
 export default async function SalesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>
+  searchParams: Promise<{ status?: string, period?: string, payment?: string }>
 }) {
   const resolvedParams = await searchParams;
   const statusFilter = resolvedParams?.status;
+  const periodFilter = resolvedParams?.period || 'all';
+  const paymentFilter = resolvedParams?.payment || 'all';
 
-  const whereClause = statusFilter && statusFilter !== 'ALL' ? { status: statusFilter } : {};
+  let whereClause: any = {};
+  
+  if (statusFilter && statusFilter !== 'ALL') {
+    whereClause.status = statusFilter;
+  }
+
+  // Lógica simples de período (apenas como exemplo, adaptável)
+  if (periodFilter === 'today') {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    whereClause.createdAt = { gte: today };
+  } else if (periodFilter === 'month') {
+    const firstDay = new Date();
+    firstDay.setDate(1);
+    firstDay.setHours(0, 0, 0, 0);
+    whereClause.createdAt = { gte: firstDay };
+  } else if (periodFilter === '7days') {
+    const last7 = new Date();
+    last7.setDate(last7.getDate() - 7);
+    whereClause.createdAt = { gte: last7 };
+  }
 
   const orders = await prisma.order.findMany({
     where: whereClause,
@@ -25,7 +47,7 @@ export default async function SalesPage({
     orderBy: { createdAt: 'desc' }
   })
 
-  // Contagem para os filtros
+  // Contagem básica para os tabs de status ignorando outros filtros para manter a consistência visual do topo
   const counts = await prisma.order.groupBy({
     by: ['status'],
     _count: { _all: true }
@@ -50,30 +72,46 @@ export default async function SalesPage({
         </div>
       </div>
 
-      {/* Sistema de Filtros (Tabs) */}
-      <div className="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
-        {tabs.map(tab => {
-          const isActive = (statusFilter === tab.value) || (!statusFilter && tab.value === 'ALL');
-          return (
-            <Link 
-              key={tab.value}
-              href={tab.value === 'ALL' ? '/admin/vendas' : `/admin/vendas?status=${tab.value}`}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap border ${
-                isActive 
-                  ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' 
-                  : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'
-              }`}
-            >
-              {tab.label}
-              <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-zinc-700 text-white' : 'bg-zinc-100 text-zinc-500'}`}>
-                {tab.count}
-              </span>
-            </Link>
-          )
-        })}
+      {/* Barra de Filtros Avançados */}
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-zinc-200 mb-6 flex flex-wrap gap-4 items-center">
+        
+        <div className="flex items-center gap-2">
+          <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+          <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Filtros:</span>
+        </div>
+
+        {/* Status (Tabs em formato Select/Botões compactos) */}
+        <div className="flex gap-2 bg-zinc-100 p-1 rounded-lg">
+          {tabs.map(tab => {
+            const isActive = (statusFilter === tab.value) || (!statusFilter && tab.value === 'ALL');
+            return (
+              <Link 
+                key={tab.value}
+                href={{ pathname: '/admin/vendas', query: { ...resolvedParams, status: tab.value === 'ALL' ? undefined : tab.value } }}
+                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${
+                  isActive 
+                    ? 'bg-white text-black shadow-sm' 
+                    : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/50'
+                }`}
+              >
+                {tab.label} <span className="opacity-60 ml-1">({tab.count})</span>
+              </Link>
+            )
+          })}
+        </div>
+
+        <div className="h-6 w-px bg-zinc-200 hidden md:block"></div>
+
+        {/* Período */}
+        <div className="flex gap-2">
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, period: 'all' } }} className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${periodFilter === 'all' ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'}`}>Todo o Período</Link>
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, period: 'month' } }} className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${periodFilter === 'month' ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'}`}>Este Mês</Link>
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, period: 'today' } }} className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${periodFilter === 'today' ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'}`}>Hoje</Link>
+        </div>
       </div>
       
-      <div className="space-y-6">
+      {/* Lista de Pedidos Compacta */}
+      <div className="flex flex-col gap-3">
         {orders.length === 0 ? (
           <div className="bg-white rounded-2xl border border-zinc-200 p-16 text-center shadow-sm">
             <div className="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-zinc-100">
