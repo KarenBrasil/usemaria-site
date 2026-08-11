@@ -492,14 +492,25 @@ function CheckoutContent() {
                   <label className={`p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'PIX' ? 'bg-zinc-50/50' : 'bg-white'}`}>
                     <div className="flex items-center gap-4">
                       <input type="radio" name="payment" checked={paymentMethod === 'PIX'} onChange={() => setPaymentMethod('PIX')} className="w-4 h-4 text-zinc-900 border-zinc-300 focus:ring-zinc-900 accent-zinc-900" />
-                      <span className="font-medium text-sm">Pix</span>
+                      <div className="flex items-center gap-2">
+                        <svg className="w-5 h-5 text-emerald-600" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M7.74 3L2 8.74l8.13 8.12 5.74-5.74L7.74 3zm8.52 0l-5.74 5.74 8.12 8.12L24.38 11.1 16.26 3zm-2.77 8.51l-2.96-2.96-2.96 2.96 2.96 2.96 2.96-2.96zM13.1 17.61L18.84 23.35l5.54-5.54-8.12-8.12-3.16 3.16-3.16-3.16-8.12 8.12 5.54 5.54L13.1 17.61z" fillRule="evenodd" clipRule="evenodd"/></svg>
+                        <span className="font-bold text-sm text-zinc-800">PIX</span>
+                      </div>
                     </div>
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">PAGUE R$ {(cartTotal() + shippingCost).toFixed(2).replace('.', ',')}</span>
+                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">Aprovação imediata</span>
                   </label>
                   
                   {paymentMethod === 'PIX' && (
-                    <div className="p-6 bg-zinc-50/50 text-sm text-zinc-600 border-t border-zinc-200">
-                       Ao finalizar o pedido, mostraremos a chave PIX para você realizar o pagamento no aplicativo do seu banco de forma rápida e segura.
+                    <div className="px-6 py-5 bg-zinc-50/50 border-t border-zinc-200">
+                      <div className="flex gap-3">
+                        <div className="text-zinc-400 mt-0.5">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div className="text-sm text-zinc-600">
+                          <p className="font-medium text-zinc-800 mb-1">O código Pix será gerado na próxima etapa.</p>
+                          <p>O pagamento é aprovado em até 10 segundos. Finalize a compra para visualizar o QR Code.</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -512,7 +523,7 @@ function CheckoutContent() {
                     disabled={loading || (paymentMethod === 'CARD' && !isValidKey)}
                     className="w-full bg-[#0070DF] hover:bg-[#005ebd] disabled:bg-zinc-400 text-white font-semibold text-[17px] py-3.5 rounded shadow-sm transition-colors"
                   >
-                    {loading ? "Processando..." : "Assinar"}
+                    {loading ? "Processando..." : "Finalizar Compra"}
                   </button>
                   <p className="text-xs text-center text-zinc-500 mt-4 leading-relaxed px-4">
                     Ao confirmar o pedido, você autoriza a Use Maria a processar o pagamento com segurança.
