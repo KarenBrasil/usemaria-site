@@ -171,7 +171,7 @@ export async function confirmPixOrder(orderId: string) {
     where: { id: orderId }
   });
 
-  if (!order) throw new Error("Pedido não encontrado");
+  if (!order) return { error: "Pedido não encontrado" };
 
   const updatedOrder = await prisma.order.update({
     where: { id: orderId },
@@ -181,25 +181,34 @@ export async function confirmPixOrder(orderId: string) {
 
   await sendStatusUpdateEmail(updatedOrder, 'PAID');
 
+  // Após aprovar o PIX, gerar etiqueta automaticamente!
+  const labelResult = await generateShippingLabel(orderId, false);
+  
   revalidatePath("/admin/vendas")
   revalidatePath("/admin")
+
+  if (labelResult?.error) {
+    return { success: true, warning: `Pagamento aprovado, mas falha ao gerar etiqueta: ${labelResult.error}` };
+  }
+  
+  return { success: true };
 }
 
-export async function generateShippingLabel(orderId: string) {
+export async function generateShippingLabel(orderId: string, shouldRevalidate = true) {
   // 1. Get the order with full address details
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: { customer: true, items: { include: { product: true } } }
   });
 
-  if (!order) throw new Error("Pedido não encontrado");
-  if (!order.customer) throw new Error("Cliente não encontrado para este pedido");
+  if (!order) return { error: "Pedido não encontrado" };
+  if (!order.customer) return { error: "Cliente não encontrado para este pedido" };
   if (!order.zipcode || !order.street || !order.number) {
-    throw new Error("Endereço de entrega incompleto. Não é possível gerar etiqueta.");
+    return { error: "Endereço de entrega incompleto. Não é possível gerar etiqueta." };
   }
 
   const token = process.env.MELHOR_ENVIO_TOKEN;
-  if (!token) throw new Error("Token do Melhor Envio não configurado.");
+  if (!token) return { error: "Token do Melhor Envio não configurado." };
 
   try {
     const payload = {
@@ -219,7 +228,7 @@ export async function generateShippingLabel(orderId: string) {
       },
       to: {
         name: order.customer.name,
-        phone: order.customer.phone || "5511999999999",
+        phone: order.customer.phone || "5585999999999",
         email: order.customer.email || "contato@cliente.com",
         document: (order.customer.cpf && order.customer.cpf.replace(/\D/g, '').length === 11) ? order.customer.cpf.replace(/\D/g, '') : "11144477735", // Fallback to valid CPF
         address: order.street,
@@ -265,7 +274,16 @@ export async function generateShippingLabel(orderId: string) {
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Melhor Envio Error:", errorData);
-      throw new Error("Falha ao gerar etiqueta no Melhor Envio.");
+      
+      // Captura mensagem de erro amigável se houver
+      let errorMessage = "Falha ao gerar etiqueta no Melhor Envio.";
+      if (errorData.errors && typeof errorData.errors === 'object') {
+         const firstErrorKey = Object.keys(errorData.errors)[0];
+         if (firstErrorKey) errorMessage = `${firstErrorKey}: ${errorData.errors[firstErrorKey][0]}`;
+      } else if (errorData.message) {
+         errorMessage = errorData.message;
+      }
+      return { error: errorMessage };
     }
     
     // Atualizar status para SHIPPED para indicar que a etiqueta foi pro carrinho
@@ -277,11 +295,15 @@ export async function generateShippingLabel(orderId: string) {
     
     await sendStatusUpdateEmail(updatedOrder, 'SHIPPED');
 
-  } catch (e) {
-    console.error("Erro interno ao integrar com Melhor Envio:", e);
-  }
+    if (shouldRevalidate) {
+      revalidatePath("/admin/vendas");
+      revalidatePath("/admin");
+    }
 
-  revalidatePath("/admin/vendas")
-  revalidatePath("/admin")
+    return { success: true };
+  } catch (e: any) {
+    console.error("Erro interno ao integrar com Melhor Envio:", e);
+    return { error: e.message || "Erro de conexão ao gerar etiqueta." };
+  }
 }
 
