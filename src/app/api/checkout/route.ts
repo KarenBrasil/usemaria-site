@@ -21,7 +21,13 @@ export async function POST(request: Request) {
           name: customer.name,
           email: customer.email,
           phone: customer.phone,
+          cpf: customer.cpf
         }
+      });
+    } else if (customer.cpf && !dbCustomer.cpf) {
+      dbCustomer = await prisma.customer.update({
+        where: { id: dbCustomer.id },
+        data: { cpf: customer.cpf }
       });
     }
 

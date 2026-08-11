@@ -87,7 +87,7 @@ export default async function SalesPage({
             <details key={order.id} className="group bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden hover:shadow-md transition-shadow">
               
               {/* Cabeçalho do Card (Sempre Visível) */}
-              <summary className="cursor-pointer list-none p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 outline-none [&::-webkit-details-marker]:hidden bg-white group-open:bg-zinc-50/50 transition-colors">
+              <summary className="cursor-pointer list-none p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 outline-none [&::-webkit-details-marker]:hidden bg-white group-open:bg-zinc-50/50 hover:bg-zinc-50 transition-all active:scale-[0.99]">
                 <div className="flex items-center gap-4 w-full md:w-auto">
                   <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 group-open:rotate-180 transition-transform">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -212,7 +212,7 @@ export default async function SalesPage({
                     
                     {order.status === 'PENDING' && (
                       <form action={confirmPixOrder.bind(null, order.id)}>
-                        <button type="submit" className="w-full bg-emerald-50 text-emerald-700 border-2 border-emerald-500 font-bold tracking-wide text-[13px] py-3 rounded-xl hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <button type="submit" className="cursor-pointer w-full bg-emerald-50 text-emerald-700 border-2 border-emerald-500 font-bold tracking-wide text-[13px] py-3 rounded-xl hover:bg-emerald-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm">
                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                           Aprovar Pagamento
                         </button>
@@ -222,7 +222,7 @@ export default async function SalesPage({
                     {(order.status === 'PAID' || order.status === 'SHIPPED') && (
                       <div className="flex flex-col gap-3">
                         <form action={generateShippingLabel.bind(null, order.id)}>
-                          <button type="submit" className="w-full bg-[#ffcc00] text-black font-bold tracking-wide text-[13px] py-3 rounded-xl hover:bg-[#ffdb4d] transition-colors flex items-center justify-center gap-2 shadow-sm">
+                          <button type="submit" className="cursor-pointer w-full bg-[#ffcc00] text-black font-bold tracking-wide text-[13px] py-3 rounded-xl hover:bg-[#ffdb4d] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                             Gerar Etiqueta
                           </button>
@@ -232,7 +232,7 @@ export default async function SalesPage({
                           href="https://app.melhorenvio.com.br/carrinho" 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="w-full bg-white text-zinc-700 border border-zinc-200 font-semibold text-[13px] py-3 rounded-xl hover:bg-zinc-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                          className="cursor-pointer w-full bg-white text-zinc-700 border border-zinc-200 font-semibold text-[13px] py-3 rounded-xl hover:bg-zinc-50 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm"
                         >
                           Acessar Melhor Envio
                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
