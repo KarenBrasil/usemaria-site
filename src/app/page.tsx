@@ -25,7 +25,20 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
     storeName: "USE MARIA",
     hero1Title: "Vista Sua Fé",
     hero1Subtitle: "Nova Coleção",
-    hero1Image: "/images/catalog/page-0001.jpg", // Needs to be a lifestyle photo later
+    hero1Text: "T-shirts femininas estampadas com delicadeza e propósito. Vista-se de amor e devoção todos os dias.",
+    hero1Image: "/images/catalog/page-0001.jpg", 
+    feature1Title: "Qualidade Premium",
+    feature1Text: "Algodão sustentável",
+    feature2Title: "Compre no Atacado",
+    feature2Text: "A partir de 10 peças",
+    feature3Title: "Design Exclusivo",
+    feature3Text: "Estampas católicas",
+    feature4Title: "Envio para todo Brasil",
+    feature4Text: "Rapidez e segurança",
+    collectionTitle: "Nossas Estampas",
+    collectionSubtitle: "Escolha a devoção que mais toca o seu coração.",
+    editorialTitle: "Devoção em cada detalhe",
+    editorialSubtitle: "Acompanhe nosso trabalho no instagram",
     hero2Title: "O Look Perfeito",
     hero2Subtitle: "Escolha da Estilista",
     hero2Text: "Capturado por @fotografo",
@@ -35,16 +48,34 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
     tiktokUrl: "#"
   }
 
+  // Fallbacks seguros se a migração ainda não rodou em prod
+  const safeSettings = {
+    ...defaultSettings,
+    hero1Text: (defaultSettings as any).hero1Text || "T-shirts femininas estampadas com delicadeza e propósito. Vista-se de amor e devoção todos os dias.",
+    feature1Title: (defaultSettings as any).feature1Title || "Qualidade Premium",
+    feature1Text: (defaultSettings as any).feature1Text || "Algodão sustentável",
+    feature2Title: (defaultSettings as any).feature2Title || "Compre no Atacado",
+    feature2Text: (defaultSettings as any).feature2Text || "A partir de 10 peças",
+    feature3Title: (defaultSettings as any).feature3Title || "Design Exclusivo",
+    feature3Text: (defaultSettings as any).feature3Text || "Estampas católicas",
+    feature4Title: (defaultSettings as any).feature4Title || "Envio para todo Brasil",
+    feature4Text: (defaultSettings as any).feature4Text || "Rapidez e segurança",
+    collectionTitle: (defaultSettings as any).collectionTitle || "Nossas Estampas",
+    collectionSubtitle: (defaultSettings as any).collectionSubtitle || "Escolha a devoção que mais toca o seu coração.",
+    editorialTitle: (defaultSettings as any).editorialTitle || "Devoção em cada detalhe",
+    editorialSubtitle: (defaultSettings as any).editorialSubtitle || "Acompanhe nosso trabalho no instagram",
+  };
+
   return (
     <div className="flex flex-col min-h-screen font-sans bg-[#FCFBF9] text-zinc-900">
-      <Header settings={defaultSettings} />
+      <Header settings={safeSettings as any} />
 
       {/* HERO SECTION - ESTÉTICA CATÓLICA */}
       <section className="relative w-full h-[60vh] md:h-[80vh] bg-[#FCFBF9] overflow-hidden flex items-center border-b border-amber-200/30">
         <div className="absolute inset-0 md:left-[30%] w-full md:w-[70%] h-full z-0">
           <Image
-            src={defaultSettings.hero1Image}
-            alt={defaultSettings.hero1Title}
+            src={safeSettings.hero1Image}
+            alt={safeSettings.hero1Title}
             fill
             className="object-cover object-top opacity-90 mix-blend-multiply"
             priority
@@ -56,17 +87,17 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
           <div className="flex items-center gap-3 mb-6">
             <span className="w-8 h-[1px] bg-amber-400"></span>
             <p className="text-[11px] uppercase tracking-[0.3em] font-medium text-amber-600">
-              {defaultSettings.hero1Subtitle}
+              {safeSettings.hero1Subtitle}
             </p>
           </div>
           
           <h1 className="text-5xl md:text-[80px] font-serif leading-[1.1] text-zinc-900 mb-6 tracking-tight flex flex-col">
-            <span className="font-light italic text-zinc-700">Vestindo</span>
-            <span className="font-medium text-amber-800">Sua Fé</span>
+            <span className="font-light italic text-zinc-700">{safeSettings.hero1Title.split(' ')[0]}</span>
+            <span className="font-medium text-amber-800">{safeSettings.hero1Title.split(' ').slice(1).join(' ')}</span>
           </h1>
           
           <p className="text-base md:text-lg text-zinc-600 mb-10 max-w-md font-light leading-relaxed">
-            T-shirts femininas estampadas com delicadeza e propósito. Vista-se de amor e devoção todos os dias.
+            {safeSettings.hero1Text}
           </p>
           
           <Link href="/colecoes" className="group relative overflow-hidden bg-white border border-amber-200 text-amber-800 uppercase text-[11px] tracking-[0.2em] font-medium py-4 px-10 transition-all hover:bg-amber-50 hover:border-amber-300">
@@ -79,20 +110,20 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
       <section className="bg-white py-10 px-4 md:px-12 w-full border-b border-zinc-100">
         <div className="max-w-[1200px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-zinc-100">
           <div className="flex flex-col items-center text-center px-4">
-            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">Qualidade Premium</h4>
-            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">Algodão sustentável</p>
+            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">{safeSettings.feature1Title}</h4>
+            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">{safeSettings.feature1Text}</p>
           </div>
           <div className="flex flex-col items-center text-center px-4">
-            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">Compre no Atacado</h4>
-            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">A partir de 10 peças</p>
+            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">{safeSettings.feature2Title}</h4>
+            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">{safeSettings.feature2Text}</p>
           </div>
           <div className="flex flex-col items-center text-center px-4">
-            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">Design Exclusivo</h4>
-            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">Estampas católicas</p>
+            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">{safeSettings.feature3Title}</h4>
+            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">{safeSettings.feature3Text}</p>
           </div>
           <div className="flex flex-col items-center text-center px-4">
-            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">Envio para todo Brasil</h4>
-            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">Rapidez e segurança</p>
+            <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-800">{safeSettings.feature4Title}</h4>
+            <p className="text-[11px] text-zinc-400 mt-2 font-serif italic">{safeSettings.feature4Text}</p>
           </div>
         </div>
       </section>
@@ -102,10 +133,10 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
         <div className="text-center mb-12">
           <span className="text-amber-300 block mb-3 text-xl font-serif">†</span>
           <h2 className="text-2xl md:text-3xl font-serif text-zinc-900 px-4 mb-4">
-            Nossas Estampas
+            {safeSettings.collectionTitle}
           </h2>
           <p className="text-sm text-zinc-500 font-light max-w-md mx-auto">
-            Escolha a devoção que mais toca o seu coração.
+            {safeSettings.collectionSubtitle}
           </p>
         </div>
 
@@ -181,11 +212,11 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
       <section className="px-4 md:px-8 max-w-[1400px] mx-auto w-full mb-16">
         <div className="flex flex-col items-center text-center mb-10 border-t border-amber-200/40 pt-16">
           <h2 className="text-2xl font-serif text-zinc-900 mb-2">
-            Devoção em cada detalhe
+            {safeSettings.editorialTitle}
           </h2>
-          <p className="text-xs text-zinc-500 font-light mb-6">Acompanhe nosso trabalho no instagram</p>
-          <Link href={defaultSettings.instagramUrl} target="_blank" className="text-[10px] font-medium uppercase tracking-widest text-amber-700 hover:text-amber-900 flex items-center gap-2 border-b border-amber-200 pb-1 transition-colors">
-            @usemaria <span>→</span>
+          <p className="text-xs text-zinc-500 font-light mb-6">{safeSettings.editorialSubtitle}</p>
+          <Link href={safeSettings.instagramUrl} target="_blank" className="text-[10px] font-medium uppercase tracking-widest text-amber-700 hover:text-amber-900 flex items-center gap-2 border-b border-amber-200 pb-1 transition-colors">
+            @{safeSettings.instagramUrl.split('instagram.com/')[1] || 'usemaria'} <span>→</span>
           </Link>
         </div>
 
@@ -205,7 +236,7 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
         </div>
       </section>
 
-      <Footer settings={defaultSettings} />
+      <Footer settings={safeSettings as any} />
     </div>
   );
 }

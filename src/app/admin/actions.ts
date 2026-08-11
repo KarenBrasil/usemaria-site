@@ -62,11 +62,21 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
   }).catch(console.error);
 }
 
+import { put } from '@vercel/blob'
+
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string
   const priceStr = formData.get("price") as string
   const price = parseFloat(priceStr.replace(",", "."))
-  const image = formData.get("image") as string
+  
+  // Imagem via URL (legado) ou Arquivo (novo)
+  let imageUrl = formData.get("image") as string
+  const imageFile = formData.get("imageFile") as File
+  
+  if (imageFile && imageFile.size > 0) {
+    const blob = await put(imageFile.name, imageFile, { access: 'public' })
+    imageUrl = blob.url
+  }
   
   const sizes = ["PP", "P", "M", "G", "GG", "U"]
   const sizeData = sizes.map(size => {
@@ -79,7 +89,7 @@ export async function createProduct(formData: FormData) {
     data: {
       name,
       price,
-      image: image || null,
+      image: imageUrl || null,
       isNew: true,
       sizes: {
         create: sizeData
@@ -104,14 +114,23 @@ export async function updateProduct(id: string, formData: FormData) {
   const name = formData.get("name") as string
   const priceStr = formData.get("price") as string
   const price = parseFloat(priceStr.replace(",", "."))
-  const image = formData.get("image") as string
+  
+  // Imagem via URL (legado) ou Arquivo (novo)
+  let imageUrl = formData.get("image") as string
+  const imageFile = formData.get("imageFile") as File
+  
+  if (imageFile && imageFile.size > 0) {
+    const blob = await put(imageFile.name, imageFile, { access: 'public' })
+    imageUrl = blob.url
+  }
   
   await prisma.product.update({
     where: { id },
     data: {
       name,
       price,
-      image: image || null,
+      // Só atualiza a imagem se o usuário preencheu uma nova url ou fez upload
+      ...(imageUrl ? { image: imageUrl } : {})
     }
   })
 

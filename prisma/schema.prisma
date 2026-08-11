@@ -91,13 +91,37 @@ model OrderItem {
 model StoreSettings {
   id             String @id @default("default")
   storeName      String @default("USE MARIA")
+  
+  // Hero 1 (Banner Principal)
   hero1Image     String @default("/images/catalog/page-0001.jpg")
-  hero1Subtitle  String @default("Lançamento Exclusivo Online")
-  hero1Title     String @default("A Coleção Divina")
+  hero1Subtitle  String @default("Nova Coleção")
+  hero1Title     String @default("Vista Sua Fé")
+  hero1Text      String @default("T-shirts femininas estampadas com delicadeza e propósito. Vista-se de amor e devoção todos os dias.")
+  
+  // Barra de Features
+  feature1Title  String @default("Qualidade Premium")
+  feature1Text   String @default("Algodão sustentável")
+  feature2Title  String @default("Compre no Atacado")
+  feature2Text   String @default("A partir de 10 peças")
+  feature3Title  String @default("Design Exclusivo")
+  feature3Text   String @default("Estampas católicas")
+  feature4Title  String @default("Envio para todo Brasil")
+  feature4Text   String @default("Rapidez e segurança")
+
+  // Coleção (Seção de Produtos)
+  collectionTitle    String @default("Nossas Estampas")
+  collectionSubtitle String @default("Escolha a devoção que mais toca o seu coração.")
+
+  // Editorial (Hero 2 - Banner Final)
+  editorialTitle     String @default("Devoção em cada detalhe")
+  editorialSubtitle  String @default("Acompanhe nosso trabalho no instagram")
+  
   hero2Image     String @default("/images/catalog/page-0006.jpg")
   hero2Subtitle  String @default("Escolha da Estilista")
   hero2Title     String @default("O Look Perfeito")
   hero2Text      String @default("Capturado por @fotografo")
+  
+  // Contato & Redes Sociais
   whatsappNumber String @default("5585994277446")
   instagramUrl   String @default("#")
   tiktokUrl      String @default("#")

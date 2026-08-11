@@ -3,7 +3,7 @@ import { createProduct } from "../../../actions"
 
 export default function NewProductPage() {
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto pb-20">
       <div className="flex items-center gap-4 mb-8">
         <Link href="/admin/produtos" className="text-zinc-500 hover:text-black">&larr; Voltar</Link>
         <h2 className="text-2xl font-bold tracking-wide">Adicionar Peça</h2>
@@ -33,17 +33,32 @@ export default function NewProductPage() {
             />
           </div>
           
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold uppercase tracking-wider">Caminho da Imagem</label>
-            <input 
-              name="image" 
-              type="text" 
-              placeholder="Ex: /images/catalog/page-0001.jpg" 
-              className="p-3 border border-zinc-300 rounded focus:border-black outline-none transition-colors"
-            />
-            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">
-              Como já importamos o catálogo, você pode digitar o caminho de uma das imagens importadas.
+          <div className="flex flex-col gap-2 p-4 bg-zinc-50 border border-zinc-200 rounded-lg">
+            <label className="text-sm font-bold uppercase tracking-wider text-black">Upload de Imagem</label>
+            <p className="text-[11px] text-zinc-500 mb-2">
+              Faça upload do seu computador ou celular.
             </p>
+            <input 
+              name="imageFile" 
+              type="file" 
+              accept="image/*"
+              className="block w-full text-sm text-zinc-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-xs file:font-bold file:uppercase file:tracking-widest
+                file:bg-black file:text-white
+                hover:file:bg-zinc-800 transition-all cursor-pointer"
+            />
+            
+            <div className="mt-4 pt-4 border-t border-zinc-200">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1 block">Ou cole o caminho/URL da imagem (Avançado)</label>
+              <input 
+                name="image" 
+                type="text" 
+                placeholder="Ex: /images/catalog/page-0001.jpg" 
+                className="w-full p-2 text-xs border border-zinc-300 rounded focus:border-black outline-none transition-colors"
+              />
+            </div>
           </div>
 
           <div className="pt-4 border-t border-zinc-100">
