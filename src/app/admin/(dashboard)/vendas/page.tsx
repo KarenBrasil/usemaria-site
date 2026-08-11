@@ -73,7 +73,7 @@ export default async function SalesPage({
         })}
       </div>
       
-      <div className="space-y-6">
+      <div className="space-y-4">
         {orders.length === 0 ? (
           <div className="bg-white rounded-2xl border border-zinc-200 p-16 text-center shadow-sm">
             <div className="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-zinc-100">
@@ -84,39 +84,50 @@ export default async function SalesPage({
           </div>
         ) : (
           orders.map(order => (
-            <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden hover:shadow-md transition-shadow">
+            <details key={order.id} className="group bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden hover:shadow-md transition-shadow">
               
-              {/* Cabeçalho do Card */}
-              <div className="border-b border-zinc-100 p-5 md:p-6 bg-zinc-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-extrabold text-xl tracking-tight">Pedido #{order.id.slice(-6).toUpperCase()}</h3>
-                    <span className="text-xs font-medium text-zinc-400">
-                      {new Date(order.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' })}
-                    </span>
+              {/* Cabeçalho do Card (Sempre Visível) */}
+              <summary className="cursor-pointer list-none p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 outline-none [&::-webkit-details-marker]:hidden bg-white group-open:bg-zinc-50/50 transition-colors">
+                <div className="flex items-center gap-4 w-full md:w-auto">
+                  <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 group-open:rotate-180 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                   </div>
-                  <p className="text-sm font-medium text-zinc-600">Comprador: <span className="text-zinc-900 font-bold">{order.customer?.name}</span></p>
+                  <div>
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="font-extrabold text-xl tracking-tight">Pedido #{order.id.slice(-6).toUpperCase()}</h3>
+                      <span className="text-xs font-medium text-zinc-400">
+                        {new Date(order.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' })}
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium text-zinc-600">Comprador: <span className="text-zinc-900 font-bold">{order.customer?.name}</span></p>
+                  </div>
                 </div>
                 
-                {/* ETIQUETA SUPER CHAMATIVA */}
-                <div className={`px-4 py-2 rounded-lg border-2 shadow-sm font-extrabold text-xs uppercase tracking-widest flex items-center gap-2 ${
-                  order.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
-                  order.status === 'PAID' ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 
-                  order.status === 'SHIPPED' ? 'bg-blue-50 text-blue-700 border-blue-300' : 
-                  order.status === 'DELIVERED' ? 'bg-zinc-100 text-zinc-800 border-zinc-300' : 
-                  'bg-rose-50 text-rose-700 border-rose-200'
-                }`}>
-                  {order.status === 'PENDING' && <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>}
-                  {order.status === 'PAID' && <span className="w-2 h-2 rounded-full bg-emerald-500"></span>}
-                  {order.status === 'PENDING' ? 'Aguardando Pagamento' : 
-                   order.status === 'PAID' ? 'Pagamento Aprovado' : 
-                   order.status === 'SHIPPED' ? 'Enviado' : 
-                   order.status === 'DELIVERED' ? 'Entregue' : 'Cancelado'}
+                <div className="flex items-center gap-4 ml-12 md:ml-0">
+                  <div className="text-right mr-2 hidden md:block">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Total Pago</p>
+                    <p className="font-bold text-lg tracking-tighter text-zinc-900">R$ {order.total.toFixed(2).replace('.', ',')}</p>
+                  </div>
+                  {/* ETIQUETA SUPER CHAMATIVA */}
+                  <div className={`px-4 py-2 rounded-lg border-2 shadow-sm font-extrabold text-xs uppercase tracking-widest flex items-center gap-2 ${
+                    order.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
+                    order.status === 'PAID' ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 
+                    order.status === 'SHIPPED' ? 'bg-blue-50 text-blue-700 border-blue-300' : 
+                    order.status === 'DELIVERED' ? 'bg-zinc-100 text-zinc-800 border-zinc-300' : 
+                    'bg-rose-50 text-rose-700 border-rose-200'
+                  }`}>
+                    {order.status === 'PENDING' && <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>}
+                    {order.status === 'PAID' && <span className="w-2 h-2 rounded-full bg-emerald-500"></span>}
+                    {order.status === 'PENDING' ? 'Aguardando Pagamento' : 
+                     order.status === 'PAID' ? 'Pagamento Aprovado' : 
+                     order.status === 'SHIPPED' ? 'Enviado' : 
+                     order.status === 'DELIVERED' ? 'Entregue' : 'Cancelado'}
+                  </div>
                 </div>
-              </div>
+              </summary>
 
-              {/* Corpo do Card */}
-              <div className="p-5 md:p-6 flex flex-col lg:flex-row gap-8">
+              {/* Corpo do Card (Expandível) */}
+              <div className="p-5 md:p-6 flex flex-col lg:flex-row gap-8 border-t border-zinc-100 bg-zinc-50/30">
                 
                 {/* Coluna 1: Produtos e Endereço */}
                 <div className="flex-1 space-y-6">
@@ -140,7 +151,7 @@ export default async function SalesPage({
                           <span className="font-bold text-zinc-900">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</span>
                         </div>
                       ))}
-                      <div className="bg-zinc-50 p-4 flex justify-between items-center border-t border-zinc-100">
+                      <div className="bg-zinc-50 p-4 flex justify-between items-center border-t border-zinc-100 md:hidden">
                          <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Valor Total Pago</span>
                          <span className="text-xl font-black tracking-tighter text-emerald-600">R$ {order.total.toFixed(2).replace('.', ',')}</span>
                       </div>
@@ -192,34 +203,47 @@ export default async function SalesPage({
                     </form>
                   </div>
 
-                  <hr className="border-zinc-100" />
+                  {/* Ações Dinâmicas (PIX ou Melhor Envio) */}
+                  {(order.status === 'PENDING' || order.status === 'PAID' || order.status === 'SHIPPED') && (
+                    <hr className="border-zinc-200" />
+                  )}
                   
-                  {/* Bloco 2: Ações Extras (PIX e Melhor Envio) */}
                   <div className="space-y-3">
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">Ações Rápidas</h4>
                     
                     {order.status === 'PENDING' && (
                       <form action={confirmPixOrder.bind(null, order.id)}>
-                        <button type="submit" className="w-full bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold tracking-widest uppercase text-[10px] py-3.5 rounded-xl hover:bg-emerald-200 transition-colors flex items-center justify-center gap-2 shadow-sm">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
-                          Confirmar Pagamento
+                        <button type="submit" className="w-full bg-emerald-50 text-emerald-700 border-2 border-emerald-500 font-bold tracking-wide text-[13px] py-3 rounded-xl hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                          Aprovar Pagamento
                         </button>
                       </form>
                     )}
 
                     {(order.status === 'PAID' || order.status === 'SHIPPED') && (
-                      <form action={generateShippingLabel.bind(null, order.id)}>
-                        <button type="submit" className="w-full bg-[#ffcc00] text-black border border-[#e6b800] font-bold tracking-widest uppercase text-[10px] py-3.5 rounded-xl hover:bg-[#ffdb4d] transition-colors flex items-center justify-center gap-2 shadow-sm">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                          Enviar p/ Melhor Envio
-                        </button>
-                      </form>
+                      <div className="flex flex-col gap-3">
+                        <form action={generateShippingLabel.bind(null, order.id)}>
+                          <button type="submit" className="w-full bg-[#ffcc00] text-black font-bold tracking-wide text-[13px] py-3 rounded-xl hover:bg-[#ffdb4d] transition-colors flex items-center justify-center gap-2 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            Gerar Etiqueta
+                          </button>
+                        </form>
+                        
+                        <a 
+                          href="https://app.melhorenvio.com.br/carrinho" 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="w-full bg-white text-zinc-700 border border-zinc-200 font-semibold text-[13px] py-3 rounded-xl hover:bg-zinc-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                        >
+                          Acessar Melhor Envio
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </a>
+                      </div>
                     )}
                   </div>
 
                 </div>
               </div>
-            </div>
+            </details>
           ))
         )}
       </div>
