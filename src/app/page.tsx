@@ -6,11 +6,15 @@ import Footer from "@/components/Footer";
 
 export const dynamic = 'force-dynamic';
 
-export default async function Home({ searchParams }: { searchParams: { cat?: string } }) {
+export default async function Home({ searchParams }: { searchParams: { cat?: string, q?: string } }) {
   const categoryId = searchParams.cat;
+  const searchQuery = searchParams.q;
 
   const products = await prisma.product.findMany({
-    where: categoryId ? { categoryId } : undefined,
+    where: {
+      ...(categoryId ? { categoryId } : {}),
+      ...(searchQuery ? { name: { contains: searchQuery, mode: 'insensitive' } } : {})
+    },
     include: { sizes: true, category: true },
     orderBy: { createdAt: 'desc' },
     take: 50
@@ -133,11 +137,13 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
         <div className="text-center mb-12">
           <span className="text-amber-300 block mb-3 text-xl font-serif">†</span>
           <h2 className="text-2xl md:text-3xl font-serif text-zinc-900 px-4 mb-4">
-            {safeSettings.collectionTitle}
+            {searchQuery ? `Resultados para: "${searchQuery}"` : safeSettings.collectionTitle}
           </h2>
-          <p className="text-sm text-zinc-500 font-light max-w-md mx-auto">
-            {safeSettings.collectionSubtitle}
-          </p>
+          {!searchQuery && (
+            <p className="text-sm text-zinc-500 font-light max-w-md mx-auto">
+              {safeSettings.collectionSubtitle}
+            </p>
+          )}
         </div>
 
         {/* CATEGORY FILTERS */}

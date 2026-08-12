@@ -37,6 +37,8 @@ model ProductSize {
 
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  reservations Reservation[]
 }
 
 model Customer {
@@ -129,4 +131,15 @@ model StoreSettings {
   // PIX Settings
   pixKey         String @default("CNPJ: 00.000.000/0001-00")
   pixName        String @default("USE MARIA OFICIAL")
+}
+
+model Reservation {
+  id            String   @id @default(cuid())
+  cartId        String   // ID gerado no navegador do usuário
+  quantity      Int
+  expiresAt     DateTime // 15 minutos no futuro
+  createdAt     DateTime @default(now())
+
+  productSizeId String
+  productSize   ProductSize @relation(fields: [productSizeId], references: [id], onDelete: Cascade)
 }

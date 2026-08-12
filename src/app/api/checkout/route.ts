@@ -8,7 +8,7 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { customer, items, total, paymentMethod, address } = body;
+    const { customer, items, total, paymentMethod, address, cartId } = body;
 
     // 1. Create or find customer in database
     let dbCustomer = await prisma.customer.findFirst({
@@ -54,6 +54,26 @@ export async function POST(request: Request) {
         }
       }
     });
+
+    // 2.5. Deduct physical stock and remove reservations
+    for (const item of items) {
+      const product = await prisma.product.findUnique({
+        where: { id: item.productId },
+        include: { sizes: true }
+      });
+      const pSize = product?.sizes.find(s => s.size === item.size);
+      if (pSize) {
+        await prisma.productSize.update({
+          where: { id: pSize.id },
+          data: { stock: { decrement: item.quantity } }
+        });
+      }
+    }
+    if (cartId) {
+      await prisma.reservation.deleteMany({
+        where: { cartId }
+      });
+    }
 
     // Send Emails via Resend (fire and forget)
     if (process.env.RESEND_API_KEY) {

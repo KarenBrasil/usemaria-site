@@ -156,6 +156,7 @@ function CheckoutContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          cartId: useCartStore.getState().cartId,
           customer: { name: formData.name, email: formData.email, phone: formData.phone, cpf: formData.document },
           address: {
             zipcode: formData.zipcode,

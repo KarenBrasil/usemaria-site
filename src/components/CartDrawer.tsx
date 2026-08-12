@@ -3,11 +3,40 @@
 import { useCartStore } from "@/contexts/CartContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function CartDrawer() {
-  const { items, removeItem, cartTotal, cartCount } = useCartStore();
+  const { items, removeItem, cartTotal, cartCount, expiresAt, clearCart } = useCartStore();
   const [isOpen, setIsOpen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!expiresAt) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const diff = expiresAt - now;
+      if (diff <= 0) {
+        setTimeLeft(0);
+        clearCart(); // Auto clear when expires
+        clearInterval(interval);
+      } else {
+        setTimeLeft(diff);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [expiresAt, clearCart]);
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   return (
     <>
@@ -25,11 +54,20 @@ export default function CartDrawer() {
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/50" onClick={() => setIsOpen(false)} />
           <div className="relative w-full max-w-md bg-white h-full flex flex-col shadow-2xl animate-in slide-in-from-right">
-            <div className="flex items-center justify-between p-6 border-b border-zinc-100">
-              <h2 className="text-sm font-bold uppercase tracking-widest">Sua Sacola ({cartCount()})</h2>
-              <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-black">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-              </button>
+            <div className="flex flex-col border-b border-zinc-100">
+              <div className="flex items-center justify-between p-6 pb-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest">Sua Sacola ({cartCount()})</h2>
+                <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-black">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+              {timeLeft !== null && timeLeft > 0 && items.length > 0 && (
+                <div className="px-6 pb-4 text-center">
+                  <p className="text-[10px] font-bold text-amber-600 bg-amber-50 py-1.5 px-3 border border-amber-200 rounded">
+                    ⚠️ SEU ESTOQUE ESTÁ RESERVADO POR: {formatTime(timeLeft)}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">

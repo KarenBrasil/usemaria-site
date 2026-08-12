@@ -26,7 +26,25 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     whatsappNumber: "5585994277446"
   }
 
-  const availableSizes = product.sizes.filter(s => s.stock > 0 && s.size !== 'GG').map(s => s.size);
+  // Calculate real available stock (physical - reserved)
+  const now = new Date();
+  const activeReservations = await prisma.reservation.groupBy({
+    by: ['productSizeId'],
+    where: {
+      productSize: { productId: product.id },
+      expiresAt: { gt: now }
+    },
+    _sum: { quantity: true }
+  });
+
+  const reservationMap = new Map(activeReservations.map(r => [r.productSizeId, r._sum.quantity || 0]));
+
+  const availableSizes = product.sizes.filter(s => {
+    const reserved = reservationMap.get(s.id) || 0;
+    const available = s.stock - reserved;
+    return available > 0 && s.size !== 'GG';
+  }).map(s => s.size);
+
   const phoneNumber = defaultSettings.whatsappNumber; // From StoreSettings
   const waLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(`Olá, gostaria de encomendar a peça *${product.name}* (ID: ${product.id}). Qual o valor do frete?`)}`;
 
@@ -63,7 +81,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
             <div className="py-6 border-b border-zinc-200">
               <h3 className="text-xs uppercase tracking-widest font-bold mb-4">Envio e Devolução</h3>
-              <p className="text-sm text-zinc-600 leading-relaxed">Combine o frete ou retirada pelo WhatsApp. Trocas em até 7 dias após o recebimento.</p>
+              <p className="text-sm text-zinc-600 leading-relaxed mb-6">Combine o frete ou retirada pelo WhatsApp. Trocas em até 7 dias após o recebimento.</p>
+              
+              <h3 className="text-xs uppercase tracking-widest font-bold mb-4 text-center bg-zinc-50 py-2">Tabela de Medidas</h3>
+              <div className="relative w-full aspect-[4/5] max-w-sm mx-auto border border-zinc-200 bg-[#FBF9F6]">
+                <Image 
+                  src="/images/catalog/page-0003.jpg" 
+                  alt="Tabela de Tamanhos" 
+                  fill 
+                  className="object-contain mix-blend-multiply p-4" 
+                />
+              </div>
             </div>
           </div>
 
