@@ -66,22 +66,27 @@ import { put } from '@vercel/blob'
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string
-  const priceStr = formData.get("price") as string
-  const price = parseFloat(priceStr.replace(",", "."))
+  const priceStr = (formData.get("price") as string) || "0"
+  const sanitizedPrice = priceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
+  const price = parseFloat(sanitizedPrice) || 0
   
   // Imagem via URL (legado) ou Arquivo (novo)
   let imageUrl = formData.get("image") as string
   const imageFile = formData.get("imageFile") as File
   
   if (imageFile && imageFile.size > 0) {
-    const blob = await put(imageFile.name, imageFile, { access: 'public' })
-    imageUrl = blob.url
+    try {
+      const blob = await put(imageFile.name, imageFile, { access: 'public' })
+      imageUrl = blob.url
+    } catch (e) {
+      console.error("Erro no Vercel Blob upload:", e)
+    }
   }
   
   const sizes = ["PP", "P", "M", "G", "GG", "U"]
   const sizeData = sizes.map(size => {
     const stockStr = formData.get(`stock_${size}`) as string
-    const stock = parseInt(stockStr || "0", 10)
+    const stock = parseInt(stockStr?.trim() || "0", 10) || 0
     return { size, stock }
   }).filter(s => s.stock > 0)
 
@@ -112,16 +117,21 @@ export async function deleteProduct(id: string) {
 
 export async function updateProduct(id: string, formData: FormData) {
   const name = formData.get("name") as string
-  const priceStr = formData.get("price") as string
-  const price = parseFloat(priceStr.replace(",", "."))
+  const priceStr = (formData.get("price") as string) || "0"
+  const sanitizedPrice = priceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
+  const price = parseFloat(sanitizedPrice) || 0
   
   // Imagem via URL (legado) ou Arquivo (novo)
   let imageUrl = formData.get("image") as string
   const imageFile = formData.get("imageFile") as File
   
   if (imageFile && imageFile.size > 0) {
-    const blob = await put(imageFile.name, imageFile, { access: 'public' })
-    imageUrl = blob.url
+    try {
+      const blob = await put(imageFile.name, imageFile, { access: 'public' })
+      imageUrl = blob.url
+    } catch (e) {
+      console.error("Erro no Vercel Blob upload:", e)
+    }
   }
   
   await prisma.product.update({
@@ -139,7 +149,7 @@ export async function updateProduct(id: string, formData: FormData) {
   for (const size of sizes) {
     const stockStr = formData.get(`stock_${size}`) as string
     if (stockStr !== null) {
-      const stock = parseInt(stockStr || "0", 10)
+      const stock = parseInt(stockStr?.trim() || "0", 10) || 0
       
       const existingSize = await prisma.productSize.findFirst({
         where: { productId: id, size }

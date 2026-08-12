@@ -66,6 +66,19 @@ export async function POST(request: Request) {
       .sort((a: any, b: any) => a.price - b.price)
       .slice(0, 3);
 
+    // Adiciona Retirada/Uber para a mesma cidade (Fortaleza - prefixos 60 e 61)
+    const cepClean = zipcode.replace(/\D/g, '');
+    if (cepClean.startsWith('60') || cepClean.startsWith('61')) {
+      options.unshift({
+        id: 'uber-pickup',
+        name: 'Retirada por Uber / Combinar via WhatsApp',
+        company: 'Use Maria',
+        price: 0,
+        delivery_time: 0, // 0 indicando o mais rápido possível
+        currency: 'BRL'
+      });
+    }
+
     return NextResponse.json({ options });
   } catch (error: any) {
     console.error('Erro na rota de shipping:', error);
