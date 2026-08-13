@@ -60,11 +60,11 @@ export const useCartStore = create<CartState>()(
         const id = `${newItem.productId}-${newItem.size}`;
         const state = get();
         
-        let updatedItems = [...state.items];
-        const existingItem = updatedItems.find(item => item.id === id);
+        let updatedItems = state.items.map(item => ({...item}));
+        const existingItemIndex = updatedItems.findIndex(item => item.id === id);
         
-        if (existingItem) {
-          existingItem.quantity += 1;
+        if (existingItemIndex >= 0) {
+          updatedItems[existingItemIndex].quantity += 1;
         } else {
           updatedItems.push({ ...newItem, id, quantity: 1 });
         }

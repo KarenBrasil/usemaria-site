@@ -167,7 +167,11 @@ export default function OrderAdminCard({ order }: { order: any }) {
                       <span className="font-bold text-sm text-zinc-900 shrink-0">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</span>
                     </div>
                   ))}
-                  <div className="px-4 py-3 bg-white flex justify-between items-center text-sm font-medium text-zinc-600">
+                  <div className="px-4 py-3 bg-white flex justify-between items-center text-sm font-medium text-zinc-600 border-t border-zinc-100">
+                    <span>Método de Pagamento</span>
+                    <span className="font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded text-xs">{order.paymentMethod || 'PIX'}</span>
+                  </div>
+                  <div className="px-4 py-3 bg-white flex justify-between items-center text-sm font-medium text-zinc-600 border-t border-zinc-100">
                     <span>Frete ({order.shippingMethod || 'Grátis / Não info'})</span>
                     <span>R$ {order.shippingCost ? order.shippingCost.toFixed(2).replace('.', ',') : '0,00'}</span>
                   </div>
@@ -197,28 +201,39 @@ export default function OrderAdminCard({ order }: { order: any }) {
 
               <div className="space-y-6">
                 
-                {/* Alterar Status */}
+                {/* Alterar Status e Pagamento */}
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Status Manual</p>
-                  <form onSubmit={handleStatusChange} className="flex gap-2">
-                    <select 
-                      name="status" 
-                      defaultValue={order.status}
-                      className="flex-1 px-3 py-2.5 bg-white border border-zinc-200 rounded-lg focus:border-black outline-none text-xs font-bold text-zinc-700 disabled:opacity-50"
-                      disabled={isActionLoading}
-                    >
-                      <option value="PENDING">Pendente</option>
-                      <option value="PAID">Pago</option>
-                      <option value="SHIPPED">Enviado</option>
-                      <option value="DELIVERED">Entregue</option>
-                      <option value="CANCELLED">Cancelado</option>
-                    </select>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Atualizar Pedido</p>
+                  <form onSubmit={handleStatusChange} className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <select 
+                        name="status" 
+                        defaultValue={order.status}
+                        className="flex-1 px-3 py-2.5 bg-white border border-zinc-200 rounded-lg focus:border-black outline-none text-xs font-bold text-zinc-700 disabled:opacity-50"
+                        disabled={isActionLoading}
+                      >
+                        <option value="PENDING">Pendente</option>
+                        <option value="PAID">Pago</option>
+                        <option value="SHIPPED">Enviado</option>
+                        <option value="DELIVERED">Entregue</option>
+                        <option value="CANCELLED">Cancelado</option>
+                      </select>
+                      <select 
+                        name="paymentMethod" 
+                        defaultValue={order.paymentMethod || "PIX"}
+                        className="flex-1 px-3 py-2.5 bg-white border border-zinc-200 rounded-lg focus:border-black outline-none text-xs font-bold text-zinc-700 disabled:opacity-50"
+                        disabled={isActionLoading}
+                      >
+                        <option value="PIX">PIX</option>
+                        <option value="Cartão">Cartão</option>
+                      </select>
+                    </div>
                     <button 
                       type="submit" 
                       disabled={isActionLoading}
-                      className="bg-zinc-900 disabled:bg-zinc-400 text-white px-4 rounded-lg font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-colors"
+                      className="bg-zinc-900 disabled:bg-zinc-400 text-white px-4 py-2.5 rounded-lg font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-colors w-full"
                     >
-                      Ok
+                      Salvar Alterações
                     </button>
                   </form>
                 </div>
@@ -229,7 +244,7 @@ export default function OrderAdminCard({ order }: { order: any }) {
                 <div className="space-y-2">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-3">Principal</p>
                   
-                  {order.status === 'PENDING' && (
+                  {order.status === 'PENDING' && (!order.paymentMethod || order.paymentMethod === 'PIX') && (
                     <button 
                       onClick={handlePixConfirm}
                       disabled={isActionLoading}

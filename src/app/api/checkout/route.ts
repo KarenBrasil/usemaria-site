@@ -47,6 +47,7 @@ export async function POST(request: Request) {
         shippingMethod: body.shipping?.method,
         shippingCost: body.shipping?.cost,
         shippingServiceId: body.shipping?.serviceId,
+        paymentMethod: paymentMethod || "PIX",
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,

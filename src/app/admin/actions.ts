@@ -210,13 +210,21 @@ export async function updateProduct(id: string, formData: FormData) {
 
 export async function updateOrderStatus(id: string, formData: FormData) {
   const status = formData.get("status") as string
-  if (status) {
+  const paymentMethod = formData.get("paymentMethod") as string
+  
+  if (status || paymentMethod) {
+    const data: any = {}
+    if (status) data.status = status
+    if (paymentMethod) data.paymentMethod = paymentMethod
+
     const order = await prisma.order.update({
       where: { id },
-      data: { status },
+      data,
       include: { customer: true }
     })
-    await sendStatusUpdateEmail(order, status)
+    if (status) {
+      await sendStatusUpdateEmail(order, status)
+    }
   }
   revalidatePath("/admin/vendas")
   revalidatePath("/admin")
