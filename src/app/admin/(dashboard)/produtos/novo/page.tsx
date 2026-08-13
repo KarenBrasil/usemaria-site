@@ -22,15 +22,60 @@ export default function NewProductPage() {
             />
           </div>
           
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold uppercase tracking-wider">Preço (R$)</label>
-            <input 
-              name="price" 
-              type="text" 
-              required 
-              placeholder="Ex: 149,90" 
-              className="p-3 border border-zinc-300 rounded focus:border-black outline-none transition-colors"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold uppercase tracking-wider">Preço Atual (R$)</label>
+              <input 
+                name="price" 
+                type="text" 
+                required 
+                placeholder="Ex: 149,90" 
+                className="p-3 border border-zinc-300 rounded focus:border-black outline-none transition-colors"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Preço Antigo (Opcional - R$)</label>
+              <input 
+                name="oldPrice" 
+                type="text" 
+                placeholder="Ex: 199,90 (Ficará riscado)" 
+                className="p-3 border border-zinc-200 bg-zinc-50 rounded focus:border-black outline-none transition-colors"
+              />
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-zinc-100">
+            <label className="text-sm font-semibold uppercase tracking-wider block mb-4">Classificação e Destaques (Interruptores)</label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              
+              <label className="relative flex items-center justify-between p-4 border border-zinc-200 rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors">
+                <div>
+                  <span className="font-bold text-sm block">Novidade</span>
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">Tag "Novo"</span>
+                </div>
+                <input type="checkbox" name="isNew" value="true" className="sr-only peer" />
+                <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[22px] after:right-[18px] peer-checked:after:right-[38px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+
+              <label className="relative flex items-center justify-between p-4 border border-zinc-200 rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors">
+                <div>
+                  <span className="font-bold text-sm block">Atacado</span>
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">Aba Varejo e Atacado</span>
+                </div>
+                <input type="checkbox" name="isWholesale" value="true" className="sr-only peer" />
+                <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[22px] after:right-[18px] peer-checked:after:right-[38px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+
+              <label className="relative flex items-center justify-between p-4 border border-zinc-200 rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors">
+                <div>
+                  <span className="font-bold text-sm block">Promoção</span>
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">Tag "Promoção"</span>
+                </div>
+                <input type="checkbox" name="isPromotion" value="true" className="sr-only peer" />
+                <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[22px] after:right-[18px] peer-checked:after:right-[38px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+
+            </div>
           </div>
           
           <div className="flex flex-col gap-2 p-4 bg-zinc-50 border border-zinc-200 rounded-lg">

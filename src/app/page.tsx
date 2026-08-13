@@ -9,11 +9,15 @@ export const dynamic = 'force-dynamic';
 export default async function Home({ searchParams }: { searchParams: { cat?: string, q?: string } }) {
   const categoryId = searchParams.cat;
   const searchQuery = searchParams.q;
+  const filterType = searchParams.filter; // 'atacado', 'promocao', 'novidade'
 
   const products = await prisma.product.findMany({
     where: {
       ...(categoryId ? { categoryId } : {}),
-      ...(searchQuery ? { name: { contains: searchQuery, mode: 'insensitive' } } : {})
+      ...(searchQuery ? { name: { contains: searchQuery, mode: 'insensitive' } } : {}),
+      ...(filterType === 'atacado' ? { isWholesale: true } : {}),
+      ...(filterType === 'promocao' ? { isPromotion: true } : {}),
+      ...(filterType === 'novidade' ? { isNew: true } : {}),
     },
     include: { sizes: true, category: true },
     orderBy: { createdAt: 'desc' },
@@ -89,7 +93,6 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
         
         <div className="relative z-10 w-full max-w-[1400px] mx-auto px-8 md:px-12 flex flex-col items-start pt-10">
           <div className="flex items-center gap-3 mb-6">
-            <span className="w-8 h-[1px] bg-amber-400"></span>
             <p className="text-[11px] uppercase tracking-[0.3em] font-medium text-amber-600">
               {safeSettings.hero1Subtitle}
             </p>
@@ -150,10 +153,29 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
         <div className="flex flex-wrap justify-center gap-4 mb-16 px-4">
           <Link 
             href="/" 
-            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${!categoryId ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${!categoryId && !filterType ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
           >
             Todas
           </Link>
+          <Link 
+            href="/?filter=novidade" 
+            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${filterType === 'novidade' ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+          >
+            Novidades
+          </Link>
+          <Link 
+            href="/?filter=atacado" 
+            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${filterType === 'atacado' ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+          >
+            Atacado
+          </Link>
+          <Link 
+            href="/?filter=promocao" 
+            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${filterType === 'promocao' ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+          >
+            Promoção
+          </Link>
+          <span className="text-zinc-300">|</span>
           {categories.map(cat => (
             <Link 
               key={cat.id}
@@ -163,17 +185,30 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
               {cat.name}
             </Link>
           ))}
+
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-16">
           {products.map((product) => (
             <div key={product.id} className="group flex flex-col text-center">
               <Link href={`/product/${product.id}`} className="relative aspect-[4/5] bg-white mb-5 overflow-hidden block border border-zinc-100">
-                {product.isNew && (
-                  <span className="absolute top-4 left-4 z-10 text-[9px] font-medium uppercase tracking-[0.2em] bg-white text-zinc-800 px-3 py-1 shadow-sm">
-                    Novo
-                  </span>
-                )}
+                <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                  {product.isNew && (
+                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-white text-zinc-800 px-3 py-1 shadow-sm">
+                      Novo
+                    </span>
+                  )}
+                  {product.isPromotion && (
+                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-red-600 text-white px-3 py-1 shadow-sm">
+                      Promoção
+                    </span>
+                  )}
+                  {product.isWholesale && (
+                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-amber-500 text-white px-3 py-1 shadow-sm">
+                      Atacado
+                    </span>
+                  )}
+                </div>
                 <Image
                   src={product.image || "/images/catalog/page-0001.jpg"}
                   alt={product.name}
@@ -192,9 +227,16 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
                   </h3>
                 </Link>
                 
-                <span className="text-sm font-medium text-zinc-900 mb-2">
-                  R$ {product.price.toFixed(2).replace('.', ',')}
-                </span>
+                <div className="flex items-center gap-2 mb-2">
+                  {product.oldPrice && (
+                    <span className="text-xs text-zinc-400 line-through">
+                      R$ {product.oldPrice.toFixed(2).replace('.', ',')}
+                    </span>
+                  )}
+                  <span className="text-sm font-medium text-zinc-900">
+                    R$ {product.price.toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
                 
                 {product.wholesalePrice && (
                   <span className="text-[10px] uppercase tracking-widest text-amber-600 font-medium">

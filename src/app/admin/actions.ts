@@ -83,6 +83,14 @@ export async function createProduct(formData: FormData) {
     }
   }
   
+  const isNew = formData.get("isNew") === "true"
+  const isWholesale = formData.get("isWholesale") === "true"
+  const isPromotion = formData.get("isPromotion") === "true"
+  
+  const oldPriceStr = (formData.get("oldPrice") as string) || ""
+  const sanitizedOldPrice = oldPriceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
+  const oldPrice = sanitizedOldPrice ? parseFloat(sanitizedOldPrice) : null
+
   const sizes = ["PP", "P", "M", "G", "GG", "U"]
   const sizeData = sizes.map(size => {
     const stockStr = formData.get(`stock_${size}`) as string
@@ -94,8 +102,11 @@ export async function createProduct(formData: FormData) {
     data: {
       name,
       price,
+      oldPrice,
       image: imageUrl || null,
-      isNew: true,
+      isNew,
+      isWholesale,
+      isPromotion,
       sizes: {
         create: sizeData
       }
@@ -121,6 +132,14 @@ export async function updateProduct(id: string, formData: FormData) {
   const sanitizedPrice = priceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
   const price = parseFloat(sanitizedPrice) || 0
   
+  const oldPriceStr = (formData.get("oldPrice") as string) || ""
+  const sanitizedOldPrice = oldPriceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
+  const oldPrice = sanitizedOldPrice ? parseFloat(sanitizedOldPrice) : null
+
+  const isNew = formData.get("isNew") === "true"
+  const isWholesale = formData.get("isWholesale") === "true"
+  const isPromotion = formData.get("isPromotion") === "true"
+
   // Imagem via URL (legado) ou Arquivo (novo)
   let imageUrl = formData.get("image") as string
   const imageFile = formData.get("imageFile") as File
@@ -139,6 +158,10 @@ export async function updateProduct(id: string, formData: FormData) {
     data: {
       name,
       price,
+      oldPrice,
+      isNew,
+      isWholesale,
+      isPromotion,
       // Só atualiza a imagem se o usuário preencheu uma nova url ou fez upload
       ...(imageUrl ? { image: imageUrl } : {})
     }

@@ -17,9 +17,12 @@ model Product {
   name        String
   description String?
   price          Float
+  oldPrice       Float?
   wholesalePrice Float?
   image          String?
   isNew          Boolean  @default(false)
+  isWholesale    Boolean  @default(false)
+  isPromotion    Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

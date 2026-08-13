@@ -56,7 +56,24 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <main className="flex-grow flex flex-col md:flex-row w-full max-w-[1400px] mx-auto px-4 md:px-8 py-12 gap-12 lg:gap-24">
         
         {/* Lado Esquerdo - Galeria de Imagens */}
-        <div className="w-full md:w-1/2 flex flex-col gap-4">
+        <div className="w-full md:w-1/2 flex flex-col gap-4 relative">
+          <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+            {product.isNew && (
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-white text-zinc-800 px-3 py-1 shadow-sm w-fit">
+                Novo
+              </span>
+            )}
+            {product.isPromotion && (
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-red-600 text-white px-3 py-1 shadow-sm w-fit">
+                Promoção
+              </span>
+            )}
+            {product.isWholesale && (
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-amber-500 text-white px-3 py-1 shadow-sm w-fit">
+                Atacado
+              </span>
+            )}
+          </div>
           <ProductImageZoom src={product.image || "/images/catalog/page-0001.jpg"} alt={product.name} />
         </div>
 
@@ -64,11 +81,21 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <div className="w-full md:w-1/2 flex flex-col pt-8 md:pt-16 md:sticky md:top-24 h-fit">
           <h1 className="text-3xl md:text-4xl font-serif mb-4">{product.name}</h1>
           <div className="flex flex-col mb-8">
-            <p className="text-xl text-zinc-900 font-bold">R$ {product.price.toFixed(2).replace('.', ',')} <span className="text-sm font-normal text-zinc-500">no varejo</span></p>
-            <div className="mt-2 text-sm bg-green-50 text-green-700 px-3 py-2 rounded font-medium border border-green-100 flex items-center gap-2 w-fit">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-               Atacado: R$ {product.wholesalePrice ? product.wholesalePrice.toFixed(2).replace('.', ',') : '34,90'} <span className="opacity-70 text-xs">(a partir de 10 peças variadas)</span>
+            <div className="flex items-center gap-3">
+              {product.oldPrice && (
+                <span className="text-lg text-zinc-400 line-through font-medium">
+                  R$ {product.oldPrice.toFixed(2).replace('.', ',')}
+                </span>
+              )}
+              <p className="text-xl text-zinc-900 font-bold">R$ {product.price.toFixed(2).replace('.', ',')} <span className="text-sm font-normal text-zinc-500">no varejo</span></p>
             </div>
+            
+            {product.wholesalePrice && (
+              <div className="mt-2 text-sm bg-green-50 text-green-700 px-3 py-2 rounded font-medium border border-green-100 flex items-center gap-2 w-fit">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                 Atacado: R$ {product.wholesalePrice.toFixed(2).replace('.', ',')} <span className="opacity-70 text-xs">(a partir de 10 peças variadas)</span>
+              </div>
+            )}
           </div>
           
           <AddToCartSection product={product} availableSizes={availableSizes} />
