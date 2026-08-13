@@ -117,7 +117,7 @@ export async function createProduct(formData: FormData) {
   
   revalidatePath("/admin/produtos")
   revalidatePath("/")
-  redirect("/admin/produtos")
+  redirect("/admin/produtos?success=created")
 }
 
 export async function deleteProduct(id: string) {
@@ -205,7 +205,7 @@ export async function updateProduct(id: string, formData: FormData) {
 
   revalidatePath("/admin/produtos")
   revalidatePath("/")
-  redirect("/admin/produtos")
+  redirect("/admin/produtos?success=updated")
 }
 
 export async function updateOrderStatus(id: string, formData: FormData) {

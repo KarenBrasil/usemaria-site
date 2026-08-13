@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma"
 import Image from "next/image"
 import Link from "next/link"
 import { deleteProduct } from "../../actions"
+import Toast from "@/components/Toast"
+import { Suspense } from "react"
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +15,9 @@ export default async function AdminPage() {
   
   return (
     <div className="pb-20">
+      <Suspense fallback={null}>
+        <Toast />
+      </Suspense>
       <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Gestão de Produtos</h2>
