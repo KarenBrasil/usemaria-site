@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 
 export const dynamic = 'force-dynamic';
 
-export default async function Home({ searchParams }: { searchParams: { cat?: string, q?: string } }) {
+export default async function Home({ searchParams }: { searchParams: { cat?: string, q?: string, filter?: string } }) {
   const categoryId = searchParams.cat;
   const searchQuery = searchParams.q;
   const filterType = searchParams.filter; // 'atacado', 'promocao', 'novidade'
