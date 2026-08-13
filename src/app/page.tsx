@@ -76,7 +76,11 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-[#FCFBF9] text-zinc-900">
-      <Header settings={safeSettings as any} />
+      <Header 
+        settings={safeSettings as any} 
+        currentFilter={filterType} 
+        currentCat={categoryId} 
+      />
 
       {/* HERO SECTION - ESTÉTICA CATÓLICA */}
       <section className="relative w-full h-[60vh] md:h-[80vh] bg-[#FCFBF9] overflow-hidden flex items-center border-b border-amber-200/30">

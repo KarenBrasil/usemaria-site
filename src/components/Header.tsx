@@ -14,10 +14,17 @@ const CartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
 );
 
-export default function Header({ settings }: { settings: Partial<StoreSettings> }) {
+export default function Header({ 
+  settings, 
+  currentFilter, 
+  currentCat 
+}: { 
+  settings: Partial<StoreSettings>,
+  currentFilter?: string,
+  currentCat?: string
+}) {
   return (
     <>
-
       <header className="w-full bg-white text-black z-20 flex items-center justify-between px-8 py-5 uppercase text-xs tracking-widest font-medium border-b border-zinc-100">
         <Link href="/" className="flex flex-col items-start">
           <span className="text-2xl font-serif tracking-widest leading-none">{settings.storeName || "USE MARIA"}</span>
@@ -29,6 +36,8 @@ export default function Header({ settings }: { settings: Partial<StoreSettings> 
         </nav>
         <div className="flex gap-6 items-center">
           <form action="/" method="GET" className="relative flex items-center group">
+            {currentFilter && <input type="hidden" name="filter" value={currentFilter} />}
+            {currentCat && <input type="hidden" name="cat" value={currentCat} />}
             <input 
               type="text" 
               name="q" 

@@ -86,6 +86,7 @@ export async function createProduct(formData: FormData) {
   const isNew = formData.get("isNew") === "true"
   const isWholesale = formData.get("isWholesale") === "true"
   const isPromotion = formData.get("isPromotion") === "true"
+  const description = formData.get("description") as string || ""
   
   const oldPriceStr = (formData.get("oldPrice") as string) || ""
   const sanitizedOldPrice = oldPriceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
@@ -101,6 +102,7 @@ export async function createProduct(formData: FormData) {
   await prisma.product.create({
     data: {
       name,
+      description,
       price,
       oldPrice,
       image: imageUrl || null,
@@ -139,7 +141,8 @@ export async function updateProduct(id: string, formData: FormData) {
   const isNew = formData.get("isNew") === "true"
   const isWholesale = formData.get("isWholesale") === "true"
   const isPromotion = formData.get("isPromotion") === "true"
-
+  const description = formData.get("description") as string || ""
+  
   // Imagem via URL (legado) ou Arquivo (novo)
   let imageUrl = formData.get("image") as string
   const imageFile = formData.get("imageFile") as File
@@ -157,6 +160,7 @@ export async function updateProduct(id: string, formData: FormData) {
     where: { id },
     data: {
       name,
+      description,
       price,
       oldPrice,
       isNew,
