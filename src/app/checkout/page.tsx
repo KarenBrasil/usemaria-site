@@ -67,7 +67,11 @@ function CheckoutContent() {
       fetch('/api/shipping', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ zipcode: cep, weight: items.reduce((acc, item) => acc + (item.quantity * 0.3), 0) })
+        body: JSON.stringify({ 
+          zipcode: cep, 
+          weight: items.reduce((acc, item) => acc + (item.quantity * 0.3), 0),
+          insuranceValue: cartTotal()
+        })
       })
       .then(res => res.json())
       .then(data => {
@@ -170,7 +174,7 @@ function CheckoutContent() {
           items: items.map(i => ({ productId: i.productId, size: i.size, quantity: i.quantity, price: i.price })),
           total: cartTotal() + shippingCost,
           paymentMethod,
-          shipping: selectedShipping ? { method: selectedShipping.name, cost: shippingCost, company: selectedShipping.company } : { method: 'GRATIS', cost: 0 }
+          shipping: selectedShipping ? { method: selectedShipping.name, cost: shippingCost, company: selectedShipping.company, serviceId: selectedShipping.id?.toString() } : { method: 'GRATIS', cost: 0 }
         })
       });
 

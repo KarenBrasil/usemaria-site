@@ -44,6 +44,9 @@ export async function POST(request: Request) {
         neighborhood: address?.neighborhood,
         city: address?.city,
         state: address?.state,
+        shippingMethod: body.shipping?.method,
+        shippingCost: body.shipping?.cost,
+        shippingServiceId: body.shipping?.serviceId,
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,

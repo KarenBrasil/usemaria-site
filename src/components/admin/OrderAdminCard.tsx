@@ -167,8 +167,12 @@ export default function OrderAdminCard({ order }: { order: any }) {
                       <span className="font-bold text-sm text-zinc-900 shrink-0">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</span>
                     </div>
                   ))}
-                  <div className="p-4 bg-zinc-50/50 flex justify-between items-center">
-                    <span className="font-bold text-xs text-zinc-500 uppercase tracking-widest">Total</span>
+                  <div className="px-4 py-3 bg-white flex justify-between items-center text-sm font-medium text-zinc-600">
+                    <span>Frete ({order.shippingMethod || 'Grátis / Não info'})</span>
+                    <span>R$ {order.shippingCost ? order.shippingCost.toFixed(2).replace('.', ',') : '0,00'}</span>
+                  </div>
+                  <div className="p-4 bg-zinc-50/50 flex justify-between items-center border-t border-zinc-100">
+                    <span className="font-bold text-xs text-zinc-500 uppercase tracking-widest">Total Geral</span>
                     <span className="font-black text-lg text-zinc-900">R$ {order.total.toFixed(2).replace('.', ',')}</span>
                   </div>
                 </div>

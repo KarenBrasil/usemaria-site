@@ -103,12 +103,12 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
         <div className="flex justify-end mb-12">
           <div className="w-1/2">
             <div className="flex justify-between items-center py-2 text-sm text-zinc-600 border-b border-zinc-100">
-              <span>Subtotal</span>
-              <span>R$ {order.total.toFixed(2).replace('.', ',')}</span>
+              <span>Subtotal Itens</span>
+              <span>R$ {(order.total - (order.shippingCost || 0)).toFixed(2).replace('.', ',')}</span>
             </div>
             <div className="flex justify-between items-center py-2 text-sm text-zinc-600 border-b border-zinc-200">
-              <span>Frete</span>
-              <span>R$ 0,00</span> {/* Assumindo que frete já compõe o total ou é grátis */}
+              <span>Frete ({order.shippingMethod || 'Grátis / Não info'})</span>
+              <span>R$ {(order.shippingCost || 0).toFixed(2).replace('.', ',')}</span>
             </div>
             <div className="flex justify-between items-center py-3 text-lg font-bold text-zinc-900">
               <span>Total Pago</span>

@@ -241,7 +241,7 @@ export async function generateShippingLabel(orderId: string, shouldRevalidate = 
 
   try {
     const payload = {
-      service: 1, // 1 = PAC, 2 = SEDEX (Idealmente seria dinâmico, mas default 1)
+      service: order.shippingServiceId ? parseInt(order.shippingServiceId) : 1, // Usa o selecionado ou fallback para PAC
       agency: 1, 
       from: {
         name: "Use Maria Oficial",
@@ -268,17 +268,17 @@ export async function generateShippingLabel(orderId: string, shouldRevalidate = 
         state_abbr: order.state || "SP",
         postal_code: order.zipcode
       },
-      products: order.items.map(item => ({
+      products: order.items.map((item: any) => ({
         name: item.product?.name || "Peça Use Maria",
         quantity: item.quantity,
         unitary_value: item.price
       })),
       volumes: [
         {
-          height: 10,
-          width: 20,
-          length: 20,
-          weight: order.items.reduce((acc, item) => acc + (item.quantity * 0.3), 0) || 0.3
+          height: 6,
+          width: 22,
+          length: 27,
+          weight: order.items.reduce((acc: number, item: any) => acc + (item.quantity * 0.3), 0) || 0.3
         }
       ],
       options: {

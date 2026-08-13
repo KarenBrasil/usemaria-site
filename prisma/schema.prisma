@@ -71,6 +71,10 @@ model Order {
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id])
 
+  shippingMethod    String?
+  shippingCost      Float?
+  shippingServiceId String?
+
   items OrderItem[]
 
   createdAt DateTime @default(now())

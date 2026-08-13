@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { zipcode, weight = 1 } = await request.json();
+    const { zipcode, weight = 0.3, insuranceValue = 0 } = await request.json();
 
     if (!zipcode) {
       return NextResponse.json({ error: 'CEP de destino não informado' }, { status: 400 });
@@ -33,11 +33,11 @@ export async function POST(request: Request) {
         products: [
           {
             id: '1',
-            weight: weight,
-            width: 20,
-            height: 20,
-            length: 20,
-            insurance_value: 0
+            weight: weight || 0.3,
+            width: 22,
+            height: 6,
+            length: 27,
+            insurance_value: insuranceValue
           }
         ]
       })
