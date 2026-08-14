@@ -161,13 +161,13 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
           <a href="/?filter=promocao#catalogo" className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${filterType === 'promocao' ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}>Promoção</a>
           <span className="text-zinc-300">|</span>
           {categories.map(cat => (
-            <Link 
+            <a 
               key={cat.id}
               href={`/?cat=${cat.id}#catalogo`} 
-              className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${categoryId === cat.id ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+              className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${categoryId === cat.id ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}
             >
               {cat.name}
-            </Link>
+            </a>
           ))}
 
         </div>
