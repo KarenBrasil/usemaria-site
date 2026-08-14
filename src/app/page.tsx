@@ -154,23 +154,11 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
         </div>
 
         {/* CATEGORY FILTERS */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16 px-4">
-          <a href="/#catalogo" className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${!filterType && !categoryId ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}>Todas</a>
-          <a href="/?filter=novidade#catalogo" className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${filterType === 'novidade' ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}>Novidades</a>
-          <a href="/?filter=atacado#catalogo" className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${filterType === 'atacado' ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}>Atacado</a>
-          <a href="/?filter=promocao#catalogo" className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${filterType === 'promocao' ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}>Promoção</a>
-          <span className="text-zinc-300">|</span>
-          {categories.map(cat => (
-            <a 
-              key={cat.id}
-              href={`/?cat=${cat.id}#catalogo`} 
-              className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${categoryId === cat.id ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}
-            >
-              {cat.name}
-            </a>
-          ))}
-
-        </div>
+        <CategoryFilters 
+          categories={categories}
+          currentFilter={filterType}
+          currentCat={categoryId}
+        />
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-16">
           {products.map((product) => (
