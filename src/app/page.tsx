@@ -18,6 +18,7 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
       ...(filterType === 'atacado' ? { isWholesale: true } : {}),
       ...(filterType === 'promocao' ? { isPromotion: true } : {}),
       ...(filterType === 'novidade' ? { isNew: true } : {}),
+      isDraft: false
     },
     include: { sizes: true, category: true },
     orderBy: { createdAt: 'desc' },
@@ -49,9 +50,8 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
     editorialSubtitle: "Acompanhe nosso trabalho no instagram",
     hero2Title: "O Look Perfeito",
     hero2Subtitle: "Escolha da Estilista",
-    hero2Text: "Capturado por @fotografo",
     hero2Image: "/images/catalog/page-0006.jpg",
-    whatsappNumber: "5585994277446",
+    whatsappNumber: "5585992659192",
     instagramUrl: "#",
     tiktokUrl: "#"
   }
@@ -140,7 +140,7 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
       </section>
 
       {/* COLLECTION GRID */}
-      <section className="py-24 px-4 md:px-8 max-w-[1400px] mx-auto w-full">
+      <section id="catalogo" className="py-24 px-4 md:px-8 max-w-[1400px] mx-auto w-full">
         <div className="text-center mb-12">
           <span className="text-amber-300 block mb-3 text-xl font-serif">†</span>
           <h2 className="text-2xl md:text-3xl font-serif text-zinc-900 px-4 mb-4">
@@ -155,35 +155,15 @@ export default async function Home({ searchParams }: { searchParams: { cat?: str
 
         {/* CATEGORY FILTERS */}
         <div className="flex flex-wrap justify-center gap-4 mb-16 px-4">
-          <Link 
-            href="/" 
-            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${!categoryId && !filterType ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
-          >
-            Todas
-          </Link>
-          <Link 
-            href="/?filter=novidade" 
-            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${filterType === 'novidade' ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
-          >
-            Novidades
-          </Link>
-          <Link 
-            href="/?filter=atacado" 
-            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${filterType === 'atacado' ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
-          >
-            Atacado
-          </Link>
-          <Link 
-            href="/?filter=promocao" 
-            className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${filterType === 'promocao' ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
-          >
-            Promoção
-          </Link>
+          <a href="/#catalogo" className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${!filterType && !categoryId ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}>Todas</a>
+          <a href="/?filter=novidade#catalogo" className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${filterType === 'novidade' ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}>Novidades</a>
+          <a href="/?filter=atacado#catalogo" className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${filterType === 'atacado' ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}>Atacado</a>
+          <a href="/?filter=promocao#catalogo" className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${filterType === 'promocao' ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}>Promoção</a>
           <span className="text-zinc-300">|</span>
           {categories.map(cat => (
             <Link 
               key={cat.id}
-              href={`/?cat=${cat.id}`} 
+              href={`/?cat=${cat.id}#catalogo`} 
               className={`text-[11px] uppercase tracking-[0.15em] pb-1 border-b-2 transition-colors ${categoryId === cat.id ? 'border-amber-500 text-zinc-900 font-medium' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
             >
               {cat.name}

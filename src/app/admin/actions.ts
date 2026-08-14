@@ -70,34 +70,39 @@ export async function createProduct(formData: FormData) {
   const sanitizedPrice = priceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
   const price = parseFloat(sanitizedPrice) || 0
   
-  // Imagem via URL (legado) ou Arquivo (novo)
-  let imageUrl = formData.get("image") as string
-  const imageFile = formData.get("imageFile") as File
-  
-  if (imageFile && imageFile.size > 0) {
-    try {
-      const blob = await put(imageFile.name, imageFile, { access: 'public' })
-      imageUrl = blob.url
-    } catch (e) {
-      console.error("Erro no Vercel Blob upload:", e)
-    }
-  }
-  
-  const isNew = formData.get("isNew") === "true"
-  const isWholesale = formData.get("isWholesale") === "true"
-  const isPromotion = formData.get("isPromotion") === "true"
-  const description = formData.get("description") as string || ""
-  
   const oldPriceStr = (formData.get("oldPrice") as string) || ""
   const sanitizedOldPrice = oldPriceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
   const oldPrice = sanitizedOldPrice ? parseFloat(sanitizedOldPrice) : null
 
-  const sizes = ["PP", "P", "M", "G", "GG", "U"]
-  const sizeData = sizes.map(size => {
-    const stockStr = formData.get(`stock_${size}`) as string
-    const stock = parseInt(stockStr?.trim() || "0", 10) || 0
-    return { size, stock }
-  }).filter(s => s.stock > 0)
+  const isNew = formData.get("isNew") === "true"
+  const isWholesale = formData.get("isWholesale") === "true"
+  const isPromotion = formData.get("isPromotion") === "true"
+  const isDraft = formData.get("isDraft") === "true"
+  const description = formData.get("description") as string || ""
+  
+  // Handle new variants JSON
+  const variantsStr = formData.get("variants") as string
+  let variants = []
+  if (variantsStr) {
+    try { variants = JSON.parse(variantsStr) } catch(e){}
+  }
+
+  // Handle images
+  const newImages = formData.getAll("newImages") as File[]
+  const uploadedUrls: string[] = []
+  
+  for (const file of newImages) {
+    if (file && file.size > 0) {
+      try {
+        const blob = await put(`products/${Date.now()}-${file.name}`, file, { access: 'public' })
+        uploadedUrls.push(blob.url)
+      } catch (e) {
+        console.error("Erro no upload:", e)
+      }
+    }
+  }
+
+  const primaryImage = uploadedUrls.length > 0 ? uploadedUrls[0] : null
 
   await prisma.product.create({
     data: {
@@ -105,12 +110,18 @@ export async function createProduct(formData: FormData) {
       description,
       price,
       oldPrice,
-      image: imageUrl || null,
+      image: primaryImage,
+      images: uploadedUrls,
       isNew,
       isWholesale,
       isPromotion,
+      isDraft,
       sizes: {
-        create: sizeData
+        create: variants.map((v: any) => ({
+          size: v.size,
+          color: v.color || "Padrão",
+          stock: v.stock
+        }))
       }
     }
   })
@@ -141,20 +152,39 @@ export async function updateProduct(id: string, formData: FormData) {
   const isNew = formData.get("isNew") === "true"
   const isWholesale = formData.get("isWholesale") === "true"
   const isPromotion = formData.get("isPromotion") === "true"
+  const isDraft = formData.get("isDraft") === "true"
   const description = formData.get("description") as string || ""
   
-  // Imagem via URL (legado) ou Arquivo (novo)
-  let imageUrl = formData.get("image") as string
-  const imageFile = formData.get("imageFile") as File
+  // Existing Images and Variants
+  const existingImagesStr = formData.get("existingImages") as string
+  let existingImages: string[] = []
+  if (existingImagesStr) {
+    try { existingImages = JSON.parse(existingImagesStr) } catch(e){}
+  }
+
+  const variantsStr = formData.get("variants") as string
+  let variants = []
+  if (variantsStr) {
+    try { variants = JSON.parse(variantsStr) } catch(e){}
+  }
+
+  // Handle new images upload
+  const newImages = formData.getAll("newImages") as File[]
+  const uploadedUrls: string[] = []
   
-  if (imageFile && imageFile.size > 0) {
-    try {
-      const blob = await put(imageFile.name, imageFile, { access: 'public' })
-      imageUrl = blob.url
-    } catch (e) {
-      console.error("Erro no Vercel Blob upload:", e)
+  for (const file of newImages) {
+    if (file && file.size > 0) {
+      try {
+        const blob = await put(`products/${Date.now()}-${file.name}`, file, { access: 'public' })
+        uploadedUrls.push(blob.url)
+      } catch (e) {
+        console.error("Erro no upload:", e)
+      }
     }
   }
+
+  const allImages = [...existingImages, ...uploadedUrls]
+  const primaryImage = allImages.length > 0 ? allImages[0] : null
   
   await prisma.product.update({
     where: { id },
@@ -166,41 +196,23 @@ export async function updateProduct(id: string, formData: FormData) {
       isNew,
       isWholesale,
       isPromotion,
-      // Só atualiza a imagem se o usuário preencheu uma nova url ou fez upload
-      ...(imageUrl ? { image: imageUrl } : {})
+      isDraft,
+      image: primaryImage,
+      images: allImages
     }
   })
 
-  // Update sizes
-  const sizes = ["PP", "P", "M", "G", "GG", "U"]
-  for (const size of sizes) {
-    const stockStr = formData.get(`stock_${size}`) as string
-    if (stockStr !== null) {
-      const stock = parseInt(stockStr?.trim() || "0", 10) || 0
-      
-      const existingSize = await prisma.productSize.findFirst({
-        where: { productId: id, size }
-      })
-
-      if (existingSize) {
-        if (stock === 0) {
-          await prisma.productSize.delete({ where: { id: existingSize.id } })
-        } else {
-          await prisma.productSize.update({
-            where: { id: existingSize.id },
-            data: { stock }
-          })
-        }
-      } else if (stock > 0) {
-        await prisma.productSize.create({
-          data: {
-            size,
-            stock,
-            productId: id
-          }
-        })
-      }
-    }
+  // Update sizes/variants completely
+  await prisma.productSize.deleteMany({ where: { productId: id } })
+  if (variants.length > 0) {
+    await prisma.productSize.createMany({
+      data: variants.map((v: any) => ({
+        productId: id,
+        size: v.size,
+        color: v.color || "Padrão",
+        stock: v.stock
+      }))
+    })
   }
 
   revalidatePath("/admin/produtos")

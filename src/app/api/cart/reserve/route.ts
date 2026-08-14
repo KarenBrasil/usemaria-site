@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         where: { expiresAt: { lt: now } }
       });
 
+      const isWholesaleOrder = items.reduce((acc: number, item: any) => acc + item.quantity, 0) >= 10;
       const newReservationsData = [];
       const expiresAt = new Date(now.getTime() + 15 * 60000); // 15 minutos
 
@@ -39,38 +40,43 @@ export async function POST(request: Request) {
           include: { sizes: true }
         });
 
-        const productSize = product?.sizes.find(s => s.size === item.size);
+        const itemColor = item.color || "Padrão";
+        const productSize = product?.sizes.find(s => s.size === item.size && s.color === itemColor);
         if (!productSize) {
-          return NextResponse.json({ error: `Tamanho ${item.size} do produto não encontrado.` }, { status: 404 });
+          return NextResponse.json({ error: `Tamanho ${item.size} / Cor ${itemColor} do produto não encontrado.` }, { status: 404 });
         }
 
-        // Soma as reservas ATIVAS de OUTROS usuários para este productSizeId
-        const activeReservations = await prisma.reservation.aggregate({
-          where: {
-            productSizeId: productSize.id,
-            expiresAt: { gt: now },
-            cartId: { not: cartId } // Não conta o próprio carrinho, pois ele será substituído
-          },
-          _sum: {
-            quantity: true
+        const isItemWholesale = isWholesaleOrder && product?.isWholesale;
+
+        if (!isItemWholesale) {
+          // Soma as reservas ATIVAS de OUTROS usuários para este productSizeId
+          const activeReservations = await prisma.reservation.aggregate({
+            where: {
+              productSizeId: productSize.id,
+              expiresAt: { gt: now },
+              cartId: { not: cartId } // Não conta o próprio carrinho, pois ele será substituído
+            },
+            _sum: {
+              quantity: true
+            }
+          });
+
+          const reservedByOthers = activeReservations._sum.quantity || 0;
+          const availableStock = productSize.stock - reservedByOthers;
+
+          if (item.quantity > availableStock) {
+            return NextResponse.json({ 
+              error: `Estoque insuficiente para ${product?.name} (Tam: ${item.size}). Disponível: ${availableStock > 0 ? availableStock : 0}` 
+            }, { status: 400 });
           }
-        });
 
-        const reservedByOthers = activeReservations._sum.quantity || 0;
-        const availableStock = productSize.stock - reservedByOthers;
-
-        if (item.quantity > availableStock) {
-          return NextResponse.json({ 
-            error: `Estoque insuficiente para ${product?.name} (Tam: ${item.size}). Disponível: ${availableStock > 0 ? availableStock : 0}` 
-          }, { status: 400 });
+          newReservationsData.push({
+            cartId,
+            productSizeId: productSize.id,
+            quantity: item.quantity,
+            expiresAt
+          });
         }
-
-        newReservationsData.push({
-          cartId,
-          productSizeId: productSize.id,
-          quantity: item.quantity,
-          expiresAt
-        });
       }
 
       // Se passou em todas as checagens, atualiza as reservas do carrinho

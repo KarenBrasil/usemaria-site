@@ -53,20 +53,26 @@ export async function POST(request: Request) {
             productId: item.productId,
             quantity: item.quantity,
             price: item.price,
-            size: item.size
+            size: item.size,
+            color: item.color || "Padrão"
           }))
         }
       }
     });
 
     // 2.5. Deduct physical stock and remove reservations
+    const isWholesaleOrder = items.reduce((acc: number, item: any) => acc + item.quantity, 0) >= 10;
+    
     for (const item of items) {
       const product = await prisma.product.findUnique({
         where: { id: item.productId },
         include: { sizes: true }
       });
-      const pSize = product?.sizes.find(s => s.size === item.size);
-      if (pSize) {
+      const isItemWholesale = isWholesaleOrder && product?.isWholesale;
+      const itemColor = item.color || "Padrão";
+      const pSize = product?.sizes.find(s => s.size === item.size && s.color === itemColor);
+      
+      if (pSize && !isItemWholesale) {
         await prisma.productSize.update({
           where: { id: pSize.id },
           data: { stock: { decrement: item.quantity } }
@@ -95,6 +101,7 @@ export async function POST(request: Request) {
                <p style="margin:0 0 10px 0;"><strong>E-mail:</strong> ${customer.email}</p>
                <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
                <p style="margin:0;"><strong>Método:</strong> ${paymentMethod}</p>
+               ${isWholesaleOrder ? `<p style="margin:10px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">⚠️ PEDIDO DE ATACADO (PRAZO DE PRODUÇÃO: 5 DIAS)</p>` : ''}
              </div>
              <a href="https://lojausemaria.com.br/admin/vendas" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;border-radius:4px;font-weight:bold;display:inline-block;">Ver Painel Administrativo</a>
            </div>
@@ -118,6 +125,7 @@ export async function POST(request: Request) {
                <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
                  <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
                  <p style="margin:0;"><strong>Método de Pagamento:</strong> ${paymentMethod}</p>
+                 ${isWholesaleOrder ? `<p style="margin:10px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">⚠️ Você realizou uma compra no Atacado. O prazo de produção das peças sob encomenda é de 5 dias úteis.</p>` : ''}
                </div>
 
                ${paymentMethod === 'PIX' ? `<p style="color: #d97706; font-weight: bold;">Lembrete: Como você escolheu PIX, o pedido só será confirmado e enviado após o pagamento. Caso já tenha feito, desconsidere.</p>` : ''}

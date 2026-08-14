@@ -56,6 +56,7 @@ export default async function AdminPage() {
                   <div className="flex justify-between items-start gap-2 mb-1">
                     <h3 className="font-bold text-lg leading-tight text-zinc-900 line-clamp-2">{p.name}</h3>
                     {p.isNew && <span className="shrink-0 bg-zinc-900 text-white text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold">Novo</span>}
+                    {p.isDraft && <span className="shrink-0 bg-zinc-100 text-zinc-600 border border-zinc-200 text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold">Rascunho</span>}
                   </div>
                   <p className="font-bold text-zinc-500 mb-3">R$ {p.price.toFixed(2).replace('.', ',')}</p>
                   

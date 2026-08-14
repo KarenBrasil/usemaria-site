@@ -23,7 +23,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
   const defaultSettings = settings || {
     storeName: "USE MARIA",
-    whatsappNumber: "5585994277446"
+    whatsappNumber: "5585992659192"
   }
 
   // Calculate real available stock (physical - reserved)
@@ -74,7 +74,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               </span>
             )}
           </div>
-          <ProductImageZoom src={product.image || "/images/catalog/page-0001.jpg"} alt={product.name} />
+          <ProductImageZoom 
+            images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : ["/images/catalog/page-0001.jpg"])} 
+            alt={product.name} 
+          />
         </div>
 
         {/* Lado Direito - Informações de Compra */}
@@ -98,7 +101,18 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             )}
           </div>
           
-          <AddToCartSection product={product} availableSizes={availableSizes} />
+          <AddToCartSection 
+            product={{
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              wholesalePrice: product.wholesalePrice,
+              image: product.image,
+              isWholesale: product.isWholesale
+            }} 
+            sizes={product.sizes} 
+            reservationMap={reservationMap} 
+          />
 
           {/* Acordeão de Informações */}
           <div className="border-t border-zinc-200">

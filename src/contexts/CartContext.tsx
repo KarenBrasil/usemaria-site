@@ -10,8 +10,11 @@ export type CartItem = {
   price: number;
   wholesalePrice?: number;
   size: string;
+  color?: string;
   image: string;
   quantity: number;
+  isPreOrder?: boolean;
+  isWholesaleProduct?: boolean;
 }
 
 type CartState = {
@@ -57,7 +60,8 @@ export const useCartStore = create<CartState>()(
       items: [],
       
       addItem: async (newItem) => {
-        const id = `${newItem.productId}-${newItem.size}`;
+        const itemColor = newItem.color || "Padrão";
+        const id = `${newItem.productId}-${newItem.size}-${itemColor}`;
         const state = get();
         
         let updatedItems = state.items.map(item => ({...item}));

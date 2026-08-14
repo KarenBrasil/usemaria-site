@@ -137,13 +137,49 @@ export default function CartDrawer() {
                   <span className="text-lg font-serif">R$ {cartTotal().toFixed(2).replace('.', ',')}</span>
                 </div>
                 <p className="text-[9px] uppercase tracking-widest text-zinc-500 mb-6">Frete grátis e cálculo no checkout</p>
-                <Link 
-                  href="/checkout" 
-                  onClick={() => setIsOpen(false)}
-                  className="w-full bg-black text-white uppercase text-xs tracking-widest font-bold py-4 hover:bg-zinc-800 transition-colors flex justify-center items-center text-center"
-                >
-                  Finalizar Compra
-                </Link>
+                
+                {(() => {
+                  const isWholesale = cartCount() >= 10;
+                  const hasPreOrder = items.some(i => i.isPreOrder);
+                  const hasNonWholesale = items.some(i => !i.isWholesaleProduct);
+                  
+                  let blockCheckout = false;
+                  let blockMessage = "";
+
+                  if (isWholesale) {
+                    if (hasNonWholesale) {
+                      blockCheckout = true;
+                      blockMessage = "Pedidos de Atacado (10+ peças) só podem conter produtos da coleção Atacado.";
+                    }
+                  } else {
+                    if (hasPreOrder) {
+                      blockCheckout = true;
+                      blockMessage = "Você possui peças esgotadas no Varejo (Sob Encomenda). Para comprá-las, adicione pelo menos 10 peças de Atacado ao carrinho.";
+                    }
+                  }
+
+                  if (blockCheckout) {
+                    return (
+                      <div className="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200 mb-4 flex flex-col gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                          Atenção
+                        </span>
+                        <p className="text-[11px] leading-tight">{blockMessage}</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link 
+                      href="/checkout" 
+                      onClick={() => setIsOpen(false)}
+                      className="w-full bg-black text-white uppercase text-xs tracking-widest font-bold py-4 hover:bg-zinc-800 transition-colors flex justify-center items-center text-center rounded-xl"
+                    >
+                      Finalizar Compra
+                    </Link>
+                  );
+                })()}
               </div>
             )}
           </div>

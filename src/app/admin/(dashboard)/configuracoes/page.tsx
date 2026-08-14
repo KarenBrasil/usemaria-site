@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import SubmitButton from "@/components/admin/SubmitButton"
 
 export const dynamic = 'force-dynamic'
 
@@ -32,7 +33,7 @@ export default async function SettingsPage() {
     hero2Subtitle: "Escolha da Estilista",
     hero2Title: "O Look Perfeito",
     hero2Text: "Capturado por @fotografo",
-    whatsappNumber: "5585994277446",
+    whatsappNumber: "5585992659192",
     instagramUrl: "#",
     tiktokUrl: "#",
     pixKey: "CNPJ: 00.000.000/0001-00",
@@ -42,8 +43,22 @@ export default async function SettingsPage() {
   async function saveSettings(formData: FormData) {
     'use server'
     
-    // Converte form data para objeto
-    const data = Object.fromEntries(formData.entries()) as Record<string, string>;
+    // Extrai apenas os campos esperados
+    const keys = [
+      "storeName", "whatsappNumber", "instagramUrl", "tiktokUrl", "pixKey", "pixName",
+      "hero1Subtitle", "hero1Title", "hero1Text", "hero1Image", 
+      "feature1Title", "feature1Text", "feature2Title", "feature2Text", 
+      "feature3Title", "feature3Text", "feature4Title", "feature4Text", 
+      "collectionTitle", "collectionSubtitle", "editorialTitle", "editorialSubtitle",
+      "hero2Title", "hero2Subtitle", "hero2Text", "hero2Image"
+    ];
+    
+    const data: Record<string, string> = {};
+    for (const key of keys) {
+      if (formData.has(key)) {
+        data[key] = formData.get(key) as string;
+      }
+    }
 
     await prisma.storeSettings.upsert({
       where: { id: "default" },
@@ -206,9 +221,7 @@ export default async function SettingsPage() {
         <input type="hidden" name="hero2Image" value={defaultSettings.hero2Image} />
 
         <div className="pt-6">
-          <button type="submit" className="w-full bg-zinc-900 text-white font-bold tracking-widest uppercase text-sm py-5 rounded-xl hover:bg-black transition-colors shadow-lg">
-            Salvar Todas as Configurações
-          </button>
+          <SubmitButton text="Salvar Todas as Configurações" />
         </div>
       </form>
     </div>

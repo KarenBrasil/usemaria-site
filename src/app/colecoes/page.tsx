@@ -19,7 +19,8 @@ export default async function ColecoesPage({
       name: {
         contains: query,
         mode: 'insensitive',
-      }
+      },
+      isDraft: false
     },
     include: { sizes: true },
     orderBy: { createdAt: 'desc' }
@@ -28,7 +29,7 @@ export default async function ColecoesPage({
   const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
   const defaultSettings = settings || {
     storeName: "USE MARIA",
-    whatsappNumber: "5585994277446",
+    whatsappNumber: "5585992659192",
     instagramUrl: "#",
     tiktokUrl: "#"
   }
