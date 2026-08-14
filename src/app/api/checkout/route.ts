@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     if (process.env.RESEND_API_KEY) {
        // 1. E-mail para o Administrador
        resend.emails.send({
-         from: 'Use Maria <onboarding@resend.dev>',
+         from: 'Use Maria <contato@lojausemaria.com.br>',
          to: process.env.ADMIN_EMAIL || 'karen@kyb.com',
          subject: `🎉 Nova Venda! Pedido #${order.id.slice(-6).toUpperCase()} - R$ ${total.toFixed(2)}`,
          html: `
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
        // 2. E-mail para o Cliente
        if (customer.email) {
          resend.emails.send({
-           from: 'Use Maria <onboarding@resend.dev>',
+           from: 'Use Maria <contato@lojausemaria.com.br>',
            to: customer.email,
            subject: `Oba! Recebemos seu pedido #${order.id.slice(-6).toUpperCase()} - Use Maria`,
            html: `
