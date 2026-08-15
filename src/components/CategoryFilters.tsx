@@ -73,6 +73,7 @@ export default function CategoryFilters({ categories, currentFilter, currentCat 
           className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${currentCat === cat.id ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}
         >
           {cat.name}
+        </a>
       ))}
 
       <form action="/" method="GET" className="relative flex items-center ml-2 group border-b border-zinc-200 pb-1">
