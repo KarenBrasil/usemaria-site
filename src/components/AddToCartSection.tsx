@@ -139,8 +139,9 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
             <h3 className="text-lg font-bold text-zinc-900 mb-2">Comprar por Encomenda (Atacado)</h3>
             <p className="text-sm text-zinc-600 mb-6 leading-relaxed">
-              Você selecionou uma quantidade maior que o nosso estoque imediato de varejo. Deseja encomendar essas peças para o <strong>Atacado</strong>? <br/><br/>
-              <span className="font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded">O pedido mínimo de atacado é de 10 peças no total do carrinho.</span> O prazo de produção é de 5 dias.
+              Peça disponível apenas por encomenda no Atacado. <br/><br/>
+              <span className="font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded">O pedido mínimo de atacado é de 10 peças no total.</span> O prazo de produção é de 5 dias.<br/><br/>
+              <strong>Deseja fazer pedido para o Atacado?</strong>
             </p>
             <div className="flex gap-3">
               <button 
@@ -201,7 +202,7 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-zinc-900 capitalize">{variant.color}</span>
                     <span className={`text-[10px] uppercase tracking-wider ${variant.stock === 0 ? 'text-amber-600 font-bold' : 'text-zinc-400'}`}>
-                      {variant.stock === 0 ? "Sob Encomenda (Atacado)" : `${variant.stock} disponíveis`}
+                      {variant.stock === 0 ? "Sob Encomenda (Atacado)" : "Disponível"}
                     </span>
                   </div>
                   
@@ -246,7 +247,7 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
               : "bg-zinc-900 text-white hover:bg-black"
         }`}
       >
-        {loading ? "Processando..." : added ? "Adicionado à Sacola!" : `Adicionar à Sacola (${totalSelectedQuantity} unid.)`}
+        {loading ? "Processando..." : added ? "Adicionado ao Carrinho!" : "ADICIONAR AO CARRINHO"}
       </button>
     </div>
   );
