@@ -7,10 +7,11 @@ import CategoryFilters from "@/components/CategoryFilters";
 
 export const dynamic = 'force-dynamic';
 
-export default async function Home({ searchParams }: { searchParams: { cat?: string, q?: string, filter?: string } }) {
-  const categoryId = searchParams.cat;
-  const searchQuery = searchParams.q;
-  const filterType = searchParams.filter; // 'atacado', 'promocao', 'novidade'
+export default async function Home({ searchParams }: { searchParams: Promise<{ cat?: string, q?: string, filter?: string }> }) {
+  const resolvedParams = await searchParams;
+  const categoryId = resolvedParams.cat;
+  const searchQuery = resolvedParams.q;
+  const filterType = resolvedParams.filter; // 'atacado', 'promocao', 'novidade'
 
   const products = await prisma.product.findMany({
     where: {

@@ -24,16 +24,8 @@ export default function CategoryFilters({ categories, currentFilter, currentCat 
     if (catId) url += `cat=${catId}`;
     url += '#catalogo';
 
-    // Push the new URL to history
-    router.push(url, { scroll: false });
-    
-    // Force Next.js to re-fetch the server component with the new searchParams
-    router.refresh();
-
-    // Manually scroll to the catalog section smoothly
-    setTimeout(() => {
-      document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    // Force hard reload to bypass all Next.js client caching
+    window.location.assign(url);
   };
 
   return (
