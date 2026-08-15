@@ -156,15 +156,20 @@ export default function OrderAdminCard({ order }: { order: any }) {
                 </p>
                 <div className="bg-white rounded-xl border border-zinc-100 divide-y divide-zinc-100 overflow-hidden">
                   {order.items.map((item: any) => (
-                    <div key={item.id} className="flex justify-between items-center p-4 hover:bg-zinc-50 transition-colors">
+                    <div key={item.id} className="flex justify-between items-center p-4 hover:bg-zinc-50 transition-colors group cursor-pointer" onClick={() => item.product?.image && window.open(item.product.image, '_blank')}>
                       <div className="flex items-center gap-3">
-                        <span className="bg-zinc-100 text-zinc-600 font-bold w-6 h-6 flex items-center justify-center rounded text-xs">{item.quantity}</span>
+                        {item.product?.image && (
+                          <div className="relative w-10 h-10 rounded border border-zinc-200 overflow-hidden shrink-0">
+                            <img src={item.product.image} alt={item.product.name} className="object-cover w-full h-full group-hover:scale-110 transition-transform" />
+                          </div>
+                        )}
+                        <span className="bg-zinc-100 text-zinc-600 font-bold w-6 h-6 flex items-center justify-center rounded text-xs shrink-0">{item.quantity}</span>
                         <div>
-                          <p className="font-bold text-sm text-zinc-900 leading-tight">{item.product?.name || 'Produto Excluído'}</p>
-                          <span className="text-zinc-500 font-medium text-[10px] uppercase tracking-wider bg-zinc-100 px-1.5 py-0.5 rounded">Tam: {item.size}</span>
+                          <p className="font-bold text-sm text-zinc-900 leading-tight line-clamp-1">{item.product?.name || 'Produto Excluído'}</p>
+                          <span className="text-zinc-500 font-medium text-[10px] uppercase tracking-wider bg-zinc-100 px-1.5 py-0.5 rounded mt-1 inline-block">Tam: {item.size}</span>
                         </div>
                       </div>
-                      <span className="font-bold text-sm text-zinc-900 shrink-0">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</span>
+                      <span className="font-bold text-sm text-zinc-900 shrink-0 ml-4">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</span>
                     </div>
                   ))}
                   <div className="px-4 py-3 bg-white flex justify-between items-center text-sm font-medium text-zinc-600 border-t border-zinc-100">

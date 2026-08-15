@@ -35,19 +35,7 @@ export default function Header({
           <Link href={`https://wa.me/${settings.whatsappNumber}`} className="hover:opacity-70 transition-opacity font-bold uppercase tracking-widest text-xs">Contato</Link>
         </nav>
         <div className="flex gap-6 items-center">
-          <form action="/" method="GET" className="relative flex items-center group">
-            {currentFilter && <input type="hidden" name="filter" value={currentFilter} />}
-            {currentCat && <input type="hidden" name="cat" value={currentCat} />}
-            <input 
-              type="text" 
-              name="q" 
-              placeholder="Pesquisar..." 
-              className="w-0 opacity-0 group-hover:w-32 group-hover:opacity-100 focus:w-32 focus:opacity-100 transition-all duration-300 ease-in-out border-b border-black outline-none bg-transparent text-xs pb-1 mr-2" 
-            />
-            <button type="submit" className="hover:opacity-70 transition-opacity cursor-pointer">
-              <SearchIcon />
-            </button>
-          </form>
+
           <Link href="/admin" className="hover:opacity-70 transition-opacity hidden md:block"><UserIcon /></Link>
           <CartDrawer />
         </div>

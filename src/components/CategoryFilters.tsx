@@ -2,6 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 
+const SearchIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+);
+
 type Category = {
   id: string;
   name: string;
@@ -29,7 +33,7 @@ export default function CategoryFilters({ categories, currentFilter, currentCat 
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-4 mb-16 px-4">
+    <div className="flex flex-wrap justify-center items-center gap-4 mb-16 px-4">
       <a 
         href="/#catalogo" 
         onClick={(e) => handleNavigation(e, undefined, undefined)}
@@ -69,8 +73,21 @@ export default function CategoryFilters({ categories, currentFilter, currentCat 
           className={`text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase pb-2 border-b-2 transition-all hover:text-black hover:border-black ${currentCat === cat.id ? 'border-amber-500 text-black' : 'border-transparent text-zinc-400'}`}
         >
           {cat.name}
-        </a>
       ))}
+
+      <form action="/" method="GET" className="relative flex items-center ml-2 group border-b border-zinc-200 pb-1">
+        {currentFilter && <input type="hidden" name="filter" value={currentFilter} />}
+        {currentCat && <input type="hidden" name="cat" value={currentCat} />}
+        <input 
+          type="text" 
+          name="q" 
+          placeholder="Pesquisar..." 
+          className="w-24 md:w-32 outline-none bg-transparent text-[11px] font-bold tracking-widest uppercase text-zinc-600 placeholder-zinc-300" 
+        />
+        <button type="submit" className="hover:text-black transition-colors cursor-pointer text-zinc-400">
+          <SearchIcon />
+        </button>
+      </form>
     </div>
   );
 }
