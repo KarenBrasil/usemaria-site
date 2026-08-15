@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       if (cepClean.startsWith('60') || cepClean.startsWith('61')) {
         options.push({
           id: 'uber-pickup',
-          name: 'Envio por Motoboy/Uber (Valor a combinar no WhatsApp)',
+          name: 'Retirada/Uber entrega (falar no WhatsApp)',
           company: 'Motoboy',
           price: 0,
           delivery_time: 0,

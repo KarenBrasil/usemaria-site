@@ -39,18 +39,18 @@ export default async function AdminOverview() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm flex flex-col justify-between">
-          <p className="text-[11px] text-zinc-500 uppercase tracking-widest font-bold mb-4">Total de Produtos</p>
+        <Link href="/admin/produtos" className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm flex flex-col justify-between hover:border-black transition-colors cursor-pointer group">
+          <p className="text-[11px] text-zinc-500 uppercase tracking-widest font-bold mb-4 group-hover:text-black transition-colors">Total de Produtos</p>
           <p className="text-4xl font-semibold tracking-tight text-zinc-900">{totalProducts}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm flex flex-col justify-between">
-          <p className="text-[11px] text-zinc-500 uppercase tracking-widest font-bold mb-4">Total de Vendas</p>
+        </Link>
+        <Link href="/admin/vendas" className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm flex flex-col justify-between hover:border-black transition-colors cursor-pointer group">
+          <p className="text-[11px] text-zinc-500 uppercase tracking-widest font-bold mb-4 group-hover:text-black transition-colors">Total de Vendas</p>
           <p className="text-4xl font-semibold tracking-tight text-zinc-900">{totalOrders}</p>
-        </div>
-        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 shadow-md flex flex-col justify-between text-white">
+        </Link>
+        <Link href="/admin/vendas" className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 shadow-md flex flex-col justify-between text-white hover:bg-black transition-colors cursor-pointer">
           <p className="text-[11px] text-zinc-400 uppercase tracking-widest font-bold mb-4">Faturamento (Aprovado)</p>
           <p className="text-4xl font-semibold tracking-tight">R$ {revenue.toFixed(2).replace('.', ',')}</p>
-        </div>
+        </Link>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

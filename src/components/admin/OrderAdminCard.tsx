@@ -200,9 +200,9 @@ export default function OrderAdminCard({ order }: { order: any }) {
                     <span>Método de Pagamento</span>
                     <span className="font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded text-xs">{order.paymentMethod || 'PIX'}</span>
                   </div>
-                  <div className="px-4 py-3 bg-white flex justify-between items-center text-sm font-medium text-zinc-600 border-t border-zinc-100">
-                    <span>Frete ({order.shippingMethod || 'Grátis / Não info'})</span>
-                    <span>R$ {order.shippingCost ? order.shippingCost.toFixed(2).replace('.', ',') : '0,00'}</span>
+                  <div className="px-4 py-3 bg-white flex flex-col sm:flex-row justify-between sm:items-center text-sm font-medium text-zinc-600 border-t border-zinc-100 gap-2">
+                    <span className="leading-tight">Frete ({order.shippingMethod?.includes('Motoboy/Uber') ? 'Retirada/Uber entrega (falar no WhatsApp)' : (order.shippingMethod || 'Grátis / Não info')})</span>
+                    <span className="font-bold sm:font-normal">R$ {order.shippingCost ? order.shippingCost.toFixed(2).replace('.', ',') : '0,00'}</span>
                   </div>
                   <div className="p-4 bg-zinc-50/50 flex justify-between items-center border-t border-zinc-100">
                     <span className="font-bold text-xs text-zinc-500 uppercase tracking-widest">Total Geral</span>
