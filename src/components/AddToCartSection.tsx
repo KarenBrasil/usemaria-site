@@ -165,19 +165,23 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
       </div>
       
       <div className="flex gap-3 mb-6">
-        {availableSizeKeys.length > 0 ? availableSizeKeys.map((size) => (
-          <button 
-            key={size}
-            onClick={() => handleSizeSelect(size)}
-            className={`w-12 h-12 border flex items-center justify-center text-sm font-bold transition-all ${
-              selectedSize === size 
-                ? "border-black bg-black text-white" 
-                : "border-zinc-200 hover:border-black text-zinc-700"
-            }`}
-          >
-            {size}
-          </button>
-        )) : (
+        {sizes.length === 0 ? (
+          <span className="text-sm font-bold text-amber-600 bg-amber-50 px-4 py-2 border border-amber-200 w-full text-center">NENHUM TAMANHO CADASTRADO NO PAINEL</span>
+        ) : availableSizeKeys.length > 0 ? (
+          availableSizeKeys.map((size) => (
+            <button 
+              key={size}
+              onClick={() => handleSizeSelect(size)}
+              className={`w-12 h-12 border flex items-center justify-center text-sm font-bold transition-all ${
+                selectedSize === size 
+                  ? "border-black bg-black text-white" 
+                  : "border-zinc-200 hover:border-black text-zinc-700"
+              }`}
+            >
+              {size}
+            </button>
+          ))
+        ) : (
           <span className="text-sm font-bold text-red-500 bg-red-50 px-4 py-2 border border-red-200 w-full text-center">ESGOTADO NO MOMENTO</span>
         )}
       </div>
