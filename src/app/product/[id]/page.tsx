@@ -122,7 +122,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
             <div className="py-6 border-b border-zinc-200">
               <h3 className="text-xs uppercase tracking-widest font-bold mb-4">Envio e Devolução</h3>
-              <p className="text-sm text-zinc-600 leading-relaxed mb-6">Combine o frete ou retirada pelo WhatsApp. Trocas em até 7 dias após o recebimento.</p>
+              <p className="text-sm text-zinc-600 leading-relaxed mb-6">Frete por retirada/uber entrega (falar no WhatsApp). Trocas em até 7 dias após o recebimento.</p>
               
               <h3 className="text-xs uppercase tracking-widest font-bold mb-4 text-center bg-zinc-50 py-2">Tabela de Medidas</h3>
               <div className="relative w-full aspect-[4/5] max-w-sm mx-auto border border-zinc-200 bg-[#FBF9F6]">

@@ -136,7 +136,7 @@ export default function CartDrawer() {
                   <span className="text-xs font-bold uppercase tracking-widest">Subtotal</span>
                   <span className="text-lg font-serif">R$ {cartTotal().toFixed(2).replace('.', ',')}</span>
                 </div>
-                <p className="text-[9px] uppercase tracking-widest text-zinc-500 mb-6">Frete grátis e cálculo no checkout</p>
+                <p className="text-[9px] uppercase tracking-widest text-zinc-500 mb-6">Frete por retirada/uber entrega (falar no WhatsApp)</p>
                 
                 {(() => {
                   const isWholesale = cartCount() >= 10;

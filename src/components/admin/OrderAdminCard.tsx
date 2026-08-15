@@ -113,11 +113,24 @@ export default function OrderAdminCard({ order }: { order: any }) {
 
               {/* Endereço e Contato (Em blocos elegantes) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-100">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2 flex items-center gap-1.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Endereço
-                  </p>
+                <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-100 relative group">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-1.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Endereço
+                    </p>
+                    {order.street && (
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${order.street}, ${order.number} ${order.complement}\n${order.neighborhood}\n${order.city}/${order.state} - ${order.zipcode}`);
+                          alert("Endereço copiado!");
+                        }}
+                        className="text-[9px] uppercase tracking-widest font-bold bg-white border border-zinc-200 px-2 py-1 rounded text-zinc-600 hover:text-black hover:bg-zinc-100 transition-colors"
+                      >
+                        Copiar
+                      </button>
+                    )}
+                  </div>
                   {order.street ? (
                     <div className="text-xs font-semibold text-zinc-700 leading-relaxed">
                       <p className="text-zinc-900">{order.street}, {order.number} {order.complement}</p>
@@ -129,11 +142,22 @@ export default function OrderAdminCard({ order }: { order: any }) {
                   )}
                 </div>
 
-                <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-100">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2 flex items-center gap-1.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                    Cliente
-                  </p>
+                <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-100 relative group">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-1.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      Cliente
+                    </p>
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${order.customer?.name}\n${order.customer?.email}\n${order.customer?.phone}`);
+                        alert("Contato copiado!");
+                      }}
+                      className="text-[9px] uppercase tracking-widest font-bold bg-white border border-zinc-200 px-2 py-1 rounded text-zinc-600 hover:text-black hover:bg-zinc-100 transition-colors"
+                    >
+                      Copiar
+                    </button>
+                  </div>
                   <div className="text-xs font-semibold text-zinc-700 leading-relaxed">
                     <p className="text-zinc-900">{order.customer?.name}</p>
                     <p>{order.customer?.email}</p>
