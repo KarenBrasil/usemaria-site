@@ -91,17 +91,26 @@ export async function POST(request: Request) {
        resend.emails.send({
          from: 'Use Maria <contato@lojausemaria.com.br>',
          to: 'usemaria72@gmail.com',
-         subject: `🎉 Nova Venda! Pedido #${order.id.slice(-6).toUpperCase()} - R$ ${total.toFixed(2)}`,
+         subject: `Use Maria - Nova Venda! Pedido #${order.id.slice(-6).toUpperCase()} - R$ ${total.toFixed(2)}`,
          html: `
            <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
-             <h2>Nova Venda Realizada! 🚀</h2>
+             <h2>Nova Venda Realizada - Use Maria</h2>
+             <p>Olá Anitalita,</p>
              <p>Você acabou de receber um novo pedido de <strong>${customer.name}</strong>.</p>
              <div style="background: #f4f4f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
                <p style="margin:0 0 10px 0;"><strong>Telefone:</strong> ${customer.phone}</p>
                <p style="margin:0 0 10px 0;"><strong>E-mail:</strong> ${customer.email}</p>
                <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
-               <p style="margin:0;"><strong>Método:</strong> ${paymentMethod}</p>
-               ${isWholesaleOrder ? `<p style="margin:10px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">⚠️ PEDIDO DE ATACADO (PRAZO DE PRODUÇÃO: 5 DIAS)</p>` : ''}
+               <p style="margin:0 0 10px 0;"><strong>Método de Pagamento:</strong> ${paymentMethod}</p>
+               <p style="margin:0 0 10px 0;"><strong>Frete Escolhido:</strong> ${body.shipping?.method || 'Não informado'} (R$ ${body.shipping?.cost ? body.shipping.cost.toFixed(2).replace('.', ',') : '0,00'})</p>
+               <p style="margin:0 0 10px 0;"><strong>Endereço de Entrega:</strong> ${address?.street || ''}, ${address?.number || ''} ${address?.complement ? '- ' + address.complement : ''} - ${address?.neighborhood || ''}, ${address?.city || ''}/${address?.state || ''} - CEP: ${address?.zipcode || ''}</p>
+               
+               <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 14px; text-transform: uppercase;">Resumo dos Itens:</h3>
+               <ul style="margin: 0; padding-left: 20px; font-size: 14px;">
+                 ${items.map((item: any) => `<li style="margin-bottom: 5px;">${item.quantity}x (Tamanho: ${item.size}) - R$ ${item.price.toFixed(2).replace('.', ',')}</li>`).join('')}
+               </ul>
+
+               ${isWholesaleOrder ? `<p style="margin:15px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">AVISO: PEDIDO DE ATACADO (PRAZO DE PRODUÇÃO: 5 DIAS)</p>` : ''}
              </div>
              <a href="https://lojausemaria.com.br/admin/vendas" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;border-radius:4px;font-weight:bold;display:inline-block;">Ver Painel Administrativo</a>
            </div>
@@ -113,7 +122,7 @@ export async function POST(request: Request) {
          resend.emails.send({
            from: 'Use Maria <contato@lojausemaria.com.br>',
            to: customer.email,
-           subject: `Oba! Recebemos seu pedido #${order.id.slice(-6).toUpperCase()} - Use Maria`,
+           subject: `Use Maria - Confirmação do seu Pedido #${order.id.slice(-6).toUpperCase()}`,
            html: `
              <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
                <h1 style="text-align: center; letter-spacing: 2px;">USE MARIA</h1>
@@ -125,7 +134,7 @@ export async function POST(request: Request) {
                <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
                  <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
                  <p style="margin:0;"><strong>Método de Pagamento:</strong> ${paymentMethod}</p>
-                 ${isWholesaleOrder ? `<p style="margin:10px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">⚠️ Você realizou uma compra no Atacado. O prazo de produção das peças sob encomenda é de 5 dias úteis.</p>` : ''}
+                 ${isWholesaleOrder ? `<p style="margin:10px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">Aviso: Você realizou uma compra no Atacado. O prazo de produção das peças sob encomenda é de 5 dias úteis.</p>` : ''}
                </div>
 
                ${paymentMethod === 'PIX' ? `<p style="color: #d97706; font-weight: bold;">Lembrete: Como você escolheu PIX, o pedido só será confirmado e enviado após o pagamento. Caso já tenha feito, desconsidere.</p>` : ''}
