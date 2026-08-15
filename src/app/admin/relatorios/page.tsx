@@ -111,11 +111,42 @@ export default async function RelatoriosPage({ searchParams }: { searchParams: P
   } 
   
   else if (type === 'vendas') {
+    const periodFilter = resolvedParams.period || 'all';
+    const typeFilter = resolvedParams.filterType || 'all';
+
     title = "Histórico de Vendas";
-    const orders = await prisma.order.findMany({ orderBy: { createdAt: 'desc' }, include: { customer: true, items: true } });
+    
+    let whereClause: any = {};
+    if (periodFilter === 'today') {
+      const today = new Date(); today.setHours(0, 0, 0, 0); whereClause.createdAt = { gte: today };
+    } else if (periodFilter === 'month') {
+      const firstDay = new Date(); firstDay.setDate(1); firstDay.setHours(0, 0, 0, 0); whereClause.createdAt = { gte: firstDay };
+    }
+
+    let orders = await prisma.order.findMany({ where: whereClause, orderBy: { createdAt: 'desc' }, include: { customer: true, items: true } });
+
+    if (typeFilter !== 'all') {
+      orders = orders.filter(order => {
+        const totalItems = order.items.reduce((acc, item) => acc + item.quantity, 0);
+        const isWholesale = totalItems >= 10;
+        return typeFilter === 'atacado' ? isWholesale : !isWholesale;
+      });
+    }
 
     content = (
       <>
+      {/* Filtros para impressão (escondidos ao imprimir) */}
+      <div className="flex gap-4 mb-6 print:hidden">
+        <div className="flex gap-2 bg-zinc-100 p-1 rounded-lg">
+          <Link href="/admin/relatorios?type=vendas&period=all&filterType=all" className="px-3 py-1 text-xs font-bold uppercase hover:bg-white rounded">Limpar Filtros</Link>
+          <Link href={`/admin/relatorios?type=vendas&period=${periodFilter}&filterType=varejo`} className={`px-3 py-1 text-xs font-bold uppercase rounded ${typeFilter === 'varejo' ? 'bg-white shadow' : 'hover:bg-zinc-200'}`}>Varejo</Link>
+          <Link href={`/admin/relatorios?type=vendas&period=${periodFilter}&filterType=atacado`} className={`px-3 py-1 text-xs font-bold uppercase rounded ${typeFilter === 'atacado' ? 'bg-white shadow' : 'hover:bg-zinc-200'}`}>Atacado</Link>
+        </div>
+        <div className="flex gap-2 bg-zinc-100 p-1 rounded-lg">
+          <Link href={`/admin/relatorios?type=vendas&filterType=${typeFilter}&period=today`} className={`px-3 py-1 text-xs font-bold uppercase rounded ${periodFilter === 'today' ? 'bg-white shadow' : 'hover:bg-zinc-200'}`}>Hoje</Link>
+          <Link href={`/admin/relatorios?type=vendas&filterType=${typeFilter}&period=month`} className={`px-3 py-1 text-xs font-bold uppercase rounded ${periodFilter === 'month' ? 'bg-white shadow' : 'hover:bg-zinc-200'}`}>Este Mês</Link>
+        </div>
+      </div>
       <table className="w-full text-sm border-collapse border border-zinc-200">
         <thead className="bg-zinc-50">
           <tr className="text-left text-zinc-600 border-b border-zinc-200">

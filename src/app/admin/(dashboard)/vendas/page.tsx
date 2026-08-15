@@ -13,6 +13,7 @@ export default async function SalesPage({
   const statusFilter = resolvedParams?.status;
   const periodFilter = resolvedParams?.period || 'all';
   const paymentFilter = resolvedParams?.payment || 'all';
+  const typeFilter = resolvedParams?.type || 'all';
 
   let whereClause: any = {};
   
@@ -36,7 +37,7 @@ export default async function SalesPage({
     whereClause.createdAt = { gte: last7 };
   }
 
-  const orders = await prisma.order.findMany({
+  let orders = await prisma.order.findMany({
     where: whereClause,
     include: {
       customer: true,
@@ -46,6 +47,17 @@ export default async function SalesPage({
     },
     orderBy: { createdAt: 'desc' }
   })
+
+  // Filtro de Atacado / Varejo
+  if (typeFilter !== 'all') {
+    orders = orders.filter(order => {
+      const totalItems = order.items.reduce((acc, item) => acc + item.quantity, 0);
+      const isWholesale = totalItems >= 10;
+      if (typeFilter === 'atacado') return isWholesale;
+      if (typeFilter === 'varejo') return !isWholesale;
+      return true;
+    });
+  }
 
   // Contagem básica para os tabs de status ignorando outros filtros para manter a consistência visual do topo
   const counts = await prisma.order.groupBy({
@@ -98,6 +110,15 @@ export default async function SalesPage({
               </Link>
             )
           })}
+        </div>
+
+        <div className="h-6 w-px bg-zinc-200 hidden md:block"></div>
+
+        {/* Tipo: Varejo / Atacado */}
+        <div className="flex gap-2 bg-zinc-100 p-1 rounded-lg">
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, type: 'all' } }} className={`px-3 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${(!resolvedParams?.type || resolvedParams?.type === 'all') ? 'bg-white text-black shadow-sm' : 'text-zinc-500 hover:bg-zinc-200/50'}`}>Ambos</Link>
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, type: 'varejo' } }} className={`px-3 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${resolvedParams?.type === 'varejo' ? 'bg-white text-black shadow-sm' : 'text-zinc-500 hover:bg-zinc-200/50'}`}>Varejo</Link>
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, type: 'atacado' } }} className={`px-3 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${resolvedParams?.type === 'atacado' ? 'bg-white text-black shadow-sm' : 'text-zinc-500 hover:bg-zinc-200/50'}`}>Atacado</Link>
         </div>
 
         <div className="h-6 w-px bg-zinc-200 hidden md:block"></div>
