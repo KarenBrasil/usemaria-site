@@ -95,7 +95,7 @@ export async function POST(request: Request) {
          html: `
            <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
              <h2>Nova Venda Realizada - Use Maria</h2>
-             <p>Olá Anitalita,</p>
+             <p>Olá Anny Talyta,</p>
              <p>Você acabou de receber um novo pedido de <strong>${customer.name}</strong>.</p>
              <div style="background: #f4f4f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
                <p style="margin:0 0 10px 0;"><strong>Telefone:</strong> ${customer.phone}</p>
