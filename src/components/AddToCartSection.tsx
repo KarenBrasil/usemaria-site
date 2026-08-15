@@ -39,7 +39,6 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
   const availableSizesMap = useMemo(() => {
     const map = new Map<string, ProductSize[]>();
     for (const s of sizes) {
-      if (s.size === 'GG') continue; // Hidden per requirements
       const reserved = reservationMap.get(s.id) || 0;
       const available = Math.max(0, s.stock - reserved);
       
