@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import PrintButton from "@/components/admin/PrintButton";
 
 export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -19,18 +20,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="bg-white min-h-screen text-black font-sans p-8 md:p-12 print:p-0 print:m-0">
-      {/* Script to trigger auto-print when opened */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.onload = function() {
-              setTimeout(() => {
-                window.print();
-              }, 500);
-            }
-          `,
-        }}
-      />
+      {/* Auto-print logic moved to PrintButton */}
 
       <div className="max-w-2xl mx-auto border border-zinc-200 p-8 rounded-xl print:border-none print:p-0 print:block">
         
@@ -125,21 +115,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
 
       </div>
 
-      {/* Action Buttons (Hidden in Print) */}
-      <div className="max-w-2xl mx-auto mt-8 flex justify-center gap-4 print:hidden">
-        <button 
-          onClick={() => window.print()}
-          className="bg-black text-white px-6 py-2 rounded font-medium shadow hover:bg-zinc-800 transition-colors"
-        >
-          Imprimir / Baixar PDF
-        </button>
-        <button 
-          onClick={() => window.close()}
-          className="bg-white border border-zinc-300 text-zinc-700 px-6 py-2 rounded font-medium hover:bg-zinc-50 transition-colors"
-        >
-          Fechar Aba
-        </button>
-      </div>
+      <PrintButton />
 
     </div>
   );

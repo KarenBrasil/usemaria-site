@@ -33,9 +33,17 @@ export default async function AdminOverview() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold tracking-tight text-zinc-900">Visão Geral</h2>
-        <p className="text-sm text-zinc-500 mt-1">Bem-vinda ao painel de controle da Use Maria.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-900">Visão Geral</h2>
+          <p className="text-sm text-zinc-500 mt-1">Bem-vinda ao painel de controle da Use Maria.</p>
+        </div>
+        <Link 
+          href="/admin/relatorios" 
+          className="bg-black text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition-colors shadow-sm self-start md:self-auto text-center"
+        >
+          Exportar Relatórios (PDF)
+        </Link>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
