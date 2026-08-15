@@ -41,7 +41,7 @@ export default function Header({
       <header className="w-full bg-white text-black z-30 relative flex items-center justify-between px-6 lg:px-8 py-5 uppercase text-xs tracking-widest font-medium border-b border-zinc-100">
         <div className="flex items-center gap-4">
           <button 
-            className="lg:hidden text-zinc-800" 
+            className="text-zinc-800 hover:opacity-70 transition-opacity" 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -52,24 +52,19 @@ export default function Header({
           </Link>
         </div>
 
-        <nav className="hidden lg:flex gap-8 absolute left-1/2 -translate-x-1/2">
-          <Link href="/colecoes" className="hover:opacity-70 transition-opacity font-bold uppercase tracking-widest text-xs">Coleções</Link>
-          <Link href={`https://wa.me/${settings.whatsappNumber}`} className="hover:opacity-70 transition-opacity font-bold uppercase tracking-widest text-xs">Contato</Link>
-        </nav>
-
         <div className="flex gap-4 lg:gap-6 items-center">
           <Link href="/admin" className="hover:opacity-70 transition-opacity hidden md:block"><UserIcon /></Link>
           <CartDrawer />
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
+      {/* Menu Overlay (All screens) */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-[72px] left-0 w-full bg-white border-b border-zinc-100 z-20 shadow-xl flex flex-col p-6 gap-6 animate-in slide-in-from-top-2">
-          <Link href="/colecoes" onClick={() => setIsMobileMenuOpen(false)} className="font-bold uppercase tracking-widest text-sm text-zinc-800">Coleções</Link>
-          <Link href={`https://wa.me/${settings.whatsappNumber}`} onClick={() => setIsMobileMenuOpen(false)} className="font-bold uppercase tracking-widest text-sm text-zinc-800">Contato</Link>
+        <div className="absolute top-[72px] left-0 w-full md:w-80 md:left-4 md:top-[80px] md:rounded-2xl md:border bg-white border-b border-zinc-100 z-20 shadow-xl flex flex-col p-6 gap-6 animate-in slide-in-from-top-2">
+          <Link href="/colecoes" onClick={() => setIsMobileMenuOpen(false)} className="font-bold uppercase tracking-widest text-sm text-zinc-800 hover:text-black transition-colors">Coleções</Link>
+          <Link href={`https://wa.me/${settings.whatsappNumber}`} onClick={() => setIsMobileMenuOpen(false)} className="font-bold uppercase tracking-widest text-sm text-zinc-800 hover:text-black transition-colors">Contato</Link>
           <hr className="border-zinc-100" />
-          <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="font-bold uppercase tracking-widest text-sm text-zinc-800 flex items-center gap-2"><UserIcon /> Painel Admin</Link>
+          <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="font-bold uppercase tracking-widest text-sm text-zinc-800 flex items-center gap-2 hover:text-black transition-colors"><UserIcon /> Painel Admin</Link>
         </div>
       )}
     </>
