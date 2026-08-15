@@ -90,7 +90,7 @@ export async function POST(request: Request) {
        // 1. E-mail para o Administrador
        resend.emails.send({
          from: 'Use Maria <contato@lojausemaria.com.br>',
-         to: process.env.ADMIN_EMAIL || 'usemaria72@gmail.com',
+         to: 'usemaria72@gmail.com',
          subject: `🎉 Nova Venda! Pedido #${order.id.slice(-6).toUpperCase()} - R$ ${total.toFixed(2)}`,
          html: `
            <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
