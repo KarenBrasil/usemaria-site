@@ -1,15 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-
 export default function PrintButton() {
-  useEffect(() => {
-    // Automatically open print dialog when page loads
-    const timer = setTimeout(() => {
-      window.print();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <div className="max-w-2xl mx-auto mt-8 flex justify-center gap-4 print:hidden">
