@@ -8,7 +8,7 @@ import { useState, useEffect, useRef } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-const STRIPE_PK = "pk_test_51TvvOr2IBFEeEE6mrNqDllUuUEo9GWTcPfsUdf5bGwKWi3tiHSwGUl6uZxjEEJHhdRtr7vjEldm1fY8O1Eg7NJ2B00DC1jPtSu";
+const STRIPE_PK = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || "";
 const rawKey = STRIPE_PK;
 const isSecretKey = rawKey.startsWith("sk_");
 const isValidKey = rawKey.startsWith("pk_");
