@@ -205,9 +205,22 @@ function CheckoutContent() {
         });
 
         if (confirmError) {
+          // Send error to backend to show in admin panel
+          await fetch('/api/checkout/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: data.orderId, status: 'FAILED', errorMsg: confirmError.message })
+          }).catch(() => {}); // Ignore fail
           throw new Error(confirmError.message);
         }
         
+        // Tell backend payment is PAID
+        await fetch('/api/checkout/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: data.orderId, status: 'PAID' })
+        });
+
         clearCart();
         router.push(`/checkout/sucesso?orderId=${data.orderId}&method=CARD`);
       }

@@ -84,6 +84,8 @@ model Order {
   shippingCost      Float?
   shippingServiceId String?
   paymentMethod     String? @default("PIX")
+  paymentIntentId   String?
+  paymentError      String?
 
   items OrderItem[]
 

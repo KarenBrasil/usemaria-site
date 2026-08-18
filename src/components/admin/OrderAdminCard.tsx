@@ -111,6 +111,12 @@ export default function OrderAdminCard({ order }: { order: any }) {
                 </div>
               </div>
 
+              {order.paymentError && (
+                <div className="mb-6 p-4 bg-rose-50 text-rose-700 text-sm border border-rose-200 rounded-xl">
+                  <strong>Erro no Pagamento:</strong> {order.paymentError}
+                </div>
+              )}
+
               {/* Endereço e Contato (Em blocos elegantes) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-100 relative group">
