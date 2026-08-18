@@ -86,6 +86,7 @@ model Order {
   paymentMethod     String? @default("PIX")
   paymentIntentId   String?
   paymentError      String?
+  followUpCount     Int     @default(0)
 
   items OrderItem[]
 
