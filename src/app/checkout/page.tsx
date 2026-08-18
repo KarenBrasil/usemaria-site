@@ -623,7 +623,19 @@ export default function CheckoutPage() {
   if (!mounted || items.length === 0) return null;
 
   if (!isValidKey || !stripePromise) {
-    return <CheckoutContent />;
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-red-100 p-8 rounded-xl max-w-lg text-center border border-red-300">
+          <h2 className="text-xl font-bold text-red-700 mb-4">Erro Crítico de Configuração</h2>
+          <p className="text-red-900 font-medium mb-4">
+            A chave pública da Stripe (pk_live_...) não foi encontrada na Vercel. 
+          </p>
+          <p className="text-red-800 text-sm">
+            Para o desenvolvedor/admin: Verifique se você criou a variável chamada <strong>NEXT_PUBLIC_STRIPE_PUBLIC_KEY</strong> (exatamente com esse nome) no painel da Vercel e se o valor dela começa com <strong>pk_live_</strong>.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   // Com inputs individuais, o Elements não precisa esperar o clientSecret para montar.
