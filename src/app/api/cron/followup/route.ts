@@ -83,7 +83,50 @@ export async function GET(request: Request) {
       emailsSent++;
     }
 
-    return NextResponse.json({ success: true, emailsSent });
+    // 2. Cancelar automaticamente pedidos PENDENTES com mais de 48h e restaurar o estoque
+    const expiredOrders = await prisma.order.findMany({
+      where: {
+        status: 'PENDING',
+        createdAt: {
+          lt: twoDaysAgo
+        }
+      },
+      include: { items: true }
+    });
+
+    let autoCanceled = 0;
+
+    for (const order of expiredOrders) {
+      // Restaurar estoque (se não for atacado)
+      const totalItems = order.items.reduce((acc, item) => acc + item.quantity, 0);
+      const isWholesaleOrder = totalItems >= 10;
+
+      if (!isWholesaleOrder) {
+        for (const item of order.items) {
+          if (item.productId) {
+            const pSize = await prisma.productSize.findFirst({
+              where: { productId: item.productId, size: item.size, color: item.color }
+            });
+            if (pSize) {
+              await prisma.productSize.update({
+                where: { id: pSize.id },
+                data: { stock: { increment: item.quantity } }
+              });
+            }
+          }
+        }
+      }
+
+      // Mudar status para CANCELADO
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { status: 'CANCELLED' }
+      });
+
+      autoCanceled++;
+    }
+
+    return NextResponse.json({ success: true, emailsSent, autoCanceled });
   } catch (err: any) {
     console.error("Cron Error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });

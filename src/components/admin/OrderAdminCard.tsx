@@ -326,7 +326,7 @@ export default function OrderAdminCard({ order }: { order: any }) {
                 <div className="pt-6 mt-4 flex justify-center">
                   <button 
                     onClick={async () => {
-                      if (confirm("ATENÇÃO: Cancelar este pedido irá restaurar o estoque das peças. Tem certeza que deseja apagar definitivamente?")) {
+                      if (confirm("Tem certeza que deseja cancelar este pedido? O estoque será restaurado.")) {
                         setIsActionLoading(true);
                         const { deleteOrderAndRestoreStock } = await import('@/app/admin/actions');
                         const res = await deleteOrderAndRestoreStock(order.id);
@@ -341,7 +341,7 @@ export default function OrderAdminCard({ order }: { order: any }) {
                     disabled={isActionLoading}
                     className="text-[10px] text-zinc-400 font-medium uppercase tracking-widest hover:text-red-600 transition-colors disabled:opacity-50 underline decoration-zinc-200 hover:decoration-red-600 underline-offset-4"
                   >
-                    Cancelar e Restaurar Estoque
+                    Cancelar Pedido
                   </button>
                 </div>
 
