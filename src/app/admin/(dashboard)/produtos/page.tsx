@@ -7,8 +7,14 @@ import { Suspense } from "react"
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const resolvedParams = await searchParams;
+  const searchQuery = resolvedParams.q;
+
   const products = await prisma.product.findMany({ 
+    where: {
+      ...(searchQuery ? { name: { contains: searchQuery, mode: 'insensitive' } } : {})
+    },
     include: { sizes: true },
     orderBy: { createdAt: 'desc' }
   })
@@ -23,10 +29,24 @@ export default async function AdminPage() {
           <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Gestão de Produtos</h2>
           <p className="text-sm text-zinc-500 mt-1">Cadastre novas peças, gerencie o estoque e defina os preços.</p>
         </div>
-        <Link href="/admin/produtos/novo" className="bg-zinc-900 text-white uppercase text-[11px] font-bold tracking-widest px-6 py-3.5 rounded-xl hover:bg-zinc-800 transition-colors shadow-sm flex items-center gap-2">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-          Adicionar Peça
-        </Link>
+        
+        <div className="flex gap-3">
+          <form className="relative">
+            <input 
+              type="text" 
+              name="q" 
+              defaultValue={searchQuery || ""}
+              placeholder="Buscar pelo nome..." 
+              className="bg-white border border-zinc-300 rounded-xl px-4 py-3.5 pl-10 text-xs font-bold w-full md:w-64 focus:outline-none focus:border-black"
+            />
+            <svg className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </form>
+          
+          <Link href="/admin/produtos/novo" className="bg-zinc-900 shrink-0 text-white uppercase text-[11px] font-bold tracking-widest px-6 py-3.5 rounded-xl hover:bg-zinc-800 transition-colors shadow-sm flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+            Adicionar Peça
+          </Link>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
