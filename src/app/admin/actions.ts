@@ -359,7 +359,7 @@ export async function generateShippingLabel(orderId: string, shouldRevalidate = 
       } else if (errorData.message) {
          errorMessage = errorData.message;
       }
-      return { error: errorMessage };
+    return { error: errorMessage };
     }
     
     // Atualizar status para SHIPPED para indicar que a etiqueta foi pro carrinho
@@ -380,6 +380,50 @@ export async function generateShippingLabel(orderId: string, shouldRevalidate = 
   } catch (e: any) {
     console.error("Erro interno ao integrar com Melhor Envio:", e);
     return { error: e.message || "Erro de conexão ao gerar etiqueta." };
+  }
+}
+
+export async function deleteOrderAndRestoreStock(orderId: string) {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true }
+    });
+
+    if (!order) return { error: "Pedido não encontrado." };
+
+    // Restaurar o estoque (se não for atacado)
+    const totalItems = order.items.reduce((acc, item) => acc + item.quantity, 0);
+    const isWholesaleOrder = totalItems >= 10;
+
+    if (!isWholesaleOrder) {
+      for (const item of order.items) {
+        if (item.productId) {
+          const pSize = await prisma.productSize.findFirst({
+            where: { productId: item.productId, size: item.size, color: item.color }
+          });
+          if (pSize) {
+            await prisma.productSize.update({
+              where: { id: pSize.id },
+              data: { stock: { increment: item.quantity } }
+            });
+          }
+        }
+      }
+    }
+
+    await prisma.order.delete({
+      where: { id: orderId }
+    });
+
+    revalidatePath("/admin/vendas");
+    revalidatePath("/admin/relatorios");
+    revalidatePath("/admin");
+    
+    return { success: true };
+  } catch (e: any) {
+    console.error("Erro ao excluir pedido:", e);
+    return { error: e.message || "Falha ao excluir o pedido." };
   }
 }
 

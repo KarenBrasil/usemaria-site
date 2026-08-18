@@ -322,6 +322,31 @@ export default function OrderAdminCard({ order }: { order: any }) {
                   </a>
                 </div>
 
+                {/* Excluir Pedido */}
+                <div className="pt-4 border-t border-zinc-200 mt-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Ações Perigosas</p>
+                  <button 
+                    onClick={async () => {
+                      if (confirm("ATENÇÃO: Excluir este pedido irá restaurar o estoque das peças. Tem certeza que deseja apagar definitivamente?")) {
+                        setIsActionLoading(true);
+                        const { deleteOrderAndRestoreStock } = await import('@/app/admin/actions');
+                        const res = await deleteOrderAndRestoreStock(order.id);
+                        if (res?.error) {
+                          setActionError(res.error);
+                          setIsActionLoading(false);
+                        } else {
+                          setIsModalOpen(false);
+                        }
+                      }
+                    }}
+                    disabled={isActionLoading}
+                    className="w-full bg-white border border-rose-200 text-rose-600 text-xs font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-rose-50 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    Excluir e Retornar Estoque
+                  </button>
+                </div>
+
               </div>
             </div>
 
