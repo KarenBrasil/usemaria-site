@@ -62,7 +62,7 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
   }).catch(console.error);
 }
 
-import { put } from '@vercel/blob'
+import { supabase } from "@/lib/supabase"
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string
@@ -79,6 +79,7 @@ export async function createProduct(formData: FormData) {
   const isPromotion = formData.get("isPromotion") === "true"
   const isDraft = formData.get("isDraft") === "true"
   const description = formData.get("description") as string || ""
+  const categoryId = formData.get("categoryId") as string || null
   
   // Handle new variants JSON
   const variantsStr = formData.get("variants") as string
@@ -94,8 +95,27 @@ export async function createProduct(formData: FormData) {
   for (const file of newImages) {
     if (file && file.size > 0) {
       try {
-        const blob = await put(`products/${Date.now()}-${file.name}`, file, { access: 'public' })
-        uploadedUrls.push(blob.url)
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+        const filePath = `products/${fileName}`
+
+        const { data, error } = await supabase.storage
+          .from('products')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false,
+          })
+
+        if (error) {
+          console.error("Erro no upload do Supabase:", error)
+          continue
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('products')
+          .getPublicUrl(filePath)
+
+        uploadedUrls.push(publicUrlData.publicUrl)
       } catch (e) {
         console.error("Erro no upload:", e)
       }
@@ -116,6 +136,7 @@ export async function createProduct(formData: FormData) {
       isWholesale,
       isPromotion,
       isDraft,
+      categoryId,
       sizes: {
         create: variants.map((v: any) => ({
           size: v.size,
@@ -154,6 +175,7 @@ export async function updateProduct(id: string, formData: FormData) {
   const isPromotion = formData.get("isPromotion") === "true"
   const isDraft = formData.get("isDraft") === "true"
   const description = formData.get("description") as string || ""
+  const categoryId = formData.get("categoryId") as string || null
   
   // Existing Images and Variants
   const existingImagesStr = formData.get("existingImages") as string
@@ -175,8 +197,27 @@ export async function updateProduct(id: string, formData: FormData) {
   for (const file of newImages) {
     if (file && file.size > 0) {
       try {
-        const blob = await put(`products/${Date.now()}-${file.name}`, file, { access: 'public' })
-        uploadedUrls.push(blob.url)
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+        const filePath = `products/${fileName}`
+
+        const { data, error } = await supabase.storage
+          .from('products')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false,
+          })
+
+        if (error) {
+          console.error("Erro no upload do Supabase:", error)
+          continue
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('products')
+          .getPublicUrl(filePath)
+
+        uploadedUrls.push(publicUrlData.publicUrl)
       } catch (e) {
         console.error("Erro no upload:", e)
       }
@@ -197,6 +238,7 @@ export async function updateProduct(id: string, formData: FormData) {
       isWholesale,
       isPromotion,
       isDraft,
+      categoryId,
       image: primaryImage,
       images: allImages
     }
@@ -427,3 +469,28 @@ export async function deleteOrderAndRestoreStock(orderId: string) {
   }
 }
 
+e x p o r t   a s y n c   f u n c t i o n   c r e a t e C a t e g o r y ( f o r m D a t a :   F o r m D a t a )   { 
+     c o n s t   n a m e   =   f o r m D a t a . g e t ( " n a m e " )   a s   s t r i n g 
+     i f   ( n a m e )   { 
+         a w a i t   p r i s m a . c a t e g o r y . c r e a t e ( {   d a t a :   {   n a m e   }   } ) 
+         r e v a l i d a t e P a t h ( " / a d m i n / c a t e g o r i a s " ) 
+         r e v a l i d a t e P a t h ( " / " ) 
+     } 
+ } 
+ 
+ e x p o r t   a s y n c   f u n c t i o n   d e l e t e C a t e g o r y ( i d :   s t r i n g )   { 
+     a w a i t   p r i s m a . c a t e g o r y . d e l e t e ( {   w h e r e :   {   i d   }   } ) 
+     r e v a l i d a t e P a t h ( " / a d m i n / c a t e g o r i a s " ) 
+     r e v a l i d a t e P a t h ( " / " ) 
+ } 
+ 
+ e x p o r t   a s y n c   f u n c t i o n   u p d a t e C a t e g o r y ( i d :   s t r i n g ,   f o r m D a t a :   F o r m D a t a )   { 
+     c o n s t   n a m e   =   f o r m D a t a . g e t ( " n a m e " )   a s   s t r i n g 
+     i f   ( n a m e )   { 
+         a w a i t   p r i s m a . c a t e g o r y . u p d a t e ( {   w h e r e :   {   i d   } ,   d a t a :   {   n a m e   }   } ) 
+         r e v a l i d a t e P a t h ( " / a d m i n / c a t e g o r i a s " ) 
+         r e v a l i d a t e P a t h ( " / " ) 
+     } 
+ } 
+  
+ 

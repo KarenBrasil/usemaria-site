@@ -23,9 +23,9 @@ export default function CategoryFilters({ categories, currentFilter, currentCat 
   const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, filter?: string, catId?: string) => {
     e.preventDefault();
     
-    let url = '/?';
-    if (filter) url += `filter=${filter}`;
-    if (catId) url += `cat=${catId}`;
+    let url = window.location.pathname + '?';
+    if (filter) url += `filter=${filter}&`;
+    if (catId) url += `cat=${catId}&`;
     url += '#catalogo';
 
     // Force hard reload to bypass all Next.js client caching

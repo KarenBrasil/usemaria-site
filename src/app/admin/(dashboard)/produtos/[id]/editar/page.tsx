@@ -17,6 +17,8 @@ export default async function EditProductPage({ params }: { params: { id: string
     notFound()
   }
 
+  const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } })
+
   // We need to bind the product id to the server action
   const updateProductWithId = updateProduct.bind(null, product.id)
 
@@ -29,7 +31,7 @@ export default async function EditProductPage({ params }: { params: { id: string
         <h2 className="text-2xl font-semibold tracking-tight text-zinc-900">Editar {product.name}</h2>
       </div>
       
-      <ProductForm initialData={product} action={updateProductWithId} />
+      <ProductForm initialData={product} action={updateProductWithId} categories={categories} />
     </div>
   )
 }

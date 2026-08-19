@@ -3,19 +3,26 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CategoryFilters from "@/components/CategoryFilters";
 
 export const dynamic = 'force-dynamic';
 
 export default async function ColecoesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string, cat?: string, filter?: string }>
 }) {
   const resolvedSearchParams = await searchParams;
   const query = resolvedSearchParams?.q || "";
+  const categoryId = resolvedSearchParams?.cat;
+  const filterType = resolvedSearchParams?.filter;
 
   const products = await prisma.product.findMany({
     where: {
+      ...(categoryId ? { categoryId } : {}),
+      ...(filterType === 'atacado' ? { isWholesale: true } : {}),
+      ...(filterType === 'promocao' ? { isPromotion: true } : {}),
+      ...(filterType === 'novidade' ? { isNew: true } : {}),
       name: {
         contains: query,
         mode: 'insensitive',
@@ -34,6 +41,10 @@ export default async function ColecoesPage({
     tiktokUrl: "#"
   }
 
+  const categories = await prisma.category.findMany({
+    orderBy: { name: 'asc' }
+  });
+
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white text-black">
       <Header settings={defaultSettings} />
@@ -48,6 +59,8 @@ export default async function ColecoesPage({
             Explore todas as nossas peças. Fé que veste, propósito que transforma.
           </p>
         </div>
+
+        <CategoryFilters categories={categories} currentCat={categoryId} currentFilter={filterType} />
 
         {/* Search Bar */}
         <div className="max-w-md mx-auto mb-16 relative">

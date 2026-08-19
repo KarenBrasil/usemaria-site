@@ -1,8 +1,11 @@
 import Link from "next/link"
 import { createProduct } from "../../../actions"
 import ProductForm from "@/components/admin/ProductForm"
+import prisma from "@/lib/prisma"
 
-export default function NewProductPage() {
+export default async function NewProductPage() {
+  const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } })
+
   return (
     <div className="max-w-3xl mx-auto pb-24">
       <div className="flex items-center gap-4 mb-8 px-2">
@@ -12,7 +15,7 @@ export default function NewProductPage() {
         <h2 className="text-2xl font-semibold tracking-tight text-zinc-900">Adicionar nova peça</h2>
       </div>
       
-      <ProductForm action={createProduct} />
+      <ProductForm action={createProduct} categories={categories} />
     </div>
   )
 }

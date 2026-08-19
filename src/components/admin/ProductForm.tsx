@@ -10,7 +10,7 @@ type SizeColorStock = {
   stock: number;
 };
 
-export default function ProductForm({ initialData = null, action }: { initialData?: any, action: (formData: FormData) => void }) {
+export default function ProductForm({ initialData = null, action, categories = [] }: { initialData?: any, action: (formData: FormData) => void, categories?: { id: string; name: string }[] }) {
   const [images, setImages] = useState<File[]>([]);
   const hasImagesArray = initialData?.images && initialData.images.length > 0;
   const initialUrls = hasImagesArray ? initialData.images : (initialData?.image ? [initialData.image] : []);
@@ -118,6 +118,15 @@ export default function ProductForm({ initialData = null, action }: { initialDat
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-zinc-700">Descrição e detalhes</label>
           <textarea name="description" rows={4} defaultValue={initialData?.description} className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:bg-white outline-none resize-none" />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-zinc-700">Categoria (Opcional)</label>
+          <select name="categoryId" defaultValue={initialData?.categoryId || ""} className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:bg-white outline-none">
+            <option value="">Sem categoria</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
