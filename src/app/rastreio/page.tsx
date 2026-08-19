@@ -179,7 +179,7 @@ export default async function TrackOrderPage({
                       'bg-red-50 text-red-700 border-red-200'
                     }`}>
                       {order.status === 'PENDING' ? 'Pendente (Aguardando Pagamento)' : 
-                       order.status === 'PAID' ? 'Pagamento Aprovado (Preparando)' : 
+                       order.status === 'PAID' ? 'Pagamento Aprovado' : 
                        order.status === 'SHIPPED' ? 'Enviado (Em Trânsito)' : 
                        order.status === 'DELIVERED' ? 'Entregue' : 'Cancelado'}
                     </span>

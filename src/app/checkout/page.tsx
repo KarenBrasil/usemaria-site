@@ -600,13 +600,8 @@ function CheckoutContent() {
                  <span className="text-sm font-medium text-zinc-900">Total</span>
                  <span className="text-xl text-zinc-900">R$ {(cartTotal() + shippingCost).toFixed(2).replace('.', ',')}</span>
               </div>
-              
-              <div className="mt-4 p-2 bg-red-100 text-red-800 text-xs font-bold rounded">
-                DEBUG (A chave atual da Vercel é: {rawKey.substring(0, 10)}...)
-              </div>
-              
-           </div>
-        </div>
+            </div>
+         </div>
       </div>
     </div>
   );
