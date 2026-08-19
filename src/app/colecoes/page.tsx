@@ -94,7 +94,15 @@ export default async function ColecoesPage({
                 </Link>
                 <Link href={`/product/${product.id}`} className="flex flex-col items-center">
                   <h3 className="text-xs font-bold text-zinc-900 mb-1 tracking-widest uppercase">{product.name}</h3>
-                  <p className="text-xs text-zinc-500 mb-4 font-medium">R$ {product.price.toFixed(2).replace('.', ',')}</p>
+                  <div className="flex flex-col items-center gap-1 mb-4">
+                    <p className="text-xs text-zinc-500 font-medium">R$ {product.price.toFixed(2).replace('.', ',')}</p>
+                    {product.wholesalePrice && (
+                      <div className="flex items-center gap-1.5 opacity-60">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        <span className="text-[10px] font-bold text-zinc-800">R$ {product.wholesalePrice.toFixed(2).replace('.', ',')} no atacado</span>
+                      </div>
+                    )}
+                  </div>
                   <span className="w-full border border-black text-black uppercase text-[10px] tracking-widest font-bold py-2 hover:bg-black hover:text-white transition-colors">
                     Ver Detalhes
                   </span>

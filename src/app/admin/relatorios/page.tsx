@@ -160,11 +160,15 @@ export default async function RelatoriosPage({ searchParams }: { searchParams: P
 
     products.forEach(p => {
       p.sizes.forEach(s => {
-        totalItems += s.stock;
-        if (s.stock === 0) outOfStock++;
-        else if (s.stock <= 5) lowStock++;
-        
+        // Sempre conta para os botões de tamanho
         sizeCounts[s.size] = (sizeCounts[s.size] || 0) + s.stock;
+
+        // Conta para os cards superiores se o tamanho bater com o filtro (ou se for 'all')
+        if (sizeFilter === 'all' || s.size === sizeFilter) {
+          totalItems += s.stock;
+          if (s.stock === 0) outOfStock++;
+          else if (s.stock < 3 && s.stock > 0) lowStock++;
+        }
       });
     });
 
@@ -187,15 +191,15 @@ export default async function RelatoriosPage({ searchParams }: { searchParams: P
         {/* Métricas Principais */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="border border-zinc-200 p-6 rounded-xl bg-white shadow-sm">
-            <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-2">Total de Peças Físicas</p>
+            <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-2">Total de Peças</p>
             <p className="text-4xl font-black text-zinc-900 tracking-tighter">{totalItems}</p>
           </div>
           <div className="border border-red-200 bg-red-50 p-6 rounded-xl shadow-sm text-red-800">
-            <p className="text-[10px] uppercase tracking-widest font-bold mb-2">Variações Esgotadas</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold mb-2">Esgotados</p>
             <p className="text-4xl font-black tracking-tighter">{outOfStock}</p>
           </div>
           <div className="border border-amber-200 bg-amber-50 p-6 rounded-xl shadow-sm text-amber-800">
-            <p className="text-[10px] uppercase tracking-widest font-bold mb-2">Variações c/ Baixo Estoque (≤ 5)</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold mb-2">Baixo Estoque</p>
             <p className="text-4xl font-black tracking-tighter">{lowStock}</p>
           </div>
         </div>

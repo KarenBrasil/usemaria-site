@@ -201,22 +201,25 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
                   </h3>
                 </Link>
                 
-                <div className="flex items-center gap-2 mb-2">
-                  {product.oldPrice && (
-                    <span className="text-xs text-zinc-400 line-through">
-                      R$ {product.oldPrice.toFixed(2).replace('.', ',')}
+                <div className="flex flex-col items-center gap-1 mb-2">
+                  <div className="flex items-center gap-2">
+                    {product.oldPrice && (
+                      <span className="text-xs text-zinc-400 line-through">
+                        R$ {product.oldPrice.toFixed(2).replace('.', ',')}
+                      </span>
+                    )}
+                    <span className="text-sm font-medium text-zinc-900">
+                      R$ {product.price.toFixed(2).replace('.', ',')}
                     </span>
+                  </div>
+                  
+                  {product.wholesalePrice && (
+                    <div className="flex items-center gap-1.5 opacity-60">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                      <span className="text-[10px] font-bold text-zinc-800">R$ {product.wholesalePrice.toFixed(2).replace('.', ',')} no atacado</span>
+                    </div>
                   )}
-                  <span className="text-sm font-medium text-zinc-900">
-                    R$ {product.price.toFixed(2).replace('.', ',')}
-                  </span>
                 </div>
-                
-                {product.wholesalePrice && (
-                  <span className="text-[10px] uppercase tracking-widest text-amber-600 font-medium">
-                    Atacado: R$ {product.wholesalePrice.toFixed(2).replace('.', ',')}
-                  </span>
-                )}
               </div>
             </div>
           ))}

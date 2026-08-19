@@ -26,11 +26,15 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   allProducts.forEach(p => {
     p.sizes.forEach(s => {
-      totalItems += s.stock;
-      if (s.stock === 0) outOfStock++;
-      else if (s.stock <= 5 && s.stock > 0) lowStock++;
-      
+      // Sempre conta para os botões de tamanho
       sizeCounts[s.size] = (sizeCounts[s.size] || 0) + s.stock;
+
+      // Conta para os cards superiores se o tamanho bater com o filtro (ou se for 'all')
+      if (sizeFilter === 'all' || s.size === sizeFilter) {
+        totalItems += s.stock;
+        if (s.stock === 0) outOfStock++;
+        else if (s.stock < 3 && s.stock > 0) lowStock++;
+      }
     });
   });
 
@@ -48,9 +52,9 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   }
 
   if (typeFilter === 'esgotados') {
-    products = products.filter(p => p.sizes.some(s => s.stock === 0));
+    products = products.filter(p => p.sizes.some(s => s.stock === 0 && (sizeFilter === 'all' || s.size === sizeFilter)));
   } else if (typeFilter === 'baixo_estoque') {
-    products = products.filter(p => p.sizes.some(s => s.stock > 0 && s.stock <= 5));
+    products = products.filter(p => p.sizes.some(s => s.stock > 0 && s.stock < 3 && (sizeFilter === 'all' || s.size === sizeFilter)));
   }
 
   if (sizeFilter !== 'all') {
@@ -90,15 +94,15 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       {/* Filtros e Métricas de Estoque */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <Link href={`/admin/produtos?filter=all&size=${sizeFilter}&q=${searchQuery}`} className={`border p-5 rounded-xl shadow-sm transition-all ${typeFilter === 'all' ? 'bg-zinc-900 border-zinc-900 text-white' : 'bg-white border-zinc-200 hover:border-black text-zinc-900'}`}>
-          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'all' ? 'text-zinc-400' : 'text-zinc-500'}`}>Total de Peças Físicas</p>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'all' ? 'text-zinc-400' : 'text-zinc-500'}`}>Total de Peças</p>
           <p className="text-3xl font-black tracking-tighter">{totalItems}</p>
         </Link>
         <Link href={`/admin/produtos?filter=esgotados&size=${sizeFilter}&q=${searchQuery}`} className={`border p-5 rounded-xl shadow-sm transition-all ${typeFilter === 'esgotados' ? 'bg-red-900 border-red-900 text-white' : 'bg-red-50 border-red-200 text-red-800 hover:border-red-300'}`}>
-          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'esgotados' ? 'text-red-300' : 'text-red-800'}`}>Modelos com Variação Esgotada</p>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'esgotados' ? 'text-red-300' : 'text-red-800'}`}>Esgotados</p>
           <p className="text-3xl font-black tracking-tighter">{outOfStock}</p>
         </Link>
         <Link href={`/admin/produtos?filter=baixo_estoque&size=${sizeFilter}&q=${searchQuery}`} className={`border p-5 rounded-xl shadow-sm transition-all ${typeFilter === 'baixo_estoque' ? 'bg-amber-900 border-amber-900 text-white' : 'bg-amber-50 border-amber-200 text-amber-800 hover:border-amber-300'}`}>
-          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'baixo_estoque' ? 'text-amber-300' : 'text-amber-800'}`}>Modelos c/ Baixo Estoque (≤ 5)</p>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'baixo_estoque' ? 'text-amber-300' : 'text-amber-800'}`}>Baixo Estoque</p>
           <p className="text-3xl font-black tracking-tighter">{lowStock}</p>
         </Link>
       </div>
