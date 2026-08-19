@@ -148,37 +148,106 @@ export default async function RelatoriosPage({ searchParams }: { searchParams: P
   
   else if (type === 'estoque') {
     title = "Inventário de Estoque";
-    const products = await prisma.product.findMany({ include: { sizes: true }, orderBy: { createdAt: 'desc' } });
+    const sizeFilter = resolvedParams.size || 'all';
+
+    let products = await prisma.product.findMany({ include: { sizes: true }, orderBy: { createdAt: 'desc' } });
+    
+    // Aggregations
+    let totalItems = 0;
+    let outOfStock = 0;
+    let lowStock = 0;
+    const sizeCounts: Record<string, number> = {};
+
+    products.forEach(p => {
+      p.sizes.forEach(s => {
+        totalItems += s.stock;
+        if (s.stock === 0) outOfStock++;
+        else if (s.stock <= 5) lowStock++;
+        
+        sizeCounts[s.size] = (sizeCounts[s.size] || 0) + s.stock;
+      });
+    });
+
+    // Sort sizes for better display
+    const sortedSizes = Object.entries(sizeCounts).sort((a, b) => {
+      const order = { 'PP': 1, 'P': 2, 'M': 3, 'G': 4, 'GG': 5, 'XG': 6 };
+      return (order[a[0] as keyof typeof order] || 99) - (order[b[0] as keyof typeof order] || 99);
+    });
+
+    // Filter by size if requested
+    if (sizeFilter !== 'all') {
+      products = products.map(p => ({
+        ...p,
+        sizes: p.sizes.filter(s => s.size === sizeFilter)
+      })).filter(p => p.sizes.length > 0);
+    }
     
     content = (
-      <table className="w-full text-sm border-collapse border border-zinc-200">
-        <thead className="bg-zinc-50">
-          <tr className="text-left text-zinc-600 border-b border-zinc-200">
-            <th className="py-3 px-4 font-bold border-r border-zinc-200">Produto</th>
-            <th className="py-3 px-4 font-bold text-center border-r border-zinc-200">Cor/Variação</th>
-            <th className="py-3 px-4 font-bold text-center border-r border-zinc-200">Tamanho</th>
-            <th className="py-3 px-4 font-bold text-center border-r border-zinc-200">Qtd Atual</th>
-            <th className="py-3 px-4 font-bold text-center">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            product.sizes.map((size) => (
-              <tr key={size.id} className="border-b border-zinc-200">
-                <td className="py-2 px-4 border-r border-zinc-200 font-medium">{product.name}</td>
-                <td className="py-2 px-4 text-center border-r border-zinc-200">{size.color}</td>
-                <td className="py-2 px-4 text-center border-r border-zinc-200">{size.size}</td>
-                <td className={`py-2 px-4 text-center font-bold border-r border-zinc-200 ${size.stock <= 0 ? 'text-red-500' : 'text-zinc-800'}`}>
-                  {size.stock}
-                </td>
-                <td className="py-2 px-4 text-center text-xs font-bold uppercase">
-                  {size.stock > 5 ? <span className="text-emerald-600">Normal</span> : size.stock > 0 ? <span className="text-amber-600">Baixo</span> : <span className="text-red-600">Esgotado</span>}
-                </td>
-              </tr>
-            ))
-          ))}
-        </tbody>
-      </table>
+      <div className="space-y-6">
+        {/* Métricas Principais */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="border border-zinc-200 p-6 rounded-xl bg-white shadow-sm">
+            <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-2">Total de Peças Físicas</p>
+            <p className="text-4xl font-black text-zinc-900 tracking-tighter">{totalItems}</p>
+          </div>
+          <div className="border border-red-200 bg-red-50 p-6 rounded-xl shadow-sm text-red-800">
+            <p className="text-[10px] uppercase tracking-widest font-bold mb-2">Variações Esgotadas</p>
+            <p className="text-4xl font-black tracking-tighter">{outOfStock}</p>
+          </div>
+          <div className="border border-amber-200 bg-amber-50 p-6 rounded-xl shadow-sm text-amber-800">
+            <p className="text-[10px] uppercase tracking-widest font-bold mb-2">Variações c/ Baixo Estoque (≤ 5)</p>
+            <p className="text-4xl font-black tracking-tighter">{lowStock}</p>
+          </div>
+        </div>
+
+        {/* Filtros por Tamanho (Cards) */}
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-3 flex items-center gap-2 print:hidden">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+             Filtro Rápido por Tamanho
+          </h3>
+          <div className="flex flex-wrap gap-3 print:hidden mb-6">
+            <Link href="/admin/relatorios?type=estoque&size=all" className={`px-4 py-3 rounded-xl border flex flex-col items-center justify-center min-w-[80px] transition-all ${sizeFilter === 'all' ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-black'}`}>
+              <span className="text-[10px] font-bold uppercase tracking-widest">Todos</span>
+            </Link>
+            {sortedSizes.map(([size, count]) => (
+              <Link key={size} href={`/admin/relatorios?type=estoque&size=${size}`} className={`px-4 py-3 rounded-xl border flex flex-col items-center justify-center min-w-[80px] transition-all ${sizeFilter === size ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-black'}`}>
+                <span className="text-lg font-black leading-none mb-1">{size}</span>
+                <span className={`text-[10px] font-bold uppercase tracking-widest ${sizeFilter === size ? 'text-zinc-300' : 'text-zinc-400'}`}>{count} un</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <table className="w-full text-sm border-collapse border border-zinc-200">
+          <thead className="bg-zinc-50">
+            <tr className="text-left text-zinc-600 border-b border-zinc-200">
+              <th className="py-3 px-4 font-bold border-r border-zinc-200">Produto</th>
+              <th className="py-3 px-4 font-bold text-center border-r border-zinc-200">Cor/Variação</th>
+              <th className="py-3 px-4 font-bold text-center border-r border-zinc-200">Tamanho</th>
+              <th className="py-3 px-4 font-bold text-center border-r border-zinc-200">Qtd Atual</th>
+              <th className="py-3 px-4 font-bold text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              product.sizes.map((size) => (
+                <tr key={size.id} className="border-b border-zinc-200 hover:bg-zinc-50">
+                  <td className="py-2 px-4 border-r border-zinc-200 font-medium text-zinc-900">{product.name}</td>
+                  <td className="py-2 px-4 text-center border-r border-zinc-200">{size.color}</td>
+                  <td className="py-2 px-4 text-center border-r border-zinc-200 font-bold">{size.size}</td>
+                  <td className={`py-2 px-4 text-center font-bold border-r border-zinc-200 ${size.stock <= 0 ? 'text-red-500' : 'text-zinc-800'}`}>
+                    {size.stock}
+                  </td>
+                  <td className="py-2 px-4 text-center text-[10px] tracking-widest font-bold uppercase">
+                    {size.stock > 5 ? <span className="text-emerald-600">Normal</span> : size.stock > 0 ? <span className="text-amber-600">Baixo</span> : <span className="text-red-600">Esgotado</span>}
+                  </td>
+                </tr>
+              ))
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   } 
   
@@ -188,37 +257,81 @@ export default async function RelatoriosPage({ searchParams }: { searchParams: P
 
     title = "Histórico de Vendas";
     
-    let whereClause: any = {};
+    let allOrders = await prisma.order.findMany({ orderBy: { createdAt: 'desc' }, include: { customer: true, items: true } });
+
+    // Aggregations
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const firstDayMonth = new Date(); firstDayMonth.setDate(1); firstDayMonth.setHours(0, 0, 0, 0);
+
+    let countToday = 0;
+    let countMonth = 0;
+    let countVarejo = 0;
+    let countAtacado = 0;
+
+    allOrders.forEach(o => {
+      const items = o.items.reduce((acc, item) => acc + item.quantity, 0);
+      if (items >= 10) countAtacado++;
+      else countVarejo++;
+
+      const createdAt = new Date(o.createdAt);
+      if (createdAt >= today) countToday++;
+      if (createdAt >= firstDayMonth) countMonth++;
+    });
+
+    // Apply Filters for the list
+    let orders = allOrders;
     if (periodFilter === 'today') {
-      const today = new Date(); today.setHours(0, 0, 0, 0); whereClause.createdAt = { gte: today };
+      orders = orders.filter(o => new Date(o.createdAt) >= today);
     } else if (periodFilter === 'month') {
-      const firstDay = new Date(); firstDay.setDate(1); firstDay.setHours(0, 0, 0, 0); whereClause.createdAt = { gte: firstDay };
+      orders = orders.filter(o => new Date(o.createdAt) >= firstDayMonth);
     }
 
-    let orders = await prisma.order.findMany({ where: whereClause, orderBy: { createdAt: 'desc' }, include: { customer: true, items: true } });
-
     if (typeFilter !== 'all') {
-      orders = orders.filter(order => {
-        const totalItems = order.items.reduce((acc, item) => acc + item.quantity, 0);
-        const isWholesale = totalItems >= 10;
-        return typeFilter === 'atacado' ? isWholesale : !isWholesale;
+      orders = orders.filter(o => {
+        const totalItems = o.items.reduce((acc, item) => acc + item.quantity, 0);
+        return typeFilter === 'atacado' ? totalItems >= 10 : totalItems < 10;
       });
     }
 
     content = (
-      <>
-      {/* Filtros para impressão (escondidos ao imprimir) */}
-      <div className="flex gap-4 mb-6 print:hidden">
-        <div className="flex gap-2 bg-zinc-100 p-1 rounded-lg">
-          <Link href="/admin/relatorios?type=vendas&period=all&filterType=all" className="px-3 py-1 text-xs font-bold uppercase hover:bg-white rounded">Limpar Filtros</Link>
-          <Link href={`/admin/relatorios?type=vendas&period=${periodFilter}&filterType=varejo`} className={`px-3 py-1 text-xs font-bold uppercase rounded ${typeFilter === 'varejo' ? 'bg-white shadow' : 'hover:bg-zinc-200'}`}>Varejo</Link>
-          <Link href={`/admin/relatorios?type=vendas&period=${periodFilter}&filterType=atacado`} className={`px-3 py-1 text-xs font-bold uppercase rounded ${typeFilter === 'atacado' ? 'bg-white shadow' : 'hover:bg-zinc-200'}`}>Atacado</Link>
+      <div className="space-y-6">
+        {/* Filtros por Categoria (Cards) */}
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-3 flex items-center gap-2 print:hidden">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+             Filtros de Vendas
+          </h3>
+          <div className="flex flex-wrap gap-3 print:hidden mb-6">
+            <Link href="/admin/relatorios?type=vendas&period=all&filterType=all" className={`px-5 py-4 rounded-xl border flex flex-col min-w-[120px] transition-all ${periodFilter === 'all' && typeFilter === 'all' ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-black'}`}>
+              <span className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${periodFilter === 'all' && typeFilter === 'all' ? 'text-zinc-400' : 'text-zinc-400'}`}>Geral</span>
+              <span className="text-xl font-black leading-none">{allOrders.length} <span className="text-[10px] font-bold">pedidos</span></span>
+            </Link>
+
+            <div className="w-px bg-zinc-200 mx-1 hidden sm:block"></div>
+
+            <Link href={`/admin/relatorios?type=vendas&filterType=${typeFilter}&period=today`} className={`px-5 py-4 rounded-xl border flex flex-col min-w-[120px] transition-all ${periodFilter === 'today' ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-black'}`}>
+              <span className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${periodFilter === 'today' ? 'text-zinc-400' : 'text-zinc-400'}`}>Hoje</span>
+              <span className="text-xl font-black leading-none">{countToday} <span className="text-[10px] font-bold">pedidos</span></span>
+            </Link>
+
+            <Link href={`/admin/relatorios?type=vendas&filterType=${typeFilter}&period=month`} className={`px-5 py-4 rounded-xl border flex flex-col min-w-[120px] transition-all ${periodFilter === 'month' ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-black'}`}>
+              <span className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${periodFilter === 'month' ? 'text-zinc-400' : 'text-zinc-400'}`}>Este Mês</span>
+              <span className="text-xl font-black leading-none">{countMonth} <span className="text-[10px] font-bold">pedidos</span></span>
+            </Link>
+
+            <div className="w-px bg-zinc-200 mx-1 hidden sm:block"></div>
+
+            <Link href={`/admin/relatorios?type=vendas&period=${periodFilter}&filterType=varejo`} className={`px-5 py-4 rounded-xl border flex flex-col min-w-[120px] transition-all ${typeFilter === 'varejo' ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-black'}`}>
+              <span className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${typeFilter === 'varejo' ? 'text-zinc-400' : 'text-zinc-400'}`}>Varejo</span>
+              <span className="text-xl font-black leading-none">{countVarejo} <span className="text-[10px] font-bold">pedidos</span></span>
+            </Link>
+
+            <Link href={`/admin/relatorios?type=vendas&period=${periodFilter}&filterType=atacado`} className={`px-5 py-4 rounded-xl border flex flex-col min-w-[120px] transition-all ${typeFilter === 'atacado' ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-black'}`}>
+              <span className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${typeFilter === 'atacado' ? 'text-zinc-400' : 'text-zinc-400'}`}>Atacado</span>
+              <span className="text-xl font-black leading-none">{countAtacado} <span className="text-[10px] font-bold">pedidos</span></span>
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-2 bg-zinc-100 p-1 rounded-lg">
-          <Link href={`/admin/relatorios?type=vendas&filterType=${typeFilter}&period=today`} className={`px-3 py-1 text-xs font-bold uppercase rounded ${periodFilter === 'today' ? 'bg-white shadow' : 'hover:bg-zinc-200'}`}>Hoje</Link>
-          <Link href={`/admin/relatorios?type=vendas&filterType=${typeFilter}&period=month`} className={`px-3 py-1 text-xs font-bold uppercase rounded ${periodFilter === 'month' ? 'bg-white shadow' : 'hover:bg-zinc-200'}`}>Este Mês</Link>
-        </div>
-      </div>
       <table className="w-full text-sm border-collapse border border-zinc-200">
         <thead className="bg-zinc-50">
           <tr className="text-left text-zinc-600 border-b border-zinc-200">
@@ -253,7 +366,7 @@ export default async function RelatoriosPage({ searchParams }: { searchParams: P
         </tbody>
       </table>
       <p className="text-xs text-zinc-400 mt-2 italic">* Listagem completa de todos os pedidos registrados.</p>
-      </>
+      </div>
     );
   }
 

@@ -60,20 +60,26 @@ export default async function SalesPage({
   }
 
   // Contagem básica para os tabs de status ignorando outros filtros para manter a consistência visual do topo
-  const counts = await prisma.order.groupBy({
-    by: ['status'],
-    _count: { _all: true }
-  })
-  
-  const getCount = (status: string) => counts.find(c => c.status === status)?._count._all || 0;
-  const totalCount = counts.reduce((acc, c) => acc + c._count._all, 0);
+  const allOrdersStats = await prisma.order.findMany({ include: { items: true } });
+  const getCount = (status: string) => allOrdersStats.filter(o => o.status === status).length;
+  const totalCount = allOrdersStats.length;
 
-  const tabs = [
-    { label: 'Todos', value: 'ALL', count: totalCount },
-    { label: 'Pendentes', value: 'PENDING', count: getCount('PENDING') },
-    { label: 'Pagos', value: 'PAID', count: getCount('PAID') },
-    { label: 'Enviados', value: 'SHIPPED', count: getCount('SHIPPED') },
-  ];
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const firstDayMonth = new Date(); firstDayMonth.setDate(1); firstDayMonth.setHours(0, 0, 0, 0);
+  let countToday = 0;
+  let countMonth = 0;
+  let countVarejo = 0;
+  let countAtacado = 0;
+
+  allOrdersStats.forEach(o => {
+    const totalItems = o.items.reduce((acc, item) => acc + item.quantity, 0);
+    if (totalItems >= 10) countAtacado++;
+    else countVarejo++;
+
+    const createdAt = new Date(o.createdAt);
+    if (createdAt >= today) countToday++;
+    if (createdAt >= firstDayMonth) countMonth++;
+  });
 
   return (
     <div className="pb-20">
@@ -84,50 +90,45 @@ export default async function SalesPage({
         </div>
       </div>
 
-      {/* Barra de Filtros Avançados */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-zinc-200 mb-6 flex flex-wrap gap-4 items-center">
-        
-        <div className="flex items-center gap-2">
+      {/* Cards de Filtro de Status */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, status: undefined } }} className={`p-5 rounded-xl border shadow-sm transition-all flex flex-col ${(!statusFilter || statusFilter === 'ALL') ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-900 border-zinc-200 hover:border-black'}`}>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-1 ${(!statusFilter || statusFilter === 'ALL') ? 'text-zinc-400' : 'text-zinc-500'}`}>Total de Vendas</p>
+          <p className="text-3xl font-black tracking-tighter">{totalCount}</p>
+        </Link>
+        <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, status: 'PENDING' } }} className={`p-5 rounded-xl border shadow-sm transition-all flex flex-col ${statusFilter === 'PENDING' ? 'bg-amber-900 text-white border-amber-900' : 'bg-amber-50 text-amber-900 border-amber-200 hover:border-amber-400'}`}>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-1 ${statusFilter === 'PENDING' ? 'text-amber-300' : 'text-amber-700'}`}>Aguardando Pagto</p>
+          <p className="text-3xl font-black tracking-tighter">{getCount('PENDING')}</p>
+        </Link>
+        <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, status: 'PAID' } }} className={`p-5 rounded-xl border shadow-sm transition-all flex flex-col ${statusFilter === 'PAID' ? 'bg-emerald-900 text-white border-emerald-900' : 'bg-emerald-50 text-emerald-900 border-emerald-200 hover:border-emerald-400'}`}>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-1 ${statusFilter === 'PAID' ? 'text-emerald-300' : 'text-emerald-700'}`}>Aprovados</p>
+          <p className="text-3xl font-black tracking-tighter">{getCount('PAID')}</p>
+        </Link>
+        <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, status: 'SHIPPED' } }} className={`p-5 rounded-xl border shadow-sm transition-all flex flex-col ${statusFilter === 'SHIPPED' ? 'bg-blue-900 text-white border-blue-900' : 'bg-blue-50 text-blue-900 border-blue-200 hover:border-blue-400'}`}>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-1 ${statusFilter === 'SHIPPED' ? 'text-blue-300' : 'text-blue-700'}`}>Enviados</p>
+          <p className="text-3xl font-black tracking-tighter">{getCount('SHIPPED')}</p>
+        </Link>
+      </div>
+
+      {/* Sub-filtros Adicionais */}
+      <div className="flex flex-wrap gap-4 items-center mb-8 bg-white p-3 rounded-xl border border-zinc-200 shadow-sm">
+        <div className="flex items-center gap-2 pr-4 border-r border-zinc-100 hidden sm:flex">
           <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-          <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Filtros:</span>
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Mais Filtros:</span>
         </div>
-
-        {/* Status (Tabs em formato Select/Botões compactos) */}
-        <div className="flex gap-2 bg-zinc-100 p-1 rounded-lg">
-          {tabs.map(tab => {
-            const isActive = (statusFilter === tab.value) || (!statusFilter && tab.value === 'ALL');
-            return (
-              <Link 
-                key={tab.value}
-                href={{ pathname: '/admin/vendas', query: { ...resolvedParams, status: tab.value === 'ALL' ? undefined : tab.value } }}
-                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${
-                  isActive 
-                    ? 'bg-white text-black shadow-sm' 
-                    : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/50'
-                }`}
-              >
-                {tab.label} <span className="opacity-60 ml-1">({tab.count})</span>
-              </Link>
-            )
-          })}
-        </div>
-
-        <div className="h-6 w-px bg-zinc-200 hidden md:block"></div>
 
         {/* Tipo: Varejo / Atacado */}
-        <div className="flex gap-2 bg-zinc-100 p-1 rounded-lg">
-          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, type: 'all' } }} className={`px-3 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${(!resolvedParams?.type || resolvedParams?.type === 'all') ? 'bg-white text-black shadow-sm' : 'text-zinc-500 hover:bg-zinc-200/50'}`}>Ambos</Link>
-          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, type: 'varejo' } }} className={`px-3 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${resolvedParams?.type === 'varejo' ? 'bg-white text-black shadow-sm' : 'text-zinc-500 hover:bg-zinc-200/50'}`}>Varejo</Link>
-          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, type: 'atacado' } }} className={`px-3 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${resolvedParams?.type === 'atacado' ? 'bg-white text-black shadow-sm' : 'text-zinc-500 hover:bg-zinc-200/50'}`}>Atacado</Link>
+        <div className="flex gap-1.5 bg-zinc-50 p-1 rounded-lg border border-zinc-100">
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, type: 'all' } }} className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${(!resolvedParams?.type || resolvedParams?.type === 'all') ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200' : 'text-zinc-500 hover:text-zinc-900'}`}>Todos</Link>
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, type: 'varejo' } }} className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1 ${resolvedParams?.type === 'varejo' ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200' : 'text-zinc-500 hover:text-zinc-900'}`}>Varejo <span className="opacity-60">({countVarejo})</span></Link>
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, type: 'atacado' } }} className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1 ${resolvedParams?.type === 'atacado' ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200' : 'text-zinc-500 hover:text-zinc-900'}`}>Atacado <span className="opacity-60">({countAtacado})</span></Link>
         </div>
 
-        <div className="h-6 w-px bg-zinc-200 hidden md:block"></div>
-
         {/* Período */}
-        <div className="flex gap-2">
-          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, period: 'all' } }} className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${periodFilter === 'all' ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'}`}>Todo o Período</Link>
-          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, period: 'month' } }} className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${periodFilter === 'month' ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'}`}>Este Mês</Link>
-          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, period: 'today' } }} className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${periodFilter === 'today' ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'}`}>Hoje</Link>
+        <div className="flex gap-1.5 bg-zinc-50 p-1 rounded-lg border border-zinc-100 sm:ml-auto">
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, period: 'all' } }} className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${periodFilter === 'all' ? 'bg-zinc-900 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-900'}`}>Sempre</Link>
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, period: 'month' } }} className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1 ${periodFilter === 'month' ? 'bg-zinc-900 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-900'}`}>Este Mês <span className="opacity-60">({countMonth})</span></Link>
+          <Link href={{ pathname: '/admin/vendas', query: { ...resolvedParams, period: 'today' } }} className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1 ${periodFilter === 'today' ? 'bg-zinc-900 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-900'}`}>Hoje <span className="opacity-60">({countToday})</span></Link>
         </div>
       </div>
       

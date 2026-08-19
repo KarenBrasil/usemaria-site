@@ -7,17 +7,55 @@ import { Suspense } from "react"
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ q?: string, size?: string, filter?: string }> }) {
   const resolvedParams = await searchParams;
-  const searchQuery = resolvedParams.q;
+  const searchQuery = resolvedParams.q || '';
+  const sizeFilter = resolvedParams.size || 'all';
+  const typeFilter = resolvedParams.filter || 'all';
 
-  const products = await prisma.product.findMany({ 
-    where: {
-      ...(searchQuery ? { name: { contains: searchQuery, mode: 'insensitive' } } : {})
-    },
+  let allProducts = await prisma.product.findMany({ 
     include: { sizes: true },
     orderBy: { createdAt: 'desc' }
-  })
+  });
+
+  // Calculate Metrics
+  let totalItems = 0;
+  let outOfStock = 0;
+  let lowStock = 0;
+  const sizeCounts: Record<string, number> = {};
+
+  allProducts.forEach(p => {
+    p.sizes.forEach(s => {
+      totalItems += s.stock;
+      if (s.stock === 0) outOfStock++;
+      else if (s.stock <= 5 && s.stock > 0) lowStock++;
+      
+      sizeCounts[s.size] = (sizeCounts[s.size] || 0) + s.stock;
+    });
+  });
+
+  const sortedSizes = Object.entries(sizeCounts).sort((a, b) => {
+    const order = { 'PP': 1, 'P': 2, 'M': 3, 'G': 4, 'GG': 5, 'XG': 6 };
+    return (order[a[0] as keyof typeof order] || 99) - (order[b[0] as keyof typeof order] || 99);
+  });
+
+  // Apply Search and Filters
+  let products = allProducts;
+
+  if (searchQuery) {
+    const lowerQ = searchQuery.toLowerCase();
+    products = products.filter(p => p.name.toLowerCase().includes(lowerQ));
+  }
+
+  if (typeFilter === 'esgotados') {
+    products = products.filter(p => p.sizes.some(s => s.stock === 0));
+  } else if (typeFilter === 'baixo_estoque') {
+    products = products.filter(p => p.sizes.some(s => s.stock > 0 && s.stock <= 5));
+  }
+
+  if (sizeFilter !== 'all') {
+    products = products.filter(p => p.sizes.some(s => s.size === sizeFilter));
+  }
   
   return (
     <div className="pb-20">
@@ -49,6 +87,34 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         </div>
       </div>
       
+      {/* Filtros e Métricas de Estoque */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <Link href={`/admin/produtos?filter=all&size=${sizeFilter}&q=${searchQuery}`} className={`border p-5 rounded-xl shadow-sm transition-all ${typeFilter === 'all' ? 'bg-zinc-900 border-zinc-900 text-white' : 'bg-white border-zinc-200 hover:border-black text-zinc-900'}`}>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'all' ? 'text-zinc-400' : 'text-zinc-500'}`}>Total de Peças Físicas</p>
+          <p className="text-3xl font-black tracking-tighter">{totalItems}</p>
+        </Link>
+        <Link href={`/admin/produtos?filter=esgotados&size=${sizeFilter}&q=${searchQuery}`} className={`border p-5 rounded-xl shadow-sm transition-all ${typeFilter === 'esgotados' ? 'bg-red-900 border-red-900 text-white' : 'bg-red-50 border-red-200 text-red-800 hover:border-red-300'}`}>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'esgotados' ? 'text-red-300' : 'text-red-800'}`}>Modelos com Variação Esgotada</p>
+          <p className="text-3xl font-black tracking-tighter">{outOfStock}</p>
+        </Link>
+        <Link href={`/admin/produtos?filter=baixo_estoque&size=${sizeFilter}&q=${searchQuery}`} className={`border p-5 rounded-xl shadow-sm transition-all ${typeFilter === 'baixo_estoque' ? 'bg-amber-900 border-amber-900 text-white' : 'bg-amber-50 border-amber-200 text-amber-800 hover:border-amber-300'}`}>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'baixo_estoque' ? 'text-amber-300' : 'text-amber-800'}`}>Modelos c/ Baixo Estoque (≤ 5)</p>
+          <p className="text-3xl font-black tracking-tighter">{lowStock}</p>
+        </Link>
+      </div>
+
+      <div className="flex flex-wrap gap-3 mb-8">
+        <Link href={`/admin/produtos?size=all&filter=${typeFilter}&q=${searchQuery}`} className={`px-4 py-3 rounded-xl border flex flex-col items-center justify-center min-w-[80px] transition-all ${sizeFilter === 'all' ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-black'}`}>
+          <span className="text-[10px] font-bold uppercase tracking-widest">Todos</span>
+        </Link>
+        {sortedSizes.map(([size, count]) => (
+          <Link key={size} href={`/admin/produtos?size=${size}&filter=${typeFilter}&q=${searchQuery}`} className={`px-4 py-3 rounded-xl border flex flex-col items-center justify-center min-w-[80px] transition-all ${sizeFilter === size ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-black'}`}>
+            <span className="text-lg font-black leading-none mb-1">{size}</span>
+            <span className={`text-[10px] font-bold uppercase tracking-widest ${sizeFilter === size ? 'text-zinc-300' : 'text-zinc-400'}`}>{count} un</span>
+          </Link>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {products.length === 0 ? (
           <div className="col-span-full bg-white rounded-2xl border border-zinc-200 p-16 text-center shadow-sm">
