@@ -413,12 +413,13 @@ function CheckoutContent() {
                   {/* OPÇÃO CARTÃO DE CRÉDITO - ESTILO STRIPE NATIVO */}
                   <label className={`p-5 flex items-center justify-between cursor-pointer border-b border-zinc-200 transition-colors ${paymentMethod === 'CARD' ? 'bg-zinc-50/30' : 'bg-white'}`}>
                     <div className="flex items-center gap-3">
-                      <input type="radio" name="payment" checked={paymentMethod === 'CARD'} onChange={() => setPaymentMethod('CARD')} className="w-4 h-4 text-blue-600 border-zinc-300 focus:ring-blue-600 accent-blue-600" />
+                      <input type="radio" name="payment" checked={paymentMethod === 'CARD'} onChange={() => { setPaymentMethod('CARD'); setError(null); }} className="w-4 h-4 text-blue-600 border-zinc-300 focus:ring-blue-600 accent-blue-600" />
                       <div className="flex items-center gap-2">
                         <svg className="w-5 h-5 text-zinc-700" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
                         <span className="font-bold text-sm text-zinc-800">Cartão</span>
                       </div>
                     </div>
+                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">Aprovação imediata</span>
                   </label>
                   
                   {paymentMethod === 'CARD' && (
@@ -509,13 +510,12 @@ function CheckoutContent() {
                   {/* OPÇÃO PIX */}
                   <label className={`p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'PIX' ? 'bg-zinc-50/50' : 'bg-white'}`}>
                     <div className="flex items-center gap-4">
-                      <input type="radio" name="payment" checked={paymentMethod === 'PIX'} onChange={() => setPaymentMethod('PIX')} className="w-4 h-4 text-zinc-900 border-zinc-300 focus:ring-zinc-900 accent-zinc-900" />
+                      <input type="radio" name="payment" checked={paymentMethod === 'PIX'} onChange={() => { setPaymentMethod('PIX'); setError(null); }} className="w-4 h-4 text-zinc-900 border-zinc-300 focus:ring-zinc-900 accent-zinc-900" />
                       <div className="flex items-center gap-2">
                         <svg className="w-5 h-5 text-emerald-600" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M7.74 3L2 8.74l8.13 8.12 5.74-5.74L7.74 3zm8.52 0l-5.74 5.74 8.12 8.12L24.38 11.1 16.26 3zm-2.77 8.51l-2.96-2.96-2.96 2.96 2.96 2.96 2.96-2.96zM13.1 17.61L18.84 23.35l5.54-5.54-8.12-8.12-3.16 3.16-3.16-3.16-8.12 8.12 5.54 5.54L13.1 17.61z" fillRule="evenodd" clipRule="evenodd"/></svg>
                         <span className="font-bold text-sm text-zinc-800">PIX</span>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">Aprovação imediata</span>
                   </label>
                   
                   {paymentMethod === 'PIX' && (
@@ -525,8 +525,8 @@ function CheckoutContent() {
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <div className="text-sm text-zinc-600">
-                          <p className="font-medium text-zinc-800 mb-1">O código Pix será gerado na próxima etapa.</p>
-                          <p>O pagamento é aprovado em até 10 segundos. Finalize a compra para visualizar o QR Code.</p>
+                          <p className="font-medium text-zinc-800 mb-1">O QR Code será gerado na próxima etapa.</p>
+                          <p>Após o pagamento, a confirmação deve ser verificada. Você pode aguardar a aprovação automática ou mandar o comprovante no nosso WhatsApp.</p>
                         </div>
                       </div>
                     </div>
