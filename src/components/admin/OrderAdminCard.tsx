@@ -5,6 +5,7 @@ import { updateOrderStatus, confirmPixOrder, generateShippingLabel } from "@/app
 
 export default function OrderAdminCard({ order }: { order: any }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -325,19 +326,7 @@ export default function OrderAdminCard({ order }: { order: any }) {
                 {/* Excluir Pedido */}
                 <div className="pt-6 mt-4 flex justify-center">
                   <button 
-                    onClick={async () => {
-                      if (confirm("Tem certeza que deseja cancelar este pedido? O estoque será restaurado.")) {
-                        setIsActionLoading(true);
-                        const { deleteOrderAndRestoreStock } = await import('@/app/admin/actions');
-                        const res = await deleteOrderAndRestoreStock(order.id);
-                        if (res?.error) {
-                          setActionError(res.error);
-                          setIsActionLoading(false);
-                        } else {
-                          setIsModalOpen(false);
-                        }
-                      }
-                    }}
+                    onClick={() => setIsConfirmCancelOpen(true)}
                     disabled={isActionLoading}
                     className="text-[10px] text-zinc-400 font-medium uppercase tracking-widest hover:text-red-600 transition-colors disabled:opacity-50 underline decoration-zinc-200 hover:decoration-red-600 underline-offset-4"
                   >
@@ -348,6 +337,41 @@ export default function OrderAdminCard({ order }: { order: any }) {
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Confirmar Cancelamento Modal */}
+      {isConfirmCancelOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-zinc-900/60 backdrop-blur-sm transition-opacity" onClick={() => !isActionLoading && setIsConfirmCancelOpen(false)}></div>
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+            </div>
+            <h3 className="text-lg font-bold text-zinc-900 mb-2">Cancelar Pedido</h3>
+            <p className="text-sm text-zinc-500 mb-6">Tem certeza que deseja cancelar este pedido? O estoque será restaurado.</p>
+            <div className="flex gap-3">
+              <button disabled={isActionLoading} onClick={() => setIsConfirmCancelOpen(false)} className="flex-1 py-2.5 rounded-xl border border-zinc-200 text-zinc-600 font-bold text-xs uppercase tracking-widest hover:bg-zinc-50 transition-colors">Voltar</button>
+              <button 
+                disabled={isActionLoading} 
+                onClick={async () => {
+                  setIsActionLoading(true);
+                  const { deleteOrderAndRestoreStock } = await import('@/app/admin/actions');
+                  const res = await deleteOrderAndRestoreStock(order.id);
+                  if (res?.error) {
+                    setActionError(res.error);
+                    setIsActionLoading(false);
+                    setIsConfirmCancelOpen(false);
+                  } else {
+                    setIsModalOpen(false);
+                  }
+                }} 
+                className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+              >
+                {isActionLoading ? 'Processando...' : 'Confirmar'}
+              </button>
+            </div>
           </div>
         </div>
       )}

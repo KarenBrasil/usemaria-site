@@ -18,7 +18,10 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Use Maria | Catálogo Oficial",
+  title: {
+    template: "%s | Use Maria",
+    default: "Use Maria Oficial",
+  },
   description: "Loja oficial da Use Maria. Moda feminina, coleções exclusivas.",
 };
 
