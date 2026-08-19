@@ -57,19 +57,91 @@ export default async function RelatoriosPage({ searchParams }: { searchParams: P
   if (type === 'financeiro') {
     title = "Resumo Financeiro";
     const orders = await prisma.order.findMany();
-    const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((acc, order) => order.status !== 'CANCELLED' ? acc + order.total : acc, 0);
+    
+    // Status breakdown
+    const approvedOrders = orders.filter(o => ['PAID', 'SHIPPED', 'DELIVERED'].includes(o.status));
+    const pendingOrders = orders.filter(o => o.status === 'PENDING');
+    const cancelledOrders = orders.filter(o => o.status === 'CANCELLED');
+
+    // Revenue calculations (only from approved orders!)
+    const totalRevenue = approvedOrders.reduce((acc, order) => acc + order.total, 0);
+    
+    // Payment method breakdown (from approved orders)
+    const pixRevenue = approvedOrders.filter(o => o.paymentMethod === 'PIX' || !o.paymentMethod).reduce((acc, order) => acc + order.total, 0);
+    const cardRevenue = approvedOrders.filter(o => o.paymentMethod === 'CARD' || o.paymentMethod === 'Cartão').reduce((acc, order) => acc + order.total, 0);
+    
+    const pixCount = approvedOrders.filter(o => o.paymentMethod === 'PIX' || !o.paymentMethod).length;
+    const cardCount = approvedOrders.filter(o => o.paymentMethod === 'CARD' || o.paymentMethod === 'Cartão').length;
 
     content = (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="border border-zinc-200 p-4 rounded-lg">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Total de Pedidos Realizados</p>
-          <p className="text-3xl font-bold">{totalOrders}</p>
+      <div className="space-y-8">
+        
+        {/* Receita Principal */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="border border-zinc-200 p-6 rounded-xl bg-white shadow-sm">
+            <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-2">Receita Bruta (Somente Aprovados)</p>
+            <p className="text-4xl font-black text-emerald-600 tracking-tighter">R$ {totalRevenue.toFixed(2).replace('.', ',')}</p>
+            <p className="text-[11px] text-zinc-500 mt-2 font-medium">Faturamento real de pedidos pagos, enviados ou entregues.</p>
+          </div>
+          
+          <div className="border border-zinc-200 p-6 rounded-xl bg-white shadow-sm">
+            <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-2">Pedidos Realizados (Geral)</p>
+            <p className="text-4xl font-black text-zinc-900 tracking-tighter">{orders.length}</p>
+            <p className="text-[11px] text-zinc-500 mt-2 font-medium">Contagem total de pedidos que entraram no sistema.</p>
+          </div>
         </div>
-        <div className="border border-zinc-200 p-4 rounded-lg">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Receita Bruta (Pedidos Ativos)</p>
-          <p className="text-3xl font-bold text-emerald-600">R$ {totalRevenue.toFixed(2).replace('.', ',')}</p>
+
+        {/* Breakdown de Status */}
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-3 flex items-center gap-2">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+             Desempenho por Status
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-800 shadow-sm">
+               <p className="text-[10px] font-bold uppercase tracking-widest mb-1">Aprovados / Concluídos</p>
+               <p className="text-2xl font-black">{approvedOrders.length} <span className="text-xs font-bold opacity-70 tracking-widest uppercase">pedidos</span></p>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-800 shadow-sm">
+               <p className="text-[10px] font-bold uppercase tracking-widest mb-1">Aguardando Pagto</p>
+               <p className="text-2xl font-black">{pendingOrders.length} <span className="text-xs font-bold opacity-70 tracking-widest uppercase">pedidos</span></p>
+            </div>
+            <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl text-rose-800 shadow-sm">
+               <p className="text-[10px] font-bold uppercase tracking-widest mb-1">Cancelados</p>
+               <p className="text-2xl font-black">{cancelledOrders.length} <span className="text-xs font-bold opacity-70 tracking-widest uppercase">pedidos</span></p>
+            </div>
+          </div>
         </div>
+
+        {/* Breakdown de Métodos de Pagamento (Dos aprovados) */}
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-3 flex items-center gap-2">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+             Receita por Meio de Pagamento (Dos Aprovados)
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white border border-zinc-200 p-5 rounded-xl shadow-sm flex justify-between items-center">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">Pagamentos via PIX</p>
+                <p className="text-xl font-bold text-zinc-900 tracking-tight">R$ {pixRevenue.toFixed(2).replace('.', ',')}</p>
+              </div>
+              <div className="text-right">
+                <span className="bg-zinc-100 text-zinc-600 font-bold px-2 py-1 rounded text-[10px] uppercase tracking-widest">{pixCount} pedidos</span>
+              </div>
+            </div>
+            
+            <div className="bg-white border border-zinc-200 p-5 rounded-xl shadow-sm flex justify-between items-center">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">Pagamentos via Cartão</p>
+                <p className="text-xl font-bold text-zinc-900 tracking-tight">R$ {cardRevenue.toFixed(2).replace('.', ',')}</p>
+              </div>
+              <div className="text-right">
+                <span className="bg-zinc-100 text-zinc-600 font-bold px-2 py-1 rounded text-[10px] uppercase tracking-widest">{cardCount} pedidos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     );
   } 
