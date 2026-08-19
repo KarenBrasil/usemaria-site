@@ -94,9 +94,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
             
             {product.wholesalePrice && (
-              <div className="flex items-center gap-1.5 mt-1 opacity-70">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                <span className="text-xs font-bold text-zinc-800">R$ {product.wholesalePrice.toFixed(2).replace('.', ',')} no atacado</span>
+              <div className="mt-1">
+                <p className="text-xl text-zinc-900 font-bold">R$ {product.wholesalePrice.toFixed(2).replace('.', ',')} <span className="text-sm font-normal text-zinc-500">no atacado</span></p>
               </div>
             )}
           </div>
