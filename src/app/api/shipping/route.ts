@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     if (cepClean.startsWith('6')) {
       options.push({
         id: 'retirada-loja',
-        name: 'Retirada em Loja (Fortaleza-CE)',
+        name: 'Retirada em Loja - Fortaleza/Ce',
         company: 'Físico',
         price: 0,
         delivery_time: 0,
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       if (cepClean.startsWith('60') || cepClean.startsWith('61')) {
         options.push({
           id: 'uber-pickup',
-          name: 'Retirada/Uber entrega (falar no WhatsApp)',
+          name: 'Retirada por uber entrega',
           company: 'Motoboy',
           price: 0,
           delivery_time: 0,

@@ -43,6 +43,23 @@ export default async function CheckoutSuccessPage({
           <p className="text-zinc-600 mb-8 max-w-md mx-auto">
             Seu pedido foi recebido com sucesso e já está sendo preparado com muito carinho. Você receberá atualizações no seu e-mail.
           </p>
+
+          {/* Se a pessoa escolheu retirada/uber, orienta chamar no WhatsApp */}
+          {(order.shippingMethod?.toLowerCase().includes('retirada') || order.shippingMethod?.toLowerCase().includes('uber')) && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-md mb-8 max-w-md w-full">
+              <p className="text-sm font-bold mb-2">Atenção para o seu frete:</p>
+              <p className="text-sm mb-4">Como você escolheu {order.shippingMethod}, por favor, chame nossa equipe no WhatsApp para combinarmos a entrega/retirada!</p>
+              <a 
+                href={`https://wa.me/${defaultSettings.whatsappNumber}?text=${encodeURIComponent(`Olá! Realizei o pedido #${order.id.slice(-6).toUpperCase()} no site com a opção de frete "${order.shippingMethod}" e gostaria de combinar a entrega.`)}`}
+                target="_blank" 
+                rel="noreferrer"
+                className="bg-[#25D366] text-white px-6 py-3 rounded-md font-bold text-sm flex items-center justify-center gap-2 w-full hover:bg-[#1EBE57] transition-colors"
+              >
+                Chamar no WhatsApp
+              </a>
+            </div>
+          )}
+
           <div className="flex gap-4">
             <Link href={`/rastreio?id=${order.id}`} className="bg-black text-white px-8 py-4 uppercase text-xs tracking-widest font-bold hover:bg-zinc-800 transition-colors rounded-sm">
               Acompanhar Pedido
@@ -63,7 +80,7 @@ export default async function CheckoutSuccessPage({
       transactionId: `PED${order.id.slice(-6).toUpperCase()}`
     });
 
-    const waLink = `https://wa.me/${defaultSettings.whatsappNumber}?text=${encodeURIComponent(`Olá! Realizei o pedido #${order.id.slice(-6).toUpperCase()} no site e gostaria de enviar o comprovante do PIX no valor de R$ ${order.total.toFixed(2).replace('.', ',')}.`)}`;
+    const waLink = `https://wa.me/${defaultSettings.whatsappNumber}?text=${encodeURIComponent(`Olá! Realizei o pedido #${order.id.slice(-6).toUpperCase()} no site e gostaria de enviar o comprovante do PIX no valor de R$ ${order.total.toFixed(2).replace('.', ',')}. Minha opção de frete foi: ${order.shippingMethod}.`)}`;
 
     return (
       <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center p-4 font-sans text-zinc-900 py-12">
