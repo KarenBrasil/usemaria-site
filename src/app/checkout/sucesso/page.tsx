@@ -97,7 +97,7 @@ export default async function CheckoutSuccessPage({
             Seu pedido <span className="font-bold text-zinc-800">#{order.id.slice(-6).toUpperCase()}</span> foi criado.
           </p>
           <div className="text-sm text-amber-700 bg-amber-50 p-4 rounded-md border border-amber-200 mb-8 font-medium">
-            A aprovação do PIX não é automática. Após o pagamento, por favor, envie o comprovante no nosso WhatsApp para que possamos confirmar o seu pedido!
+            Aguarde a aprovação do pagamento ou envie o comprovante por WhatsApp para acompanharmos o seu pedido.
           </div>
 
           <div className="bg-zinc-50 rounded-lg p-6 mb-6 text-left border border-zinc-200 shadow-inner">
