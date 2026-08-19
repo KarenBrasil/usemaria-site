@@ -165,11 +165,14 @@ export async function POST(request: Request) {
 
       // Se a chave secreta contiver pk_, o usuário colou a chave errada na Vercel
       if (rawSecret.includes('pk_')) {
-        return NextResponse.json({ error: "ERRO GRAVE NA VERCEL: Você colocou a Chave Pública (pk_test...) na variável STRIPE_SECRET_KEY. Por favor, coloque a CHAVE SECRETA (que começa com sk_test...) no painel da Vercel." }, { status: 400 });
+        return NextResponse.json({ error: "ERRO GRAVE NA VERCEL: Você colocou a Chave Pública (pk_test/live) na variável STRIPE_SECRET_KEY. Por favor, coloque a CHAVE SECRETA (sk_...) no painel da Vercel." }, { status: 400 });
+      }
+
+      if (rawSecret.includes('sk_test_')) {
+        return NextResponse.json({ error: "ERRO NA VERCEL: Você salvou a chave de TESTE (sk_test_) no painel da Vercel. Por favor, volte lá, apague essa chave, e cole a chave de PRODUÇÃO (sk_live_)." }, { status: 400 });
       }
 
       if (!rawSecret) {
-         // Return a fake client secret or fail gracefully
          return NextResponse.json({ error: "Stripe não configurado no servidor. Adicione a chave na Vercel." }, { status: 400 });
       }
 
