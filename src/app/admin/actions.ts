@@ -7,6 +7,30 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder')
 
+export async function createCategory(formData: FormData) {
+  const name = formData.get("name") as string
+  if (name) {
+    await prisma.category.create({ data: { name } })
+    revalidatePath("/admin/categorias")
+    revalidatePath("/")
+  }
+}
+
+export async function deleteCategory(id: string) {
+  await prisma.category.delete({ where: { id } })
+  revalidatePath("/admin/categorias")
+  revalidatePath("/")
+}
+
+export async function updateCategory(id: string, formData: FormData) {
+  const name = formData.get("name") as string
+  if (name) {
+    await prisma.category.update({ where: { id }, data: { name } })
+    revalidatePath("/admin/categorias")
+    revalidatePath("/")
+  }
+}
+
 async function sendStatusUpdateEmail(order: any, newStatus: string) {
   if (!process.env.RESEND_API_KEY || !order.customer?.email) return;
 
@@ -469,28 +493,3 @@ export async function deleteOrderAndRestoreStock(orderId: string) {
   }
 }
 
-e x p o r t   a s y n c   f u n c t i o n   c r e a t e C a t e g o r y ( f o r m D a t a :   F o r m D a t a )   { 
-     c o n s t   n a m e   =   f o r m D a t a . g e t ( " n a m e " )   a s   s t r i n g 
-     i f   ( n a m e )   { 
-         a w a i t   p r i s m a . c a t e g o r y . c r e a t e ( {   d a t a :   {   n a m e   }   } ) 
-         r e v a l i d a t e P a t h ( " / a d m i n / c a t e g o r i a s " ) 
-         r e v a l i d a t e P a t h ( " / " ) 
-     } 
- } 
- 
- e x p o r t   a s y n c   f u n c t i o n   d e l e t e C a t e g o r y ( i d :   s t r i n g )   { 
-     a w a i t   p r i s m a . c a t e g o r y . d e l e t e ( {   w h e r e :   {   i d   }   } ) 
-     r e v a l i d a t e P a t h ( " / a d m i n / c a t e g o r i a s " ) 
-     r e v a l i d a t e P a t h ( " / " ) 
- } 
- 
- e x p o r t   a s y n c   f u n c t i o n   u p d a t e C a t e g o r y ( i d :   s t r i n g ,   f o r m D a t a :   F o r m D a t a )   { 
-     c o n s t   n a m e   =   f o r m D a t a . g e t ( " n a m e " )   a s   s t r i n g 
-     i f   ( n a m e )   { 
-         a w a i t   p r i s m a . c a t e g o r y . u p d a t e ( {   w h e r e :   {   i d   } ,   d a t a :   {   n a m e   }   } ) 
-         r e v a l i d a t e P a t h ( " / a d m i n / c a t e g o r i a s " ) 
-         r e v a l i d a t e P a t h ( " / " ) 
-     } 
- } 
-  
- 
