@@ -123,24 +123,12 @@ export async function createProduct(formData: FormData) {
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
         const filePath = `products/${fileName}`
 
-        const supabase = getSupabaseClient()
-        const { data, error } = await supabase.storage
-          .from('products')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-          })
-
-        if (error) {
-          console.error("Erro no upload do Supabase:", error)
-          continue
-        }
-
-        const { data: publicUrlData } = supabase.storage
-          .from('products')
-          .getPublicUrl(filePath)
-
-        uploadedUrls.push(publicUrlData.publicUrl)
+        const arrayBuffer = await file.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+        const base64Data = buffer.toString('base64')
+        const dataUrl = `data:${file.type || 'image/jpeg'};base64,${base64Data}`
+        
+        uploadedUrls.push(dataUrl)
       } catch (e) {
         console.error("Erro no upload:", e)
       }
@@ -226,24 +214,12 @@ export async function updateProduct(id: string, formData: FormData) {
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
         const filePath = `products/${fileName}`
 
-        const supabase = getSupabaseClient()
-        const { data, error } = await supabase.storage
-          .from('products')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-          })
-
-        if (error) {
-          console.error("Erro no upload do Supabase:", error)
-          continue
-        }
-
-        const { data: publicUrlData } = supabase.storage
-          .from('products')
-          .getPublicUrl(filePath)
-
-        uploadedUrls.push(publicUrlData.publicUrl)
+        const arrayBuffer = await file.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+        const base64Data = buffer.toString('base64')
+        const dataUrl = `data:${file.type || 'image/jpeg'};base64,${base64Data}`
+        
+        uploadedUrls.push(dataUrl)
       } catch (e) {
         console.error("Erro no upload:", e)
       }
