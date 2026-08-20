@@ -27,6 +27,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <svg className="w-5 h-5 text-zinc-400 group-hover:text-black transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
             Produtos
           </Link>
+
+          <Link href="/admin/categorias" className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-100/80 text-zinc-600 hover:text-black rounded-xl text-sm font-bold tracking-wide transition-all group">
+            <svg className="w-5 h-5 text-zinc-400 group-hover:text-black transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>
+            Categorias
+          </Link>
           
           <Link href="/admin/vendas" className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-100/80 text-zinc-600 hover:text-black rounded-xl text-sm font-bold tracking-wide transition-all group">
             <svg className="w-5 h-5 text-zinc-400 group-hover:text-black transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
