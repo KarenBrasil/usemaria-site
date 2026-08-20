@@ -216,7 +216,7 @@ export default function ProductForm({ initialData = null, action, categories = [
       </section>
 
       <div className="flex justify-end pt-4">
-        <SubmitButton text={initialData ? 'Salvar Alterações' : 'Criar Produto'} />
+        <SubmitButton text={initialData ? 'Salvar Alterações' : 'Publicar'} />
       </div>
     </form>
   );

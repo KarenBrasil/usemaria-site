@@ -13,7 +13,7 @@ export default function Toast() {
     const success = searchParams.get("success");
     if (success) {
       if (success === "created") {
-        setMessage("Produto adicionado com sucesso!");
+        setMessage("Produto publicado com sucesso!");
       } else if (success === "updated") {
         setMessage("Produto atualizado com sucesso!");
       } else {
