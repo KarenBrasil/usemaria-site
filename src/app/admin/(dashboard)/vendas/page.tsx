@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export default async function SalesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string, period?: string, payment?: string }>
+  searchParams: Promise<{ status?: string, period?: string, payment?: string, type?: string }>
 }) {
   const resolvedParams = await searchParams;
   const statusFilter = resolvedParams?.status;

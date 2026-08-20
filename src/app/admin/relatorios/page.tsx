@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import PrintButton from "@/components/admin/PrintButton";
 import Link from "next/link";
 
-export default async function RelatoriosPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
+export default async function RelatoriosPage({ searchParams }: { searchParams: Promise<{ type?: string, size?: string, period?: string, filterType?: string }> }) {
   const resolvedParams = await searchParams;
   const type = resolvedParams.type;
 
