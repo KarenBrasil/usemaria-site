@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 import SubmitButton from "./SubmitButton";
+import imageCompression from 'browser-image-compression';
 
 type SizeColorStock = {
   size: string;
@@ -62,12 +63,30 @@ export default function ProductForm({ initialData = null, action, categories = [
     setVariants(prev => prev.filter((_, i) => i !== index));
   };
 
+  const [isCompressing, startTransition] = useTransition();
+
   return (
-    <form action={(formData) => {
+    <form action={async (formData) => {
       // Append complex data before submitting
       formData.append("variants", JSON.stringify(variants));
       formData.append("existingImages", JSON.stringify(previewUrls.filter(url => !url.startsWith("blob:"))));
-      images.forEach(img => formData.append("newImages", img));
+      
+      const compressOptions = {
+        maxSizeMB: 0.8,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+      };
+
+      for (const img of images) {
+        try {
+          const compressedFile = await imageCompression(img, compressOptions);
+          formData.append("newImages", compressedFile);
+        } catch (error) {
+          console.warn("Falha ao comprimir imagem, enviando original", error);
+          formData.append("newImages", img);
+        }
+      }
+      
       action(formData);
     }} className="flex flex-col gap-8">
       
@@ -216,6 +235,7 @@ export default function ProductForm({ initialData = null, action, categories = [
       </section>
 
       <div className="flex justify-end pt-4">
+        {isCompressing && <span className="text-xs text-zinc-500 my-auto mr-4">Otimizando foto...</span>}
         <SubmitButton text={initialData ? 'Salvar Alterações' : 'Publicar'} />
       </div>
     </form>
