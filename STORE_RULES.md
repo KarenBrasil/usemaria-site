@@ -28,3 +28,7 @@ Este documento centraliza as diretrizes vitais de design, negócio e arquitetura
 ## 6. Organização de Categorias
 - **Catálogo Dinâmico:** As categorias da loja (Camisetas, Pijamas, etc) ficam lado a lado no Menu Superior (`Header.tsx`), juntamente com as seções especiais ("Novidades", "Atacado", "Promoção").
 - Toda nova categoria criada no Admin vai automaticamente aparecer no menu principal para o cliente acessar.
+
+## 7. Sem Soluções Provisórias (Hacks)
+- Nunca utilizar links falsos, dados "mockados", contornos temporários ou truques ("hacks") para tentar mascarar falhas de deploy (ex: Vercel, Git). 
+- O código deve prever e tratar ausências de variáveis de ambiente de forma arquitetônica (ex: invocando dependências no momento de execução em vez de no carregamento global do módulo), garantindo que as falhas sejam emitidas apenas nos locais corretos, mantendo um sistema 100% autêntico e sustentável.

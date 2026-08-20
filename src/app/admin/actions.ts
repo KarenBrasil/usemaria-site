@@ -86,7 +86,7 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
   }).catch(console.error);
 }
 
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string
@@ -123,6 +123,7 @@ export async function createProduct(formData: FormData) {
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
         const filePath = `products/${fileName}`
 
+        const supabase = getSupabaseClient()
         const { data, error } = await supabase.storage
           .from('products')
           .upload(filePath, file, {
@@ -225,6 +226,7 @@ export async function updateProduct(id: string, formData: FormData) {
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
         const filePath = `products/${fileName}`
 
+        const supabase = getSupabaseClient()
         const { data, error } = await supabase.storage
           .from('products')
           .upload(filePath, file, {
