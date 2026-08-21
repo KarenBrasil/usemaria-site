@@ -148,6 +148,12 @@ function CheckoutContent() {
     setLoading(true);
     setError(null);
 
+    if (!selectedShipping) {
+      setError("Por favor, selecione uma opção de frete antes de finalizar a compra.");
+      setLoading(false);
+      return;
+    }
+
     try {
       if (paymentMethod === 'CARD') {
         if (!stripe || !elements) {
@@ -174,7 +180,7 @@ function CheckoutContent() {
           items: items.map(i => ({ productId: i.productId, size: i.size, quantity: i.quantity, price: i.price })),
           total: cartTotal() + shippingCost,
           paymentMethod,
-          shipping: selectedShipping ? { method: selectedShipping.name, cost: shippingCost, company: selectedShipping.company, serviceId: selectedShipping.id?.toString() } : { method: 'GRATIS', cost: 0 }
+          shipping: { method: selectedShipping.name, cost: shippingCost, company: selectedShipping.company, serviceId: selectedShipping.id?.toString() }
         })
       });
 
