@@ -374,10 +374,41 @@ export async function generateShippingLabel(orderId: string, shouldRevalidate = 
   const token = process.env.MELHOR_ENVIO_TOKEN;
   if (!token) return { error: "Token do Melhor Envio não configurado." };
 
+  let serviceId = order.shippingServiceId ? parseInt(order.shippingServiceId) : null;
+  const originCep = process.env.STORE_CEP || "60811660";
+  const destCep = order.zipcode.replace(/\D/g, '');
+  const weight = order.items.reduce((acc: number, item: any) => acc + (item.quantity * 0.3), 0) || 0.3;
+
+  // Se não tem um serviço definido (ex: Frete Grátis ou erro), busca o mais barato
+  if (!serviceId) {
+    try {
+      const calcResponse = await fetch('https://www.melhorenvio.com.br/api/v2/me/shipment/calculate', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'User-Agent': 'Use Maria Store' },
+        body: JSON.stringify({
+          from: { postal_code: originCep },
+          to: { postal_code: destCep },
+          products: [{ id: '1', weight, width: 22, height: 6, length: 27, insurance_value: order.total }]
+        })
+      });
+      if (calcResponse.ok) {
+        const calcData = await calcResponse.json();
+        const validOptions = calcData.filter((opt: any) => !opt.error).sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price));
+        if (validOptions.length > 0) {
+          serviceId = validOptions[0].id;
+        }
+      }
+    } catch (e) {
+      console.warn("Falha ao calcular frete mais barato", e);
+    }
+  }
+
+  if (!serviceId) serviceId = 1; // Fallback definitivo para PAC
+
   try {
     const payload = {
-      service: order.shippingServiceId ? parseInt(order.shippingServiceId) : 1, // Usa o selecionado ou fallback para PAC
-      agency: 1, 
+      service: serviceId,
+      agency: 1,
       from: {
         name: "Use Maria Oficial",
         phone: "5585994277446",
@@ -469,6 +500,11 @@ export async function generateShippingLabel(orderId: string, shouldRevalidate = 
     console.error("Erro interno ao integrar com Melhor Envio:", e);
     return { error: e.message || "Erro de conexão ao gerar etiqueta." };
   }
+}
+
+export async function forceGenerateLabel(orderId: string) {
+  const result = await generateShippingLabel(orderId, true);
+  return result;
 }
 
 export async function deleteOrderAndRestoreStock(orderId: string) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateOrderStatus, confirmPixOrder, generateShippingLabel } from "@/app/admin/actions";
+import { updateOrderStatus, confirmPixOrder, forceGenerateLabel } from "@/app/admin/actions";
 
 export default function OrderAdminCard({ order }: { order: any }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,9 +43,27 @@ export default function OrderAdminCard({ order }: { order: any }) {
     try {
       const result = await confirmPixOrder(order.id);
       if (result?.error) setActionError(result.error);
-      else setIsModalOpen(false);
+      else {
+        window.open("https://app.melhorenvio.com.br/carrinho", "_blank");
+      }
     } catch (err: any) {
       setActionError(err.message || "Erro interno.");
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const handleManualLabel = async () => {
+    setIsActionLoading(true);
+    setActionError(null);
+    try {
+      const result = await forceGenerateLabel(order.id);
+      if (result?.error) setActionError(result.error);
+      else {
+        window.open("https://app.melhorenvio.com.br/carrinho", "_blank");
+      }
+    } catch (err: any) {
+      setActionError(err.message || "Erro ao gerar etiqueta.");
     } finally {
       setIsActionLoading(false);
     }
@@ -301,15 +319,14 @@ export default function OrderAdminCard({ order }: { order: any }) {
                   )}
 
                   {(order.status === 'PAID' || order.status === 'SHIPPED') && (
-                    <a 
-                      href="https://app.melhorenvio.com.br/carrinho" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="w-full bg-white text-zinc-700 border border-zinc-300 font-bold text-xs py-3.5 rounded-xl hover:bg-zinc-50 transition-all flex items-center justify-center gap-2 shadow-sm"
+                    <button 
+                      onClick={handleManualLabel}
+                      disabled={isActionLoading}
+                      className="w-full bg-white text-zinc-700 border border-zinc-300 font-bold text-xs py-3.5 rounded-xl hover:bg-zinc-50 transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                     >
-                      Gerar Etiqueta Melhor Envio
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    </a>
+                      {isActionLoading ? 'Gerando Etiqueta...' : 'Gerar Etiqueta Melhor Envio'}
+                      {!isActionLoading && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>}
+                    </button>
                   )}
 
                   <a 
