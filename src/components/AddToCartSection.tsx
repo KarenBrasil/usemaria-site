@@ -248,6 +248,17 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
       >
         {loading ? "Processando..." : added ? "Adicionado ao Carrinho!" : "ADICIONAR AO CARRINHO"}
       </button>
+
+      {added && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top-10 fade-in duration-300">
+          <div className="bg-emerald-600 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-3 border border-emerald-500/50">
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <span className="font-bold text-sm tracking-wide">Produto adicionado ao carrinho!</span>
+          </div>
+        </div>
+      )}
       
       {product.wholesalePrice && (
         <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-400">
