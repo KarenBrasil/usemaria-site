@@ -377,7 +377,7 @@ export async function generateShippingLabel(orderId: string, shouldRevalidate = 
   let serviceId = order.shippingServiceId ? parseInt(order.shippingServiceId) : null;
   const originCep = process.env.STORE_CEP || "60811660";
   const destCep = order.zipcode.replace(/\D/g, '');
-  const weight = order.items.reduce((acc: number, item: any) => acc + (item.quantity * 0.3), 0) || 0.3;
+  const weight = order.items.reduce((acc: number, item: any) => acc + (item.quantity * 0.5), 0) || 0.5;
 
   // Se não tem um serviço definido (ex: Frete Grátis ou erro), busca o mais barato
   if (!serviceId) {
@@ -444,7 +444,7 @@ export async function generateShippingLabel(orderId: string, shouldRevalidate = 
           height: 6,
           width: 22,
           length: 27,
-          weight: order.items.reduce((acc: number, item: any) => acc + (item.quantity * 0.3), 0) || 0.3
+          weight: order.items.reduce((acc: number, item: any) => acc + (item.quantity * 0.5), 0) || 0.5
         }
       ],
       options: {

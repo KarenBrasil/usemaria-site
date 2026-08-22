@@ -63,27 +63,27 @@ function CheckoutContent() {
         })
         .catch(console.error);
 
-      // 2. Busca Frete no Melhor Envio
-      fetch('/api/shipping', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          zipcode: cep, 
-          weight: items.reduce((acc, item) => acc + (item.quantity * 0.3), 0),
-          insuranceValue: cartTotal()
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.options) {
-          setShippingOptions(data.options);
-          if (data.options.length > 0 && !selectedShipping) {
-            setSelectedShipping(data.options.sort((a: any, b: any) => a.price - b.price)[0]);
-          }
+      // 2. Frete Manual Fixo via WhatsApp
+      setShippingLoading(true);
+      setTimeout(() => {
+        let name = "Frete para Outro Estado (Combinar via WhatsApp)";
+        if (cep.startsWith('60') || cep.startsWith('61')) {
+           name = "Frete p/ Fortaleza e Região Metropolitana (Combinar via WhatsApp)";
         }
-      })
-      .catch(console.error)
-      .finally(() => setShippingLoading(false));
+        
+        const option = {
+          id: 'whatsapp-combinar',
+          name,
+          company: 'WhatsApp',
+          price: 0,
+          delivery_time: 0,
+          currency: 'BRL'
+        };
+        
+        setShippingOptions([option]);
+        setSelectedShipping(option);
+        setShippingLoading(false);
+      }, 500); // Simulando loading para o usuário ver
     } else {
       setShippingOptions([]);
     }
