@@ -66,10 +66,15 @@ function CheckoutContent() {
       // 2. Frete Manual Fixo via WhatsApp
       setShippingLoading(true);
       setTimeout(() => {
+        let title = "Frete Nacional Brasil";
+        if (cep.startsWith('60') || cep.startsWith('61')) {
+           title = "Frete para Fortaleza - Retirada ou Motoboy";
+        }
+        
         const option = {
           id: 'whatsapp-combinar',
-          name: 'Combinar via whats',
-          company: 'Frete Nacional Brasil',
+          name: 'Combinar via WhatsApp',
+          company: title,
           price: 0,
           delivery_time: 0,
           currency: 'BRL'
