@@ -66,15 +66,10 @@ function CheckoutContent() {
       // 2. Frete Manual Fixo via WhatsApp
       setShippingLoading(true);
       setTimeout(() => {
-        let name = "Frete para Outro Estado (Combinar via WhatsApp)";
-        if (cep.startsWith('60') || cep.startsWith('61')) {
-           name = "Frete p/ Fortaleza e Região Metropolitana (Combinar via WhatsApp)";
-        }
-        
         const option = {
           id: 'whatsapp-combinar',
-          name,
-          company: 'WhatsApp',
+          name: 'Combinar via whats',
+          company: 'Frete Nacional Brasil',
           price: 0,
           delivery_time: 0,
           currency: 'BRL'
@@ -386,8 +381,8 @@ function CheckoutContent() {
                                       className="w-4 h-4 text-zinc-900 accent-zinc-900" 
                                     />
                                     <div>
-                                      <span className="font-medium text-sm block">{option.company} - {option.name}</span>
-                                      <span className="text-xs text-zinc-500">Chega em até {option.delivery_time} dias úteis</span>
+                                      <span className="font-bold text-sm block">{option.company}</span>
+                                      <span className="text-xs text-zinc-500">{option.name}</span>
                                     </div>
                                   </div>
                                   <span className="text-sm font-medium">R$ {option.price.toFixed(2).replace('.', ',')}</span>
