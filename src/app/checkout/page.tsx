@@ -68,7 +68,7 @@ function CheckoutContent() {
       setTimeout(() => {
         let title = "Frete Nacional Brasil";
         if (cep.startsWith('60') || cep.startsWith('61')) {
-           title = "Frete para Fortaleza - Retirada ou Motoboy";
+           title = "Frete para Fortaleza ou região metropolitana - Retirada ou Motoboy";
         }
         
         const option = {
