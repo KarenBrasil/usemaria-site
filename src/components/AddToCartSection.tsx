@@ -260,7 +260,7 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
         </div>
       )}
       
-      {product.wholesalePrice && (
+      {product.isWholesale && (
         <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-400">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           Pedidos de atacado requerem no mínimo 10 peças variadas no total

@@ -93,9 +93,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               <p className="text-xl text-zinc-900 font-bold">R$ {product.price.toFixed(2).replace('.', ',')} <span className="text-sm font-normal text-zinc-500">no varejo</span></p>
             </div>
             
-            {product.wholesalePrice && (
-              <div className="mt-1">
-                <p className="text-xl text-zinc-900 font-bold">R$ {product.wholesalePrice.toFixed(2).replace('.', ',')} <span className="text-sm font-normal text-zinc-500">no atacado</span></p>
+            {product.isWholesale && product.wholesalePrice && (
+              <div className="mt-0.5">
+                <p className="text-sm text-zinc-400 font-medium">R$ {product.wholesalePrice.toFixed(2).replace('.', ',')} <span className="font-normal text-zinc-400">no atacado</span></p>
               </div>
             )}
           </div>
