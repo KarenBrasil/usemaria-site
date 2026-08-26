@@ -98,8 +98,8 @@ export default function CartDrawer() {
                   </div>
 
                   {items.map(item => {
-                    const isWholesale = cartCount() >= 10;
-                    const itemPrice = isWholesale ? (item.wholesalePrice || 34.90) : item.price;
+                    const isWholesaleActive = cartCount() >= 10;
+                    const itemPrice = isWholesaleActive ? (item.wholesalePrice || 34.90) : item.price;
                     return (
                       <div key={item.id} className="flex gap-4">
                         <div className="relative w-20 h-24 bg-zinc-100 shrink-0">
@@ -117,7 +117,7 @@ export default function CartDrawer() {
                             <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Qtd: {item.quantity}</p>
                           </div>
                           <div>
-                            {isWholesale && (
+                            {isWholesaleActive && (
                               <p className="text-[10px] text-zinc-400 line-through">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</p>
                             )}
                             <p className="text-xs font-bold text-green-700">R$ {(itemPrice * item.quantity).toFixed(2).replace('.', ',')}</p>
@@ -139,23 +139,15 @@ export default function CartDrawer() {
                 <p className="text-[9px] uppercase tracking-widest text-zinc-500 mb-6">Frete por retirada/uber entrega (falar no WhatsApp)</p>
                 
                 {(() => {
-                  const isWholesale = cartCount() >= 10;
+                  const isWholesaleActive = cartCount() >= 10;
                   const hasPreOrder = items.some(i => i.isPreOrder);
-                  const hasNonWholesale = items.some(i => !i.isWholesaleProduct);
                   
                   let blockCheckout = false;
                   let blockMessage = "";
 
-                  if (isWholesale) {
-                    if (hasNonWholesale) {
-                      blockCheckout = true;
-                      blockMessage = "Pedidos de Atacado (10+ peças) só podem conter produtos da coleção Atacado.";
-                    }
-                  } else {
-                    if (hasPreOrder) {
-                      blockCheckout = true;
-                      blockMessage = "Você possui peças esgotadas no Varejo (Sob Encomenda). Para comprá-las, adicione pelo menos 10 peças de Atacado ao carrinho.";
-                    }
+                  if (!isWholesaleActive && hasPreOrder) {
+                    blockCheckout = true;
+                    blockMessage = "Você possui peças esgotadas no Varejo (Sob Encomenda). Para comprá-las, adicione pelo menos 10 peças ao carrinho para ativar o Atacado.";
                   }
 
                   if (blockCheckout) {

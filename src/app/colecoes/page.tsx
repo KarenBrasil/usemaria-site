@@ -109,6 +109,9 @@ export default async function ColecoesPage({
                   <h3 className="text-xs font-bold text-zinc-900 mb-1 tracking-widest uppercase">{product.name}</h3>
                   <div className="flex flex-col items-center gap-1 mb-4">
                     <p className="text-xs text-zinc-500 font-medium">R$ {product.price.toFixed(2).replace('.', ',')}</p>
+                    <span className="text-[10px] text-zinc-400 tracking-wider">
+                      Ou <span className="text-zinc-700 font-semibold">R$ {(product.wholesalePrice || 34.90).toFixed(2).replace('.', ',')}</span> (Atacado)
+                    </span>
                   </div>
                   <span className="w-full border border-black text-black uppercase text-[10px] tracking-widest font-bold py-2 hover:bg-black hover:text-white transition-colors">
                     Ver Detalhes

@@ -93,11 +93,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               <p className="text-xl text-zinc-900 font-bold">R$ {product.price.toFixed(2).replace('.', ',')} <span className="text-sm font-normal text-zinc-500">no varejo</span></p>
             </div>
             
-            {product.isWholesale && product.wholesalePrice && (
-              <div className="mt-0.5">
-                <p className="text-sm text-zinc-400 font-medium">R$ {product.wholesalePrice.toFixed(2).replace('.', ',')} <span className="font-normal text-zinc-400">no atacado</span></p>
-              </div>
-            )}
+            <div className="mt-1">
+              <p className="text-[11px] text-zinc-400 tracking-wider">
+                Ou <span className="text-zinc-700 font-semibold">R$ {(product.wholesalePrice || 34.90).toFixed(2).replace('.', ',')}</span> no atacado
+              </p>
+            </div>
           </div>
           
           <AddToCartSection 
