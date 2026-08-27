@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     if (process.env.RESEND_API_KEY) {
        // 1. E-mail para o Administrador
        resend.emails.send({
-         from: 'Use Maria <contato@lojausemaria.com.br>',
+         from: 'Use Maria <onboarding@resend.dev>',
          to: 'usemaria72@gmail.com',
          subject: `Use Maria - Nova Venda! Pedido #${order.id.slice(-6).toUpperCase()} - R$ ${total.toFixed(2)}`,
          html: `
