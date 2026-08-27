@@ -387,10 +387,16 @@ function CheckoutContent() {
                                     />
                                     <div>
                                       <span className="font-bold text-sm block">{option.company}</span>
-                                      <span className="text-xs text-zinc-500">{option.name}</span>
+                                      <span className="text-xs text-zinc-500 mt-1 block">
+                                        Entre em contato para combinar o valor do frete de envio do produto.
+                                      </span>
                                     </div>
                                   </div>
-                                  <span className="text-sm font-medium">R$ {option.price.toFixed(2).replace('.', ',')}</span>
+                                  {option.price === 0 ? (
+                                    <span className="text-sm font-medium text-zinc-400 line-through">R$ 0,00</span>
+                                  ) : (
+                                    <span className="text-sm font-medium">R$ {option.price.toFixed(2).replace('.', ',')}</span>
+                                  )}
                                 </label>
                               ))}
                             </div>
@@ -594,7 +600,11 @@ function CheckoutContent() {
                 <div className="flex justify-between items-center text-xs text-zinc-600">
                    <span>Custo de frete</span>
                    {selectedShipping ? (
-                     <span className="font-bold text-zinc-900">R$ {shippingCost.toFixed(2).replace('.', ',')}</span>
+                     shippingCost === 0 ? (
+                       <span className="font-bold text-amber-600 text-[10px] uppercase">A Combinar</span>
+                     ) : (
+                       <span className="font-bold text-zinc-900">R$ {shippingCost.toFixed(2).replace('.', ',')}</span>
+                     )
                    ) : (
                      <span className="text-zinc-400 italic">A calcular</span>
                    )}
