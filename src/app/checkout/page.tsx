@@ -185,7 +185,7 @@ export default function CheckoutPage() {
       msg += `\n*VALOR:* R$ ${(cartTotal() + shippingCost).toFixed(2).replace('.', ',')}\n\n`;
 
       msg += `🔗 *Ver detalhes no sistema:*\n`;
-      msg += `https://lojausemaria.com.br/admin/vendas/${data.orderId}`;
+      msg += `https://lojausemaria.com.br/admin/vendas`;
 
       // Clear Cart and Redirect
       clearCart();
