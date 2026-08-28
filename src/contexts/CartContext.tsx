@@ -105,7 +105,7 @@ export const useCartStore = create<CartState>()(
         const totalItems = get().items.reduce((count, item) => count + item.quantity, 0);
         const isWholesaleActive = totalItems >= 10;
         return get().items.reduce((total, item) => {
-          const itemPrice = isWholesaleActive ? (item.wholesalePrice || 34.90) : item.price;
+          const itemPrice = (isWholesaleActive && item.isWholesaleProduct) ? (item.wholesalePrice || 45.90) : item.price;
           return total + (itemPrice * item.quantity);
         }, 0);
       },

@@ -366,8 +366,8 @@ export default function CheckoutPage() {
               
               <div className="flex flex-col gap-4 mb-6">
                 {items.map(item => {
-                  const isWholesale = items.reduce((count, i) => count + i.quantity, 0) >= 10;
-                  const itemPrice = isWholesale ? (item.wholesalePrice || 34.90) : item.price;
+                  const isWholesaleActive = items.reduce((count, i) => count + i.quantity, 0) >= 10;
+                  const itemPrice = (isWholesaleActive && item.isWholesaleProduct) ? (item.wholesalePrice || 45.90) : item.price;
                   return (
                     <div key={item.id} className="flex gap-4 items-center">
                       <div className="relative w-16 h-16 bg-zinc-100 shrink-0 border border-zinc-200 rounded-sm overflow-hidden">
@@ -378,7 +378,7 @@ export default function CheckoutPage() {
                         <p className="text-[10px] text-zinc-500 uppercase mt-1 tracking-wider">Tam: {item.size} × {item.quantity}</p>
                       </div>
                       <div className="text-right">
-                        {isWholesale && (
+                        {(isWholesaleActive && item.isWholesaleProduct) && (
                            <p className="text-[10px] text-zinc-400 line-through">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</p>
                         )}
                         <p className="text-xs font-medium text-zinc-900">R$ {(itemPrice * item.quantity).toFixed(2).replace('.', ',')}</p>

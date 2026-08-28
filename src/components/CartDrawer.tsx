@@ -99,7 +99,7 @@ export default function CartDrawer() {
 
                   {items.map(item => {
                     const isWholesaleActive = cartCount() >= 10;
-                    const itemPrice = isWholesaleActive ? (item.wholesalePrice || 34.90) : item.price;
+                    const itemPrice = (isWholesaleActive && item.isWholesaleProduct) ? (item.wholesalePrice || 45.90) : item.price;
                     return (
                       <div key={item.id} className="flex gap-4">
                         <div className="relative w-20 h-24 bg-zinc-100 shrink-0">
@@ -117,7 +117,7 @@ export default function CartDrawer() {
                             <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Qtd: {item.quantity}</p>
                           </div>
                           <div>
-                            {isWholesaleActive && (
+                            {(isWholesaleActive && item.isWholesaleProduct) && (
                               <p className="text-[10px] text-zinc-400 line-through">R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}</p>
                             )}
                             <p className="text-xs font-bold text-green-700">R$ {(itemPrice * item.quantity).toFixed(2).replace('.', ',')}</p>

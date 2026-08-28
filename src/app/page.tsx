@@ -212,9 +212,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
                       R$ {product.price.toFixed(2).replace('.', ',')}
                     </span>
                   </div>
-                  <span className="text-[10px] text-zinc-400 tracking-wider mt-0.5">
-                    Ou <span className="text-zinc-700 font-semibold">R$ {(product.wholesalePrice || 34.90).toFixed(2).replace('.', ',')}</span> (Atacado)
-                  </span>
+                  {product.isWholesale && (
+                    <span className="text-[10px] text-zinc-400 tracking-wider mt-0.5">
+                      Ou <span className="text-zinc-700 font-semibold">R$ {(product.wholesalePrice || 45.90).toFixed(2).replace('.', ',')}</span> (Atacado)
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
