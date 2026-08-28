@@ -154,9 +154,9 @@ export async function POST(request: Request) {
     }
 
     // 3. Handle Payment Method
-    if (paymentMethod === 'PIX') {
-      // For custom PIX, just return the orderId
-      // In a real scenario with Resend, we could trigger an email here.
+    if (paymentMethod === 'PIX' || paymentMethod === 'WHATSAPP') {
+      // For custom PIX or WHATSAPP flow, just return the orderId
+      // The frontend will handle the redirection.
       return NextResponse.json({ orderId: order.id });
     }
 
