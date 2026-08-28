@@ -170,36 +170,22 @@ export default function CheckoutPage() {
 
       // 2. Build WhatsApp message
       const orderIdShort = data.orderId.slice(-6).toUpperCase();
-      let msg = `Olá! Gostaria de finalizar o meu pedido no site.\n\n`;
-      msg += `*PEDIDO #${orderIdShort}*\n\n`;
-      
-      msg += `*📝 DADOS DO CLIENTE*\n`;
-      msg += `Nome: ${formData.name}\n`;
-      msg += `Telefone: ${formData.phone}\n`;
-      msg += `Email: ${formData.email}\n`;
-      msg += `CPF/CNPJ: ${formData.document}\n\n`;
+      let msg = `Olá! Gostaria de finalizar o meu pedido.\n\n`;
+      msg += `*NOME:* ${formData.name}\n\n`;
 
-      msg += `*📍 ENTREGA*\n`;
-      msg += `CEP: ${formData.zipcode}\n`;
-      msg += `Endereço: ${formData.street}, ${formData.number} ${formData.complement ? '- ' + formData.complement : ''}\n`;
-      msg += `Bairro: ${formData.neighborhood}\n`;
-      msg += `Cidade/UF: ${formData.city}/${formData.state}\n`;
-      msg += `Frete Selecionado: ${selectedShipping.company} (A Combinar)\n\n`;
+      msg += `*📍 ENDEREÇO*\n`;
+      msg += `${formData.street}, ${formData.number} ${formData.complement ? '- ' + formData.complement : ''}\n`;
+      msg += `${formData.neighborhood} - ${formData.city}/${formData.state}\n`;
+      msg += `CEP: ${formData.zipcode}\n\n`;
 
-      msg += `*🛍️ ITENS DO PEDIDO*\n`;
+      msg += `*🛍️ PEDIDO*\n`;
       items.forEach(item => {
-        const isWholesale = items.reduce((count, i) => count + i.quantity, 0) >= 10;
-        const itemPrice = isWholesale ? (item.wholesalePrice || 34.90) : item.price;
-        msg += `${item.quantity}x ${item.name} (Tam: ${item.size}) - R$ ${(itemPrice * item.quantity).toFixed(2).replace('.', ',')}\n`;
+        msg += `${item.quantity}x ${item.name} (Tam: ${item.size})\n`;
       });
-      msg += `\n`;
+      msg += `\n*VALOR:* R$ ${(cartTotal() + shippingCost).toFixed(2).replace('.', ',')}\n\n`;
 
-      msg += `*💰 RESUMO*\n`;
-      msg += `Subtotal: R$ ${cartTotal().toFixed(2).replace('.', ',')}\n`;
-      msg += `Frete: R$ 0,00 (A Combinar)\n`;
-      msg += `*Total Estimado: R$ ${(cartTotal() + shippingCost).toFixed(2).replace('.', ',')}*\n\n`;
-
-      msg += `Aguardo para combinarmos o frete e o pagamento!`;
+      msg += `🔗 *Ver detalhes no sistema:*\n`;
+      msg += `https://lojausemaria.com.br/admin/vendas/${data.orderId}`;
 
       // Clear Cart and Redirect
       clearCart();
