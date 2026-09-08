@@ -100,6 +100,9 @@ export async function createProduct(formData: FormData) {
 
   const isNew = formData.get("isNew") === "true"
   const isWholesale = formData.get("isWholesale") === "true"
+  const wholesalePriceStr = (formData.get("wholesalePrice") as string) || ""
+  const sanitizedWholesalePrice = wholesalePriceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
+  const wholesalePrice = isWholesale ? (parseFloat(sanitizedWholesalePrice) || 34.90) : null
   const isPromotion = formData.get("isPromotion") === "true"
   const isDraft = formData.get("isDraft") === "true"
   const description = formData.get("description") as string || ""
@@ -165,6 +168,7 @@ export async function createProduct(formData: FormData) {
       description,
       price,
       oldPrice,
+      wholesalePrice,
       image: primaryImage,
       images: uploadedUrls,
       isNew,
@@ -207,6 +211,9 @@ export async function updateProduct(id: string, formData: FormData) {
 
   const isNew = formData.get("isNew") === "true"
   const isWholesale = formData.get("isWholesale") === "true"
+  const wholesalePriceStr = (formData.get("wholesalePrice") as string) || ""
+  const sanitizedWholesalePrice = wholesalePriceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
+  const wholesalePrice = isWholesale ? (parseFloat(sanitizedWholesalePrice) || 34.90) : null
   const isPromotion = formData.get("isPromotion") === "true"
   const isDraft = formData.get("isDraft") === "true"
   const description = formData.get("description") as string || ""
@@ -280,6 +287,7 @@ export async function updateProduct(id: string, formData: FormData) {
       description,
       price,
       oldPrice,
+      wholesalePrice,
       isNew,
       isWholesale,
       isPromotion,

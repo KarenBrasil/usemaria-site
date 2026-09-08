@@ -31,6 +31,7 @@ export default function ProductForm({ initialData = null, action, categories = [
   const [selectedSize, setSelectedSize] = useState<string>("P");
   const [newColor, setNewColor] = useState<string>("Padrão");
   const [newStock, setNewStock] = useState<number>(1);
+  const [isWholesale, setIsWholesale] = useState<boolean>(initialData?.isWholesale ?? false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -223,10 +224,34 @@ export default function ProductForm({ initialData = null, action, categories = [
             <span className="font-medium text-sm text-zinc-900">Novidade</span>
             <input type="checkbox" name="isNew" value="true" defaultChecked={initialData?.isNew} className="w-5 h-5 accent-black" />
           </label>
-          <label className="flex items-center justify-between p-4 border border-zinc-100 rounded-xl cursor-pointer hover:bg-zinc-50">
-            <span className="font-medium text-sm text-zinc-900">Atacado</span>
-            <input type="checkbox" name="isWholesale" value="true" defaultChecked={initialData?.isWholesale} className="w-5 h-5 accent-amber-500" />
-          </label>
+          <div className="border border-zinc-100 rounded-xl overflow-hidden">
+            <label className="flex items-center justify-between p-4 cursor-pointer hover:bg-zinc-50">
+              <span className="font-medium text-sm text-zinc-900">Atacado</span>
+              <input
+                type="checkbox"
+                name="isWholesale"
+                value="true"
+                checked={isWholesale}
+                onChange={(event) => setIsWholesale(event.target.checked)}
+                className="w-5 h-5 accent-amber-500"
+              />
+            </label>
+            {isWholesale && (
+              <div className="px-4 pb-4 flex flex-col gap-2">
+                <label htmlFor="wholesalePrice" className="text-sm font-medium text-zinc-700">Preço no atacado (R$)</label>
+                <input
+                  id="wholesalePrice"
+                  name="wholesalePrice"
+                  type="text"
+                  inputMode="decimal"
+                  defaultValue={initialData?.wholesalePrice?.toFixed(2).replace('.', ',') || "34,90"}
+                  placeholder="34,90"
+                  className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:bg-white outline-none"
+                />
+                <p className="text-xs text-zinc-500">Use este campo para definir um preço personalizado para esta peça.</p>
+              </div>
+            )}
+          </div>
           <label className="flex items-center justify-between p-4 border border-zinc-100 rounded-xl cursor-pointer hover:bg-zinc-50">
             <span className="font-medium text-sm text-zinc-900">Promoção</span>
             <input type="checkbox" name="isPromotion" value="true" defaultChecked={initialData?.isPromotion} className="w-5 h-5 accent-red-500" />

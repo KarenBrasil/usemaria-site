@@ -367,7 +367,7 @@ export default function CheckoutPage() {
               <div className="flex flex-col gap-4 mb-6">
                 {items.map(item => {
                   const isWholesaleActive = items.reduce((count, i) => count + i.quantity, 0) >= 10;
-                  const itemPrice = (isWholesaleActive && item.isWholesaleProduct) ? (item.wholesalePrice || 45.90) : item.price;
+                  const itemPrice = (isWholesaleActive && item.isWholesaleProduct) ? (item.wholesalePrice || 34.90) : item.price;
                   return (
                     <div key={item.id} className="flex gap-4 items-center">
                       <div className="relative w-16 h-16 bg-zinc-100 shrink-0 border border-zinc-200 rounded-sm overflow-hidden">

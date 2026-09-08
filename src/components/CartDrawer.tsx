@@ -99,7 +99,7 @@ export default function CartDrawer() {
 
                   {items.map(item => {
                     const isWholesaleActive = cartCount() >= 10;
-                    const itemPrice = (isWholesaleActive && item.isWholesaleProduct) ? (item.wholesalePrice || 45.90) : item.price;
+                    const itemPrice = (isWholesaleActive && item.isWholesaleProduct) ? (item.wholesalePrice || 34.90) : item.price;
                     return (
                       <div key={item.id} className="flex gap-4">
                         <div className="relative w-20 h-24 bg-zinc-100 shrink-0">

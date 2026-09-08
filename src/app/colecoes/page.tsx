@@ -111,7 +111,7 @@ export default async function ColecoesPage({
                     <p className="text-xs text-zinc-500 font-medium">R$ {product.price.toFixed(2).replace('.', ',')}</p>
                     {product.isWholesale && (
                       <span className="text-[10px] text-zinc-400 tracking-wider">
-                        Ou <span className="text-zinc-700 font-semibold">R$ {(product.wholesalePrice || 45.90).toFixed(2).replace('.', ',')}</span> (Atacado)
+                        Ou <span className="text-zinc-700 font-semibold">R$ {(product.wholesalePrice || 34.90).toFixed(2).replace('.', ',')}</span> (Atacado)
                       </span>
                     )}
                   </div>
