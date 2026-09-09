@@ -100,15 +100,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
 
         <div className="relative z-10 flex min-h-[620px] md:min-h-[720px] w-full max-w-[1440px] mx-auto px-7 sm:px-10 md:px-16 lg:px-24 items-center">
           <div className="max-w-[680px] pt-12 md:pt-0">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="h-px w-10 bg-[#B55412]"></span>
+            <div className="mb-8">
               <p className="text-[10px] md:text-[11px] uppercase tracking-[0.34em] font-semibold text-[#B55412]">
               {safeSettings.hero1Subtitle}
               </p>
             </div>
 
             <h1 className="font-serif tracking-[-0.045em] leading-[0.91] text-[#343239] mb-7">
-              <span className="block text-[72px] sm:text-[90px] md:text-[116px] font-light italic text-[#4B4850]">
+              <span className="block text-[72px] sm:text-[90px] md:text-[116px] font-light italic text-[#A54309]">
                 {safeSettings.hero1Title.split(' ')[0]}
               </span>
               <span className="block text-[52px] sm:text-[68px] md:text-[92px] font-medium text-[#A54309]">
@@ -116,7 +115,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
               </span>
             </h1>
 
-            <div className="w-12 h-px bg-[#D8B999] mb-7"></div>
             <p className="text-[15px] md:text-[17px] text-[#68636A] mb-10 max-w-[460px] leading-[1.75] font-normal">
               {safeSettings.hero1Text}
             </p>
