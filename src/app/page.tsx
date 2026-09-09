@@ -84,38 +84,50 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
         currentCat={categoryId} 
       />
 
-      {/* HERO SECTION - ESTÉTICA CATÓLICA */}
-      <section className="relative w-full h-[60vh] md:h-[80vh] bg-[#FCFBF9] overflow-hidden flex items-center border-b border-amber-200/30">
-        <div className="absolute inset-0 md:left-[30%] w-full md:w-[70%] h-full z-0">
+      {/* HERO SECTION */}
+      <section className="relative isolate w-full min-h-[620px] md:min-h-[720px] bg-[#F9F6F1] overflow-hidden border-b border-[#E7DDD1]">
+        <div className="absolute inset-y-0 right-0 w-full md:w-[57%]">
           <Image
             src={safeSettings.hero1Image}
             alt={safeSettings.hero1Title}
             fill
-            className="object-cover object-top opacity-90 mix-blend-multiply"
+            className="object-cover object-center"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#FCFBF9] via-[#FCFBF9]/80 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F9F6F1] via-[#F9F6F1]/75 to-transparent"></div>
+          <div className="absolute inset-0 bg-[#2E2018]/5"></div>
         </div>
-        
-        <div className="relative z-10 w-full max-w-[1400px] mx-auto px-8 md:px-12 flex flex-col items-start pt-10">
-          <div className="flex items-center gap-3 mb-6">
-            <p className="text-[11px] uppercase tracking-[0.3em] font-medium text-amber-600">
+
+        <div className="relative z-10 flex min-h-[620px] md:min-h-[720px] w-full max-w-[1440px] mx-auto px-7 sm:px-10 md:px-16 lg:px-24 items-center">
+          <div className="max-w-[680px] pt-12 md:pt-0">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="h-px w-10 bg-[#B55412]"></span>
+              <p className="text-[10px] md:text-[11px] uppercase tracking-[0.34em] font-semibold text-[#B55412]">
               {safeSettings.hero1Subtitle}
+              </p>
+            </div>
+
+            <h1 className="font-serif tracking-[-0.045em] leading-[0.91] text-[#343239] mb-7">
+              <span className="block text-[72px] sm:text-[90px] md:text-[116px] font-light italic text-[#4B4850]">
+                {safeSettings.hero1Title.split(' ')[0]}
+              </span>
+              <span className="block text-[52px] sm:text-[68px] md:text-[92px] font-medium text-[#A54309]">
+                {safeSettings.hero1Title.split(' ').slice(1).join(' ')}
+              </span>
+            </h1>
+
+            <div className="w-12 h-px bg-[#D8B999] mb-7"></div>
+            <p className="text-[15px] md:text-[17px] text-[#68636A] mb-10 max-w-[460px] leading-[1.75] font-normal">
+              {safeSettings.hero1Text}
             </p>
+
+            <Link href="/colecoes" className="group inline-flex items-center gap-8 border border-[#CFA66F] bg-[#FCFAF6]/90 px-7 py-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#98400B] transition-all duration-300 hover:bg-[#A54309] hover:border-[#A54309] hover:text-white">
+              Ver coleção completa
+              <span className="text-lg leading-none transition-transform duration-300 group-hover:translate-x-1">→</span>
+            </Link>
           </div>
-          
-          <h1 className="text-5xl md:text-[80px] font-serif leading-[1.1] text-zinc-900 mb-6 tracking-tight flex flex-col">
-            <span className="font-light italic text-zinc-700">{safeSettings.hero1Title.split(' ')[0]}</span>
-            <span className="font-medium text-amber-800">{safeSettings.hero1Title.split(' ').slice(1).join(' ')}</span>
-          </h1>
-          
-          <p className="text-base md:text-lg text-zinc-600 mb-10 max-w-md font-light leading-relaxed">
-            {safeSettings.hero1Text}
-          </p>
-          
-          <Link href="/colecoes" className="group relative overflow-hidden bg-white border border-amber-200 text-amber-800 uppercase text-[11px] tracking-[0.2em] font-medium py-4 px-10 transition-all hover:bg-amber-50 hover:border-amber-300">
-            <span className="relative z-10 flex items-center gap-4">Ver Coleção Completa <span className="text-lg leading-none group-hover:translate-x-1 transition-transform">→</span></span>
-          </Link>
+
+          <p className="absolute bottom-8 right-7 md:right-16 text-[9px] uppercase tracking-[0.3em] text-[#756B64]/80">Use Maria · fé vestida de propósito</p>
         </div>
       </section>
 
