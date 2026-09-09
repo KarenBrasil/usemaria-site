@@ -121,10 +121,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
               {safeSettings.hero1Text}
             </p>
 
-            <Link href="/colecoes" className="group inline-flex items-center gap-8 border border-[#CFA66F] bg-[#FCFAF6]/90 px-7 py-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#98400B] transition-all duration-300 hover:bg-[#A54309] hover:border-[#A54309] hover:text-white">
-              Ver coleção completa
-              <span className="text-lg leading-none transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </Link>
           </div>
 
           <p className="absolute bottom-8 right-7 md:right-16 text-[9px] uppercase tracking-[0.3em] text-[#756B64]/80">Use Maria · fé vestida de propósito</p>
