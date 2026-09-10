@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductImageZoom from "@/components/ProductImageZoom";
 import AddToCartSection from "@/components/AddToCartSection";
+import TrackViewContent from "@/components/TrackViewContent";
 
 export const dynamic = 'force-dynamic';
 
@@ -50,6 +51,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="flex flex-col min-h-screen bg-white font-sans text-black">
+      <TrackViewContent id={product.id} name={product.name} price={product.price} />
       <Header settings={defaultSettings} />
 
       {/* PRODUCT DETAILS SECTION */}

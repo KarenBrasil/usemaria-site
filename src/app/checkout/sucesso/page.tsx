@@ -2,6 +2,7 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import CopyPixButton from "@/components/CopyPixButton";
 import { generatePixPayload } from "@/lib/pix";
+import TrackPurchase from "@/components/TrackPurchase";
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +28,7 @@ export default async function CheckoutSuccessPage({
   if (orderId) {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { customer: true }
+      include: { customer: true, items: true }
     });
 
     if (!order) return <div>Pedido não encontrado</div>;
@@ -36,6 +37,12 @@ export default async function CheckoutSuccessPage({
     if (method === 'CARD' || (paymentIntent && redirectStatus === 'succeeded')) {
       return (
         <div className="min-h-screen bg-[#F5F3EF] flex flex-col items-center justify-center p-8 text-center font-sans">
+          <TrackPurchase
+            orderId={order.id}
+            value={order.total}
+            contentIds={order.items.map((i) => i.productId).filter((id): id is string => Boolean(id))}
+            numItems={order.items.reduce((n, i) => n + i.quantity, 0)}
+          />
           <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6 text-green-600">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
           </div>

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useCartStore } from "@/contexts/CartContext";
+import { fbEvent } from "@/lib/fbpixel";
 
 type ProductSize = {
   id: string;
@@ -98,7 +99,16 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
       });
       
       await Promise.all(promises);
-      
+
+      fbEvent("AddToCart", {
+        content_ids: [product.id],
+        content_name: product.name,
+        content_type: "product",
+        value: product.price * totalSelectedQuantity,
+        currency: "BRL",
+        num_items: totalSelectedQuantity,
+      });
+
       setAdded(true);
       setColorQuantities({}); // Reset
       setTimeout(() => setAdded(false), 2000);

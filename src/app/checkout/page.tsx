@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { fbEvent } from "@/lib/fbpixel";
 
 export default function CheckoutPage() {
   const { items, cartTotal, clearCart } = useCartStore();
@@ -35,6 +36,19 @@ export default function CheckoutPage() {
       router.push("/");
     }
   }, [items, router, mounted]);
+
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (!mounted || items.length === 0 || checkoutTracked.current) return;
+    checkoutTracked.current = true;
+    fbEvent("InitiateCheckout", {
+      content_ids: items.map((i) => i.productId),
+      content_type: "product",
+      value: cartTotal(),
+      currency: "BRL",
+      num_items: items.reduce((n, i) => n + i.quantity, 0),
+    });
+  }, [mounted, items, cartTotal]);
 
   useEffect(() => {
     const saved = localStorage.getItem('useMariaCheckoutData');

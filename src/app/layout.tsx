@@ -26,6 +26,7 @@ export const metadata: Metadata = {
 };
 
 import WhatsAppButton from "@/components/WhatsAppButton";
+import MetaPixel from "@/components/MetaPixel";
 
 export default function RootLayout({
   children,
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {children}
         <WhatsAppButton />
+        <MetaPixel />
       </body>
     </html>
   );
