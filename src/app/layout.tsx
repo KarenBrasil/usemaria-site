@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 
 import WhatsAppButton from "@/components/WhatsAppButton";
 import MetaPixel from "@/components/MetaPixel";
+import { FB_PIXEL_ID } from "@/lib/fbpixel";
 
 export default function RootLayout({
   children,
@@ -39,6 +40,15 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src={`https://www.facebook.com/tr?id=${FB_PIXEL_ID}&ev=PageView&noscript=1`}
+            alt=""
+          />
+        </noscript>
         {children}
         <WhatsAppButton />
         <MetaPixel />
