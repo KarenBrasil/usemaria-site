@@ -23,6 +23,11 @@ export const metadata: Metadata = {
     default: "Use Maria Oficial",
   },
   description: "Loja oficial da Use Maria. Moda feminina, coleções exclusivas.",
+  verification: {
+    other: {
+      "facebook-domain-verification": "q1pgo5ezrt6slz9lirus24bqmqu5dt",
+    },
+  },
 };
 
 import WhatsAppButton from "@/components/WhatsAppButton";
