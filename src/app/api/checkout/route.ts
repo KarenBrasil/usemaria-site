@@ -9,6 +9,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { customer, items, total, paymentMethod, address, cartId } = body;
+    const paymentLabel = paymentMethod === 'WHATSAPP' ? 'A combinar (Pix ou cartão)' : paymentMethod;
 
     // 1. Create or find customer in database
     let dbCustomer = await prisma.customer.findFirst({
@@ -101,13 +102,13 @@ export async function POST(request: Request) {
                <p style="margin:0 0 10px 0;"><strong>Telefone:</strong> ${customer.phone}</p>
                <p style="margin:0 0 10px 0;"><strong>E-mail:</strong> ${customer.email}</p>
                <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
-               <p style="margin:0 0 10px 0;"><strong>Método de Pagamento:</strong> ${paymentMethod}</p>
+               <p style="margin:0 0 10px 0;"><strong>Método de Pagamento:</strong> ${paymentLabel}</p>
                <p style="margin:0 0 10px 0;"><strong>Frete Escolhido:</strong> ${body.shipping?.method || 'Não informado'} (R$ ${body.shipping?.cost ? body.shipping.cost.toFixed(2).replace('.', ',') : '0,00'})</p>
                <p style="margin:0 0 10px 0;"><strong>Endereço de Entrega:</strong> ${address?.street || ''}, ${address?.number || ''} ${address?.complement ? '- ' + address.complement : ''} - ${address?.neighborhood || ''}, ${address?.city || ''}/${address?.state || ''} - CEP: ${address?.zipcode || ''}</p>
                
                <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 14px; text-transform: uppercase;">Resumo dos Itens:</h3>
                <ul style="margin: 0; padding-left: 20px; font-size: 14px;">
-                 ${items.map((item: any) => `<li style="margin-bottom: 5px;">${item.quantity}x (Tamanho: ${item.size}) - R$ ${item.price.toFixed(2).replace('.', ',')}</li>`).join('')}
+                 ${items.map((item: any) => `<li style="margin-bottom: 5px;">${item.quantity}x ${item.name || 'Peça'} (Tamanho: ${item.size}) - R$ ${item.price.toFixed(2).replace('.', ',')}</li>`).join('')}
                </ul>
 
                ${isWholesaleOrder ? `<p style="margin:15px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">AVISO: PEDIDO DE ATACADO (PRAZO DE PRODUÇÃO: 5 DIAS)</p>` : ''}
@@ -133,7 +134,7 @@ export async function POST(request: Request) {
                
                <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
                  <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
-                 <p style="margin:0;"><strong>Método de Pagamento:</strong> ${paymentMethod}</p>
+                 <p style="margin:0;"><strong>Método de Pagamento:</strong> ${paymentLabel}</p>
                  ${isWholesaleOrder ? `<p style="margin:10px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">Aviso: Você realizou uma compra no Atacado. O prazo de produção das peças sob encomenda é de 5 dias úteis.</p>` : ''}
                </div>
 
