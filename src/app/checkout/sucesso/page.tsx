@@ -33,6 +33,75 @@ export default async function CheckoutSuccessPage({
 
     if (!order) return <div>Pedido não encontrado</div>;
 
+    // Pedido criado pelo checkout com pagamento e frete a combinar.
+    // O WhatsApp é opcional e fica disponível após a confirmação.
+    if (method === 'WHATSAPP') {
+      const orderNumber = order.id.slice(-6).toUpperCase();
+      const formattedTotal = order.total.toFixed(2).replace('.', ',');
+      const orderMessage = `Olá! Acabei de realizar o pedido #${orderNumber} no site Use Maria, no valor de R$ ${formattedTotal}. Gostaria de enviar os detalhes do meu pedido.`;
+      const supportMessage = `Olá! Tenho uma dúvida sobre o pedido #${orderNumber} que acabei de realizar no site.`;
+
+      return (
+        <div className="min-h-screen bg-[#F8F5F2] py-10 px-4 font-sans text-zinc-900">
+          <TrackPurchase
+            orderId={order.id}
+            value={order.total}
+            contentIds={order.items.map((i) => i.productId).filter((id): id is string => Boolean(id))}
+            numItems={order.items.reduce((n, i) => n + i.quantity, 0)}
+          />
+          <main className="mx-auto w-full max-w-xl">
+            <Link href="/" className="mb-10 block text-center font-serif text-2xl font-bold tracking-[0.2em]">USE MARIA</Link>
+
+            <section className="overflow-hidden rounded-2xl border border-[#E7DDD1] bg-white shadow-sm">
+              <div className="bg-[#A54309] px-7 py-8 text-center text-white">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/50 text-2xl">✓</div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/80">Pedido recebido</p>
+                <h1 className="mt-2 font-serif text-3xl">Obrigada pela sua compra!</h1>
+              </div>
+
+              <div className="p-7 sm:p-9">
+                <p className="text-center text-sm leading-6 text-zinc-600">
+                  Seu pedido foi registrado com sucesso. Enviamos a confirmação para <strong className="font-semibold text-zinc-800">{order.customer.email}</strong>.
+                </p>
+
+                <div className="my-7 rounded-xl bg-[#FCFAF6] p-5">
+                  <div className="flex items-center justify-between border-b border-[#E7DDD1] pb-4 text-sm">
+                    <span className="text-zinc-500">Número do pedido</span>
+                    <strong className="tracking-wider">#{orderNumber}</strong>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-[#E7DDD1] py-4 text-sm">
+                    <span className="text-zinc-500">Frete</span>
+                    <strong>{order.shippingMethod || 'A combinar'}</strong>
+                  </div>
+                  <div className="flex items-end justify-between pt-4">
+                    <span className="text-sm text-zinc-500">Total do pedido</span>
+                    <strong className="text-2xl text-[#A54309]">R$ {formattedTotal}</strong>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-[#E7DDD1] p-5 text-sm leading-6 text-zinc-600">
+                  <p className="font-semibold text-zinc-800">Próximos passos</p>
+                  <p className="mt-1">Nossa equipe vai confirmar o pagamento e o envio com você. Se preferir, fale conosco pelo WhatsApp agora.</p>
+                </div>
+
+                <div className="mt-7 space-y-3">
+                  <a href={`https://wa.me/${defaultSettings.whatsappNumber}?text=${encodeURIComponent(orderMessage)}`} target="_blank" rel="noreferrer" className="flex w-full items-center justify-center rounded-xl bg-[#128C7E] px-5 py-4 text-sm font-semibold text-white transition-colors hover:bg-[#075E54]">
+                    Enviar pedido pelo WhatsApp
+                  </a>
+                  <a href={`https://wa.me/${defaultSettings.whatsappNumber}?text=${encodeURIComponent(supportMessage)}`} target="_blank" rel="noreferrer" className="flex w-full items-center justify-center rounded-xl border border-zinc-300 px-5 py-4 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50">
+                    Falar sobre meu pedido
+                  </a>
+                  <Link href={`/rastreio?id=${order.id}`} className="block pt-3 text-center text-xs font-semibold uppercase tracking-widest text-zinc-500 hover:text-zinc-900">
+                    Acompanhar pedido
+                  </Link>
+                </div>
+              </div>
+            </section>
+          </main>
+        </div>
+      );
+    }
+
     // Se for Cartão de Crédito
     if (method === 'CARD' || (paymentIntent && redirectStatus === 'succeeded')) {
       return (

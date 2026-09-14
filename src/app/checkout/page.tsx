@@ -182,29 +182,11 @@ export default function CheckoutPage() {
         throw new Error(data.error || "Erro ao gerar pedido no servidor.");
       }
 
-      // 2. Build WhatsApp message
-      const orderIdShort = data.orderId.slice(-6).toUpperCase();
-      let msg = `Olá! Gostaria de finalizar o meu pedido.\n\n`;
-      msg += `*NOME:* ${formData.name}\n\n`;
-
-      msg += `*📍 ENDEREÇO*\n`;
-      msg += `${formData.street}, ${formData.number} ${formData.complement ? '- ' + formData.complement : ''}\n`;
-      msg += `${formData.neighborhood} - ${formData.city}/${formData.state}\n`;
-      msg += `CEP: ${formData.zipcode}\n\n`;
-
-      msg += `*🛍️ PEDIDO*\n`;
-      items.forEach(item => {
-        msg += `${item.quantity}x ${item.name} (Tam: ${item.size})\n`;
-      });
-      msg += `\n*VALOR:* R$ ${(cartTotal() + shippingCost).toFixed(2).replace('.', ',')}\n\n`;
-
-      msg += `🔗 *Ver detalhes no sistema:*\n`;
-      msg += `https://lojausemaria.com.br/admin/vendas`;
-
-      // Clear Cart and Redirect
+      // O pedido e os e-mails já foram registrados no servidor. O WhatsApp
+      // passa a ser uma opção na página de confirmação, sem interromper a compra.
       clearCart();
-      const encodedMsg = encodeURIComponent(msg);
-      window.location.href = `https://wa.me/5585992659192?text=${encodedMsg}`;
+      localStorage.removeItem('useMariaCheckoutData');
+      router.replace(`/checkout/sucesso?orderId=${data.orderId}&method=WHATSAPP`);
       
     } catch (err: any) {
       setError(err.message || "Ocorreu um erro ao processar seu pedido.");
