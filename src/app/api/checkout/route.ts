@@ -92,38 +92,59 @@ export async function POST(request: Request) {
     const orderNumber = order.id.slice(-6).toUpperCase();
     const customerFirstName = customer.name.split(' ')[0];
     const customerWaLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Olá! Realizei o pedido #${orderNumber} no site Use Maria e gostaria de combinar o pagamento e a entrega.`)}`;
+    const totalFmt = total.toFixed(2).replace('.', ',');
+    const freteFmt = `${body.shipping?.method || 'A combinar'}${body.shipping?.cost ? ` (R$ ${body.shipping.cost.toFixed(2).replace('.', ',')})` : ''}`;
+    const enderecoFmt = `${address?.street || ''}, ${address?.number || ''}${address?.complement ? ` - ${address.complement}` : ''} - ${address?.neighborhood || ''}, ${address?.city || ''}/${address?.state || ''} - CEP: ${address?.zipcode || ''}`;
+    const itensHtml = items.map((item: any) => `<li>${item.quantity}x ${item.name || 'Peça'} (Tam. ${item.size}) - R$ ${item.price.toFixed(2).replace('.', ',')}</li>`).join('');
+    const itensText = items.map((item: any) => `- ${item.quantity}x ${item.name || 'Peça'} (Tam. ${item.size}) - R$ ${item.price.toFixed(2).replace('.', ',')}`).join('\n');
 
     // Send Emails via Resend (fire and forget)
     if (process.env.RESEND_API_KEY) {
-       // 1. E-mail para o Administrador
+       // 1. E-mail para a loja
        resend.emails.send({
-         from: 'Use Maria <onboarding@resend.dev>',
+         from: 'Use Maria <contato@lojausemaria.com.br>',
          to: 'usemaria72@gmail.com',
-         subject: `Use Maria - Nova Venda! Pedido #${order.id.slice(-6).toUpperCase()} - R$ ${total.toFixed(2)}`,
-         html: `
-           <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
-             <h2>Nova Venda Realizada - Use Maria</h2>
-             <p>Olá Anny Talyta,</p>
-             <p>Você acabou de receber um novo pedido de <strong>${customer.name}</strong>. Já pode preparar o pedido! 🎁</p>
-             <p style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:12px;border-radius:6px;font-size:14px;">
-               <strong>Atenção:</strong> o pedido só é confirmado depois que ${customerFirstName} entrar em contato pelo WhatsApp para acertar o pagamento e combinar o valor da entrega.
-             </p>
-             <div style="background: #f4f4f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-               <p style="margin:0 0 10px 0;"><strong>Telefone:</strong> ${customer.phone}</p>
-               <p style="margin:0 0 10px 0;"><strong>E-mail:</strong> ${customer.email}</p>
-               <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
-               <p style="margin:0 0 10px 0;"><strong>Método de Pagamento:</strong> ${paymentLabel}</p>
-               <p style="margin:0 0 10px 0;"><strong>Frete Escolhido:</strong> ${body.shipping?.method || 'Não informado'} (R$ ${body.shipping?.cost ? body.shipping.cost.toFixed(2).replace('.', ',') : '0,00'})</p>
-               <p style="margin:0 0 10px 0;"><strong>Endereço de Entrega:</strong> ${address?.street || ''}, ${address?.number || ''} ${address?.complement ? '- ' + address.complement : ''} - ${address?.neighborhood || ''}, ${address?.city || ''}/${address?.state || ''} - CEP: ${address?.zipcode || ''}</p>
-               
-               <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 14px; text-transform: uppercase;">Resumo dos Itens:</h3>
-               <ul style="margin: 0; padding-left: 20px; font-size: 14px;">
-                 ${items.map((item: any) => `<li style="margin-bottom: 5px;">${item.quantity}x ${item.name || 'Peça'} (Tamanho: ${item.size}) - R$ ${item.price.toFixed(2).replace('.', ',')}</li>`).join('')}
-               </ul>
+         replyTo: customer.email,
+         subject: `Novo pedido #${orderNumber} - ${customer.name}`,
+         text:
+`Olá Anny Talyta,
 
-               ${isWholesaleOrder ? `<p style="margin:15px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">AVISO: PEDIDO DE ATACADO (PRAZO DE PRODUÇÃO: 5 DIAS)</p>` : ''}
-             </div>
-             <a href="https://lojausemaria.com.br/admin/vendas" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;border-radius:4px;font-weight:bold;display:inline-block;">Ver Painel Administrativo</a>
+Você recebeu um novo pedido de ${customer.name}. Já pode preparar o pedido.
+
+O pedido só é confirmado depois que ${customerFirstName} entrar em contato pelo WhatsApp para acertar o pagamento e combinar o valor da entrega.
+
+Pedido #${orderNumber}
+Cliente: ${customer.name}
+Telefone: ${customer.phone}
+E-mail: ${customer.email}
+Total: R$ ${totalFmt}
+Pagamento e entrega: ${paymentLabel}
+Frete: ${freteFmt}
+Endereço: ${enderecoFmt}
+
+Itens:
+${itensText}
+${isWholesaleOrder ? '\nPedido de atacado - prazo de produção de 5 dias úteis.\n' : ''}
+Ver no painel: https://lojausemaria.com.br/admin/vendas`,
+         html: `
+           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222; font-size: 15px; line-height: 1.6;">
+             <p>Olá Anny Talyta,</p>
+             <p>Você recebeu um novo pedido de <strong>${customer.name}</strong>. Já pode preparar o pedido.</p>
+             <p>O pedido só é confirmado depois que ${customerFirstName} entrar em contato pelo WhatsApp para acertar o pagamento e combinar o valor da entrega.</p>
+             <p style="margin-top:24px;"><strong>Pedido #${orderNumber}</strong></p>
+             <p style="margin:0;">
+               Cliente: ${customer.name}<br/>
+               Telefone: ${customer.phone}<br/>
+               E-mail: ${customer.email}<br/>
+               Total: R$ ${totalFmt}<br/>
+               Pagamento e entrega: ${paymentLabel}<br/>
+               Frete: ${freteFmt}<br/>
+               Endereço: ${enderecoFmt}
+             </p>
+             <p style="margin-top:16px;margin-bottom:4px;">Itens:</p>
+             <ul style="margin:0;padding-left:20px;">${itensHtml}</ul>
+             ${isWholesaleOrder ? `<p>Pedido de atacado - prazo de produção de 5 dias úteis.</p>` : ''}
+             <p style="margin-top:24px;"><a href="https://lojausemaria.com.br/admin/vendas" style="color:#0b57d0;">Ver no painel administrativo</a></p>
            </div>
          `
        }).catch(console.error);
@@ -133,35 +154,40 @@ export async function POST(request: Request) {
          resend.emails.send({
            from: 'Use Maria <contato@lojausemaria.com.br>',
            to: customer.email,
-           subject: `Use Maria - Confirmação do seu Pedido #${order.id.slice(-6).toUpperCase()}`,
+           replyTo: 'contato@lojausemaria.com.br',
+           subject: `Seu pedido #${orderNumber} - Use Maria`,
+           text:
+`Olá, ${customerFirstName}!
+
+Recebemos o seu pedido #${orderNumber}.
+
+Seu pedido ainda não está confirmado. Entre em contato pelo WhatsApp para combinarmos o pagamento e o valor da entrega. O envio acontece só depois disso.
+Falar no WhatsApp: ${customerWaLink}
+
+Total: R$ ${totalFmt}
+Pagamento e entrega: ${paymentLabel}
+${isWholesaleOrder ? '\nCompra no atacado - prazo de produção de 5 dias úteis.\n' : ''}
+Acompanhar seu pedido: https://lojausemaria.com.br/rastreio?id=${order.id}
+
+Equipe Use Maria`,
            html: `
-             <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
-               <h1 style="text-align: center; letter-spacing: 2px;">USE MARIA</h1>
-               <hr style="border: 1px solid #eee; margin: 20px 0;" />
-               <h2>Olá, ${customer.name.split(' ')[0]}!</h2>
-               <p>Recebemos o seu pedido <strong>#${orderNumber}</strong> com sucesso.</p>
-               <p>Estamos muito felizes em ter você como cliente! Para finalizar, é só combinar o pagamento e a entrega com a gente pelo WhatsApp.</p>
-
-               <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                 <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
-                 <p style="margin:0;"><strong>Pagamento e entrega:</strong> ${paymentLabel}</p>
-                 ${isWholesaleOrder ? `<p style="margin:10px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">Aviso: Você realizou uma compra no Atacado. O prazo de produção das peças sob encomenda é de 5 dias úteis.</p>` : ''}
-               </div>
-
-               <div style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:16px;border-radius:8px;margin:20px 0;text-align:center;">
-                 <p style="margin:0 0 8px 0;font-weight:bold;">Seu pedido ainda não está confirmado.</p>
-                 <p style="margin:0 0 16px 0;font-size:14px;">Entre em contato pelo WhatsApp para combinarmos o pagamento e o valor da entrega. O envio acontece só depois disso.</p>
-                 <a href="${customerWaLink}" style="background:#128C7E;color:#fff;padding:12px 24px;text-decoration:none;border-radius:4px;font-weight:bold;display:inline-block;">Falar no WhatsApp sobre meu pedido</a>
-               </div>
-
-               <p>Você pode acompanhar o status da entrega clicando no botão abaixo:</p>
-               <br/>
-               <div style="text-align: center;">
-                 <a href="https://lojausemaria.com.br/rastreio?id=${order.id}" style="background:#000;color:#fff;padding:14px 28px;text-decoration:none;border-radius:4px;font-weight:bold;display:inline-block;letter-spacing:1px;text-transform:uppercase;font-size:12px;">Acompanhar Meu Pedido</a>
-               </div>
-               <br/><br/>
-               <hr style="border: 1px solid #eee; margin: 20px 0;" />
-               <p style="font-size: 12px; color: #888; text-align: center;">Com carinho,<br/>Equipe Use Maria</p>
+             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222; font-size: 15px; line-height: 1.6;">
+               <p style="text-align:center; letter-spacing:2px; font-size:20px; font-weight:bold; margin-bottom:24px;">USE MARIA</p>
+               <p>Olá, ${customerFirstName}!</p>
+               <p>Recebemos o seu pedido <strong>#${orderNumber}</strong>.</p>
+               <p><strong>Seu pedido ainda não está confirmado.</strong> Entre em contato pelo WhatsApp para combinarmos o pagamento e o valor da entrega. O envio acontece só depois disso.</p>
+               <p style="margin:20px 0;">
+                 <a href="${customerWaLink}" style="background:#128C7E;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Falar no WhatsApp sobre meu pedido</a>
+               </p>
+               <p style="margin:0;">
+                 Total: R$ ${totalFmt}<br/>
+                 Pagamento e entrega: ${paymentLabel}
+               </p>
+               ${isWholesaleOrder ? `<p>Compra no atacado - prazo de produção de 5 dias úteis.</p>` : ''}
+               <p style="margin-top:20px;">
+                 <a href="https://lojausemaria.com.br/rastreio?id=${order.id}" style="color:#0b57d0;">Acompanhar meu pedido</a>
+               </p>
+               <p style="margin-top:24px; color:#888; font-size:13px;">Equipe Use Maria</p>
              </div>
            `
          }).catch(console.error);
