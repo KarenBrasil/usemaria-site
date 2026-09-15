@@ -92,6 +92,12 @@ export async function POST(request: Request) {
     const orderNumber = order.id.slice(-6).toUpperCase();
     const customerFirstName = customer.name.split(' ')[0];
     const customerWaLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Olá! Realizei o pedido #${orderNumber} no site Use Maria e gostaria de combinar o pagamento e a entrega.`)}`;
+    // Link para a LOJA chamar o CLIENTE no WhatsApp (usa o telefone informado no pedido)
+    const customerPhoneDigits = (customer.phone || '').replace(/\D/g, '');
+    const customerPhoneWa = customerPhoneDigits ? (customerPhoneDigits.startsWith('55') ? customerPhoneDigits : `55${customerPhoneDigits}`) : '';
+    const storeToCustomerWaLink = customerPhoneWa
+      ? `https://wa.me/${customerPhoneWa}?text=${encodeURIComponent(`Olá ${customerFirstName}! Aqui é da Use Maria. Recebemos o seu pedido #${orderNumber} e vamos combinar o pagamento e a entrega.`)}`
+      : '';
     const totalFmt = total.toFixed(2).replace('.', ',');
     const freteFmt = `${body.shipping?.method || 'A combinar'}${body.shipping?.cost ? ` (R$ ${body.shipping.cost.toFixed(2).replace('.', ',')})` : ''}`;
     const enderecoFmt = `${address?.street || ''}, ${address?.number || ''}${address?.complement ? ` - ${address.complement}` : ''} - ${address?.neighborhood || ''}, ${address?.city || ''}/${address?.state || ''} - CEP: ${address?.zipcode || ''}`;
@@ -105,13 +111,16 @@ export async function POST(request: Request) {
          from: 'Use Maria <contato@lojausemaria.com.br>',
          to: 'usemaria72@gmail.com',
          replyTo: customer.email,
-         subject: `Novo pedido #${orderNumber} - ${customer.name}`,
+         subject: `Nova venda no site #${orderNumber} - ${customer.name} (pagamento a combinar)`,
          text:
-`Olá Anny Talyta,
+`NOVA VENDA NO SITE
 
 Você recebeu um novo pedido de ${customer.name}. Já pode preparar o pedido.
 
+Pagamento e entrega: a combinar via WhatsApp (pagamento independente).
 O pedido só é confirmado depois que ${customerFirstName} entrar em contato pelo WhatsApp para acertar o pagamento e combinar o valor da entrega.
+
+Chamar ${customerFirstName} no WhatsApp: ${storeToCustomerWaLink || 'telefone não informado'}
 
 Pedido #${orderNumber}
 Cliente: ${customer.name}
@@ -128,9 +137,11 @@ ${isWholesaleOrder ? '\nPedido de atacado - prazo de produção de 5 dias úteis
 Ver no painel: https://lojausemaria.com.br/admin/vendas`,
          html: `
            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222; font-size: 15px; line-height: 1.6;">
-             <p>Olá Anny Talyta,</p>
+             <p style="font-size:20px; font-weight:bold; margin:0 0 4px 0;">Nova venda no site</p>
+             <p style="margin:0 0 20px 0; color:#0b57d0; font-weight:bold;">Pagamento e entrega a combinar via WhatsApp (pagamento independente)</p>
              <p>Você recebeu um novo pedido de <strong>${customer.name}</strong>. Já pode preparar o pedido.</p>
              <p>O pedido só é confirmado depois que ${customerFirstName} entrar em contato pelo WhatsApp para acertar o pagamento e combinar o valor da entrega.</p>
+             ${storeToCustomerWaLink ? `<p style="margin:20px 0;"><a href="${storeToCustomerWaLink}" style="background:#128C7E;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Chamar ${customerFirstName} no WhatsApp</a></p>` : ''}
              <p style="margin-top:24px;"><strong>Pedido #${orderNumber}</strong></p>
              <p style="margin:0;">
                Cliente: ${customer.name}<br/>
