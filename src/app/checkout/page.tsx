@@ -31,8 +31,10 @@ export default function CheckoutPage() {
     setMounted(true);
   }, []);
 
+  // Trava para não voltar pra home logo após finalizar (clearCart esvazia o carrinho).
+  const orderPlaced = useRef(false);
   useEffect(() => {
-    if (items.length === 0 && mounted) {
+    if (items.length === 0 && mounted && !orderPlaced.current) {
       router.push("/");
     }
   }, [items, router, mounted]);
@@ -184,6 +186,7 @@ export default function CheckoutPage() {
 
       // O pedido e os e-mails já foram registrados no servidor. O WhatsApp
       // passa a ser uma opção na página de confirmação, sem interromper a compra.
+      orderPlaced.current = true;
       clearCart();
       localStorage.removeItem('useMariaCheckoutData');
       router.replace(`/checkout/sucesso?orderId=${data.orderId}&method=WHATSAPP`);
