@@ -90,7 +90,7 @@ export default function CheckoutPage() {
       setTimeout(() => {
         let title = "Frete Nacional Brasil";
         if (cep.startsWith('60') || cep.startsWith('61')) {
-           title = "Frete para Fortaleza ou região metropolitana - Retirada ou Motoboy";
+           title = "Frete para região de Fortaleza";
         }
         
         const option = {
@@ -314,7 +314,7 @@ export default function CheckoutPage() {
                                 <div>
                                   <span className="font-bold text-sm block text-zinc-800">{option.company}</span>
                                   <span className="text-xs text-zinc-500 mt-1 block">
-                                    Entre em contato para combinar o valor do frete de envio do produto.
+                                    Entre em contato para combinar o valor do frete. O pedido só é enviado depois de combinar.
                                   </span>
                                 </div>
                               </div>
@@ -343,7 +343,7 @@ export default function CheckoutPage() {
                       {loading ? "Registrando pedido..." : "Finalizar Pedido"}
                     </button>
                     <p className="text-xs text-center text-zinc-500 mt-4 leading-relaxed px-4">
-                      Seu pedido será registrado e você receberá a confirmação por e-mail. O pagamento (Pix ou cartão) é combinado com a nossa equipe em seguida.
+                      Seu pedido será registrado e você receberá a confirmação por e-mail. Depois, entre em contato pelo WhatsApp para confirmar o pagamento e combinar o valor da entrega.
                     </p>
                   </div>
                 </div>

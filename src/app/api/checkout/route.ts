@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { customer, items, total, paymentMethod, address, cartId } = body;
-    const paymentLabel = paymentMethod === 'WHATSAPP' ? 'A combinar (Pix ou cartão)' : paymentMethod;
+    const paymentLabel = paymentMethod === 'WHATSAPP' ? 'A combinar' : paymentMethod;
 
     // 1. Create or find customer in database
     let dbCustomer = await prisma.customer.findFirst({
@@ -86,6 +86,13 @@ export async function POST(request: Request) {
       });
     }
 
+    // WhatsApp da loja para os avisos por e-mail
+    const storeSettings = await prisma.storeSettings.findUnique({ where: { id: 'default' } });
+    const whatsappNumber = storeSettings?.whatsappNumber || '5585994277446';
+    const orderNumber = order.id.slice(-6).toUpperCase();
+    const customerFirstName = customer.name.split(' ')[0];
+    const customerWaLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Olá! Realizei o pedido #${orderNumber} no site Use Maria e gostaria de combinar o pagamento e a entrega.`)}`;
+
     // Send Emails via Resend (fire and forget)
     if (process.env.RESEND_API_KEY) {
        // 1. E-mail para o Administrador
@@ -97,7 +104,10 @@ export async function POST(request: Request) {
            <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
              <h2>Nova Venda Realizada - Use Maria</h2>
              <p>Olá Anny Talyta,</p>
-             <p>Você acabou de receber um novo pedido de <strong>${customer.name}</strong>.</p>
+             <p>Você acabou de receber um novo pedido de <strong>${customer.name}</strong>. Já pode preparar o pedido! 🎁</p>
+             <p style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:12px;border-radius:6px;font-size:14px;">
+               <strong>Atenção:</strong> o pedido só é confirmado depois que ${customerFirstName} entrar em contato pelo WhatsApp para acertar o pagamento e combinar o valor da entrega.
+             </p>
              <div style="background: #f4f4f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
                <p style="margin:0 0 10px 0;"><strong>Telefone:</strong> ${customer.phone}</p>
                <p style="margin:0 0 10px 0;"><strong>E-mail:</strong> ${customer.email}</p>
@@ -129,16 +139,20 @@ export async function POST(request: Request) {
                <h1 style="text-align: center; letter-spacing: 2px;">USE MARIA</h1>
                <hr style="border: 1px solid #eee; margin: 20px 0;" />
                <h2>Olá, ${customer.name.split(' ')[0]}!</h2>
-               <p>Recebemos o seu pedido <strong>#${order.id.slice(-6).toUpperCase()}</strong> com sucesso.</p>
-               <p>Estamos muito felizes em ter você como cliente! Seu pedido já está sendo processado com todo o carinho.</p>
-               
+               <p>Recebemos o seu pedido <strong>#${orderNumber}</strong> com sucesso.</p>
+               <p>Estamos muito felizes em ter você como cliente! Para finalizar, é só combinar o pagamento e a entrega com a gente pelo WhatsApp.</p>
+
                <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
                  <p style="margin:0 0 10px 0;"><strong>Valor Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</p>
-                 <p style="margin:0;"><strong>Método de Pagamento:</strong> ${paymentLabel}</p>
+                 <p style="margin:0;"><strong>Pagamento e entrega:</strong> ${paymentLabel}</p>
                  ${isWholesaleOrder ? `<p style="margin:10px 0 0 0; color: #b45309; font-weight: bold; background: #fef3c7; padding: 8px; border-radius: 4px;">Aviso: Você realizou uma compra no Atacado. O prazo de produção das peças sob encomenda é de 5 dias úteis.</p>` : ''}
                </div>
 
-               ${paymentMethod === 'PIX' ? `<p style="color: #d97706; font-weight: bold;">Lembrete: Como você escolheu PIX, o pedido só será confirmado e enviado após o pagamento. Caso já tenha feito, desconsidere.</p>` : ''}
+               <div style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:16px;border-radius:8px;margin:20px 0;text-align:center;">
+                 <p style="margin:0 0 8px 0;font-weight:bold;">Seu pedido ainda não está confirmado.</p>
+                 <p style="margin:0 0 16px 0;font-size:14px;">Entre em contato pelo WhatsApp para combinarmos o pagamento e o valor da entrega. O envio acontece só depois disso.</p>
+                 <a href="${customerWaLink}" style="background:#128C7E;color:#fff;padding:12px 24px;text-decoration:none;border-radius:4px;font-weight:bold;display:inline-block;">Falar no WhatsApp sobre meu pedido</a>
+               </div>
 
                <p>Você pode acompanhar o status da entrega clicando no botão abaixo:</p>
                <br/>
