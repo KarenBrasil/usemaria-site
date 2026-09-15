@@ -314,13 +314,11 @@ export default function CheckoutPage() {
                                 <div>
                                   <span className="font-bold text-sm block text-zinc-800">{option.company}</span>
                                   <span className="text-xs text-zinc-500 mt-1 block">
-                                    Entre em contato para combinar o valor do frete. O pedido só é enviado depois de combinar.
+                                    Para confirmar o seu pedido, entre em contato para combinar o valor do frete.
                                   </span>
                                 </div>
                               </div>
-                              {option.price === 0 ? (
-                                <span className="text-sm font-medium text-zinc-400 line-through">R$ 0,00</span>
-                              ) : (
+                              {option.price > 0 && (
                                 <span className="text-sm font-medium">R$ {option.price.toFixed(2).replace('.', ',')}</span>
                               )}
                             </label>
