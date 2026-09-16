@@ -22,13 +22,18 @@ export default function TrackPurchase({
       sessionStorage.setItem(key, "1");
     } catch {}
 
-    fbEvent("Purchase", {
-      content_ids: contentIds,
-      content_type: "product",
-      value,
-      currency: "BRL",
-      num_items: numItems,
-    });
+    fbEvent(
+      "Purchase",
+      {
+        content_ids: contentIds,
+        content_type: "product",
+        value,
+        currency: "BRL",
+        num_items: numItems,
+      },
+      // Mesmo event_id enviado pela API de Conversões (server) -> Meta deduplica.
+      { eventID: `purchase_${orderId}` }
+    );
   }, [orderId, value, contentIds, numItems]);
 
   return null;

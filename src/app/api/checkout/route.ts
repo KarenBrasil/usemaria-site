@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { Resend } from 'resend';
 import prisma from '@/lib/prisma';
+import { sendCapiEvent } from '@/lib/fbCapi';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
@@ -204,6 +205,31 @@ Equipe Use Maria`,
          }).catch(console.error);
        }
     }
+
+    // 2.9. API de Conversões da Meta (server-side) — mesmo event_id do pixel do navegador.
+    const cookieHeader = request.headers.get('cookie') || '';
+    const readCookie = (name: string) => {
+      const match = cookieHeader.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+      return match ? decodeURIComponent(match[1]) : undefined;
+    };
+    await sendCapiEvent({
+      eventName: 'Purchase',
+      eventId: `purchase_${order.id}`,
+      eventSourceUrl: `https://lojausemaria.com.br/checkout/sucesso?orderId=${order.id}`,
+      email: customer.email,
+      phone: customer.phone,
+      clientIp: (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || undefined,
+      clientUserAgent: request.headers.get('user-agent') || undefined,
+      fbp: readCookie('_fbp'),
+      fbc: readCookie('_fbc'),
+      customData: {
+        currency: 'BRL',
+        value: total,
+        content_type: 'product',
+        content_ids: items.map((i: any) => i.productId).filter(Boolean),
+        num_items: items.reduce((n: number, i: any) => n + i.quantity, 0),
+      },
+    });
 
     // 3. Handle Payment Method
     if (paymentMethod === 'PIX' || paymentMethod === 'WHATSAPP') {
