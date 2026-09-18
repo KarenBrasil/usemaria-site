@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoryFilters from "@/components/CategoryFilters";
+import { matchesSearch } from "@/lib/search";
 
 export const dynamic = 'force-dynamic';
 
@@ -17,21 +18,22 @@ export default async function ColecoesPage({
   const categoryId = resolvedSearchParams?.cat;
   const filterType = resolvedSearchParams?.filter;
 
-  const products = await prisma.product.findMany({
+  const allProducts = await prisma.product.findMany({
     where: {
       ...(categoryId ? { categoryId } : {}),
       ...(filterType === 'atacado' ? { isWholesale: true } : {}),
       ...(filterType === 'promocao' ? { isPromotion: true } : {}),
       ...(filterType === 'novidade' ? { isNew: true } : {}),
-      name: {
-        contains: query,
-        mode: 'insensitive',
-      },
       isDraft: false
     },
     include: { sizes: true },
     orderBy: { createdAt: 'desc' }
   });
+
+  // Busca em memória ignorando acentos ("sao miguel" acha "SÃO MIGUEL")
+  const products = query
+    ? allProducts.filter(p => matchesSearch(`${p.name} ${p.description || ''}`, query))
+    : allProducts;
 
   const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
   const defaultSettings = settings || {
@@ -49,7 +51,7 @@ export default async function ColecoesPage({
     <div className="flex flex-col min-h-screen font-sans bg-white text-black">
       <Header settings={defaultSettings} />
 
-      <main className="flex-1 py-12 px-4 md:px-8 max-w-[1400px] mx-auto w-full">
+      <main id="catalogo" className="flex-1 py-12 px-4 md:px-8 max-w-[1400px] mx-auto w-full">
         <div className="text-center mb-12">
           <span className="text-zinc-400 block mb-2 text-lg">✝</span>
           <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-widest text-black mb-4">
@@ -60,7 +62,7 @@ export default async function ColecoesPage({
           </p>
         </div>
 
-        <CategoryFilters categories={categories} currentCat={categoryId} currentFilter={filterType} />
+        <CategoryFilters categories={categories} currentCat={categoryId} currentFilter={filterType} currentQuery={query} />
 
         {/* Search Bar */}
         <div className="max-w-md mx-auto mb-16 relative">

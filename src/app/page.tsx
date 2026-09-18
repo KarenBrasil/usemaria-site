@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoryFilters from "@/components/CategoryFilters";
+import { matchesSearch } from "@/lib/search";
 
 export const dynamic = 'force-dynamic';
 
@@ -13,10 +14,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
   const searchQuery = resolvedParams.q;
   const filterType = resolvedParams.filter; // 'atacado', 'promocao', 'novidade'
 
-  const products = await prisma.product.findMany({
+  const allProducts = await prisma.product.findMany({
     where: {
       ...(categoryId ? { categoryId } : {}),
-      ...(searchQuery ? { name: { contains: searchQuery, mode: 'insensitive' } } : {}),
       ...(filterType === 'atacado' ? { isWholesale: true } : {}),
       ...(filterType === 'promocao' ? { isPromotion: true } : {}),
       ...(filterType === 'novidade' ? { isNew: true } : {}),
@@ -24,8 +24,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     },
     include: { sizes: true, category: true },
     orderBy: { createdAt: 'desc' },
-    take: 50
+    // Sem busca, limita a 50. Com busca, filtra o catálogo inteiro para não perder resultados.
+    ...(searchQuery ? {} : { take: 50 })
   });
+
+  // Busca em memória ignorando acentos ("sao miguel" acha "SÃO MIGUEL")
+  const products = searchQuery
+    ? allProducts.filter(p => matchesSearch(`${p.name} ${p.description || ''}`, searchQuery)).slice(0, 50)
+    : allProducts;
 
   const categories = await prisma.category.findMany({
     orderBy: { name: 'asc' }
@@ -166,6 +172,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
           categories={categories}
           currentFilter={filterType}
           currentCat={categoryId}
+          currentQuery={searchQuery}
         />
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-16">

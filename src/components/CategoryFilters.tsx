@@ -15,10 +15,25 @@ type Props = {
   categories: Category[];
   currentFilter?: string;
   currentCat?: string;
+  currentQuery?: string;
 };
 
-export default function CategoryFilters({ categories, currentFilter, currentCat }: Props) {
+export default function CategoryFilters({ categories, currentFilter, currentCat, currentQuery }: Props) {
   const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const q = (new FormData(e.currentTarget).get('q') as string || '').trim();
+
+    let url = window.location.pathname + '?';
+    if (currentFilter) url += `filter=${currentFilter}&`;
+    if (currentCat) url += `cat=${currentCat}&`;
+    if (q) url += `q=${encodeURIComponent(q)}&`;
+    url += '#catalogo';
+
+    // Hard reload (mesmo motivo do handleNavigation) e rola direto para os resultados
+    window.location.assign(url);
+  };
 
   const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, filter?: string, catId?: string) => {
     e.preventDefault();
@@ -76,12 +91,13 @@ export default function CategoryFilters({ categories, currentFilter, currentCat 
         </a>
       ))}
 
-      <form action="/" method="GET" className="relative flex items-center ml-2 group border-b border-zinc-200 pb-1">
+      <form action="/" method="GET" onSubmit={handleSearch} className="relative flex items-center ml-2 group border-b border-zinc-200 pb-1">
         {currentFilter && <input type="hidden" name="filter" value={currentFilter} />}
         {currentCat && <input type="hidden" name="cat" value={currentCat} />}
         <input 
           type="text" 
           name="q" 
+          defaultValue={currentQuery || ''}
           placeholder="Pesquisar..." 
           className="w-24 md:w-32 outline-none bg-transparent text-[11px] font-bold tracking-widest uppercase text-zinc-600 placeholder-zinc-300" 
         />

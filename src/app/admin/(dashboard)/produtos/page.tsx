@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { matchesSearch } from "@/lib/search";
 import Image from "next/image"
 import Link from "next/link"
 import { deleteProduct } from "../../actions"
@@ -47,8 +48,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   let products = allProducts;
 
   if (searchQuery) {
-    const lowerQ = searchQuery.toLowerCase();
-    products = products.filter(p => p.name.toLowerCase().includes(lowerQ));
+    products = products.filter(p => matchesSearch(p.name, searchQuery));
   }
 
   if (typeFilter === 'esgotados') {
