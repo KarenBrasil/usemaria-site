@@ -133,6 +133,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   src="/images/catalog/page-0003.jpg" 
                   alt="Tabela de Tamanhos" 
                   fill 
+                  sizes="384px"
                   className="object-contain mix-blend-multiply p-4" 
                 />
               </div>

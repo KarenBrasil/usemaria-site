@@ -97,6 +97,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
             src={safeSettings.hero1Image}
             alt={safeSettings.hero1Title}
             fill
+            sizes="(max-width: 768px) 100vw, 57vw"
             className="object-cover object-center"
             priority
           />
@@ -200,6 +201,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
                   src={product.image || "/images/catalog/page-0001.jpg"}
                   alt={product.name}
                   fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   className="object-cover object-[center_20%] mix-blend-multiply transition-transform duration-1000 ease-in-out group-hover:scale-105"
                 />
                 
@@ -258,16 +260,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="relative aspect-square bg-[#F5F3EF]">
-            <Image src="/images/catalog/page-0010.jpg" alt="Editorial 1" fill className="object-cover mix-blend-multiply" />
+            <Image src="/images/catalog/page-0010.jpg" alt="Editorial 1" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover mix-blend-multiply" />
           </div>
           <div className="relative aspect-square bg-[#F5F3EF]">
-            <Image src="/images/catalog/page-0015.jpg" alt="Editorial 2" fill className="object-cover mix-blend-multiply" />
+            <Image src="/images/catalog/page-0015.jpg" alt="Editorial 2" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover mix-blend-multiply" />
           </div>
           <div className="relative aspect-square bg-[#F5F3EF]">
-            <Image src="/images/catalog/page-0020.jpg" alt="Editorial 3" fill className="object-cover mix-blend-multiply" />
+            <Image src="/images/catalog/page-0020.jpg" alt="Editorial 3" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover mix-blend-multiply" />
           </div>
           <div className="relative aspect-square bg-[#F5F3EF]">
-            <Image src="/images/catalog/page-0025.jpg" alt="Editorial 4" fill className="object-cover mix-blend-multiply" />
+            <Image src="/images/catalog/page-0025.jpg" alt="Editorial 4" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover mix-blend-multiply" />
           </div>
         </div>
       </section>

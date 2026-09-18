@@ -99,7 +99,7 @@ export default function ProductForm({ initialData = null, action, categories = [
           <div className="flex flex-wrap gap-4 mb-4">
             {previewUrls.map((url, i) => (
               <div key={i} className="relative w-24 h-32 rounded-lg overflow-hidden border border-zinc-200 shadow-sm">
-                <Image src={url} alt={`Preview ${i}`} fill className="object-cover" />
+                <Image src={url} alt={`Preview ${i}`} fill sizes="96px" className="object-cover" />
                 <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-500 transition-colors">
                   &times;
                 </button>

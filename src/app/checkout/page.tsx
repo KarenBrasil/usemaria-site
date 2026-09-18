@@ -361,7 +361,7 @@ export default function CheckoutPage() {
                   return (
                     <div key={item.id} className="flex gap-4 items-center">
                       <div className="relative w-16 h-16 bg-zinc-100 shrink-0 border border-zinc-200 rounded-sm overflow-hidden">
-                        <Image src={item.image} alt={item.name} fill className="object-cover mix-blend-multiply" />
+                        <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover mix-blend-multiply" />
                       </div>
                       <div className="flex-1">
                         <h3 className="text-xs text-zinc-900 font-medium">{item.name}</h3>

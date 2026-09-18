@@ -21,6 +21,7 @@ export default function ProductImageZoom({ images, alt }: { images: string[], al
           src={currentImage}
           alt={alt}
           fill
+          sizes="(max-width: 1024px) 100vw, 640px"
           className="object-cover object-[center_20%] scale-[1.05] mix-blend-multiply transition-transform duration-700 ease-in-out group-hover:scale-[1.1]"
           priority
         />
@@ -46,6 +47,7 @@ export default function ProductImageZoom({ images, alt }: { images: string[], al
                 src={img} 
                 alt={`${alt} - Foto ${idx + 1}`} 
                 fill 
+                sizes="96px"
                 className="object-cover mix-blend-multiply"
               />
             </button>
@@ -64,6 +66,7 @@ export default function ProductImageZoom({ images, alt }: { images: string[], al
               src={currentImage}
               alt={alt}
               fill
+              sizes="(max-width: 896px) 100vw, 896px"
               className="object-contain scale-[1.05] object-[center_20%] mix-blend-multiply"
               priority
             />

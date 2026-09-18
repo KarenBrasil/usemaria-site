@@ -135,7 +135,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                 {/* Imagem */}
                 <div className="relative w-24 h-28 bg-zinc-100 rounded-xl overflow-hidden shrink-0 border border-zinc-100">
                   {p.image ? (
-                    <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <Image src={p.image} alt={p.name} fill sizes="96px" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-zinc-400 text-xs">Sem foto</div>
                   )}

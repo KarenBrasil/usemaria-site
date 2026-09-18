@@ -103,7 +103,7 @@ export default function CartDrawer() {
                     return (
                       <div key={item.id} className="flex gap-4">
                         <div className="relative w-20 h-24 bg-zinc-100 shrink-0">
-                          <Image src={item.image} alt={item.name} fill className="object-cover object-[center_20%] mix-blend-multiply" />
+                          <Image src={item.image} alt={item.name} fill sizes="96px" className="object-cover object-[center_20%] mix-blend-multiply" />
                         </div>
                         <div className="flex-1 flex flex-col justify-between">
                           <div>

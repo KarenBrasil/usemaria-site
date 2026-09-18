@@ -104,6 +104,7 @@ export default async function ColecoesPage({
                     src={product.image || "/images/catalog/page-0001.jpg"}
                     alt={product.name}
                     fill
+                    sizes="(max-width: 1024px) 50vw, 25vw"
                     className="object-cover object-[center_20%] scale-[1.3] mix-blend-multiply group-hover:scale-[1.4] transition-transform duration-700 ease-in-out"
                   />
                 </Link>
