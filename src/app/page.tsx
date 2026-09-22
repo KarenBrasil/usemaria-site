@@ -22,7 +22,20 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
       ...(filterType === 'novidade' ? { isNew: true } : {}),
       isDraft: false
     },
-    include: { sizes: true, category: true },
+    // Só os campos que o card usa. Puxar sizes/category/images[] inflava o
+    // payload de cada resposta sem nada disso aparecer na tela.
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      image: true,
+      price: true,
+      oldPrice: true,
+      wholesalePrice: true,
+      isNew: true,
+      isPromotion: true,
+      isWholesale: true,
+    },
     orderBy: { createdAt: 'desc' },
     // Sem busca, limita a 50. Com busca, filtra o catálogo inteiro para não perder resultados.
     ...(searchQuery ? {} : { take: 50 })

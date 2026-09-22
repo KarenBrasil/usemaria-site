@@ -26,7 +26,18 @@ export default async function ColecoesPage({
       ...(filterType === 'novidade' ? { isNew: true } : {}),
       isDraft: false
     },
-    include: { sizes: true },
+    // Só os campos que o card usa. Puxar sizes/images[] inflava o payload
+    // de cada resposta sem nada disso aparecer na tela.
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      image: true,
+      price: true,
+      wholesalePrice: true,
+      isNew: true,
+      isWholesale: true,
+    },
     orderBy: { createdAt: 'desc' }
   });
 
