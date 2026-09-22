@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { exigirAdmin } from "@/lib/admin-guard";
 import { logout } from "../login/actions";
 import { Metadata } from "next";
 
@@ -6,7 +7,9 @@ export const metadata: Metadata = {
   title: "Admin",
 };
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  await exigirAdmin()
+
   return (
     <div className="flex min-h-screen bg-[#f7f7f7] font-sans text-black selection:bg-black selection:text-white">
       <aside className="w-64 bg-white border-r border-zinc-200 flex-col hidden md:flex sticky top-0 h-screen shadow-[4px_0_24px_rgba(0,0,0,0.02)]">

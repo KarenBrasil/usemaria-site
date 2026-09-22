@@ -5,10 +5,12 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { Resend } from 'resend'
 import { enviarImagem } from "@/lib/upload-imagem"
+import { exigirAdmin } from "@/lib/admin-guard"
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder')
 
 export async function createCategory(formData: FormData) {
+  await exigirAdmin()
   const name = formData.get("name") as string
   if (name) {
     await prisma.category.create({ data: { name } })
@@ -18,12 +20,14 @@ export async function createCategory(formData: FormData) {
 }
 
 export async function deleteCategory(id: string) {
+  await exigirAdmin()
   await prisma.category.delete({ where: { id } })
   revalidatePath("/admin/categorias")
   revalidatePath("/")
 }
 
 export async function updateCategory(id: string, formData: FormData) {
+  await exigirAdmin()
   const name = formData.get("name") as string
   if (name) {
     await prisma.category.update({ where: { id }, data: { name } })
@@ -89,6 +93,7 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
 
 
 export async function createProduct(formData: FormData) {
+  await exigirAdmin()
   const name = formData.get("name") as string
   const priceStr = (formData.get("price") as string) || "0"
   const sanitizedPrice = priceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
@@ -162,6 +167,7 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function deleteProduct(id: string) {
+  await exigirAdmin()
   await prisma.product.delete({
     where: { id }
   })
@@ -172,6 +178,7 @@ export async function deleteProduct(id: string) {
 }
 
 export async function updateProduct(id: string, formData: FormData) {
+  await exigirAdmin()
   const name = formData.get("name") as string
   const priceStr = (formData.get("price") as string) || "0"
   const sanitizedPrice = priceStr.replace(/[^\d,.-]/g, '').replace(",", ".")
@@ -263,6 +270,7 @@ export async function updateProduct(id: string, formData: FormData) {
 }
 
 export async function updateOrderStatus(id: string, formData: FormData) {
+  await exigirAdmin()
   const status = formData.get("status") as string
   const paymentMethod = formData.get("paymentMethod") as string
   
@@ -285,6 +293,7 @@ export async function updateOrderStatus(id: string, formData: FormData) {
 }
 
 export async function confirmPixOrder(orderId: string) {
+  await exigirAdmin()
   const order = await prisma.order.findUnique({
     where: { id: orderId }
   });
@@ -313,6 +322,7 @@ export async function confirmPixOrder(orderId: string) {
 }
 
 export async function generateShippingLabel(orderId: string, shouldRevalidate = true) {
+  await exigirAdmin()
   // 1. Get the order with full address details
   const order = await prisma.order.findUnique({
     where: { id: orderId },
@@ -457,11 +467,13 @@ export async function generateShippingLabel(orderId: string, shouldRevalidate = 
 }
 
 export async function forceGenerateLabel(orderId: string) {
+  await exigirAdmin()
   const result = await generateShippingLabel(orderId, true);
   return result;
 }
 
 export async function deleteOrderAndRestoreStock(orderId: string) {
+  await exigirAdmin()
   try {
     const order = await prisma.order.findUnique({
       where: { id: orderId },

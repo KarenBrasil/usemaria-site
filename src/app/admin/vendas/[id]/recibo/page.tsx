@@ -1,8 +1,11 @@
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import PrintButton from "@/components/admin/PrintButton";
+import { exigirAdmin } from "@/lib/admin-guard";
 
 export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
+  await exigirAdmin()
+
   const resolvedParams = await params;
   const orderId = resolvedParams.id;
   

@@ -1,0 +1,26 @@
+# Configuracao da Netlify para a loja Use Maria (Next.js 16).
+# A Netlify detecta o Next.js sozinha, mas deixar explicito evita surpresa
+# em deploy futuro.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# As fotos do catalogo nunca mudam de conteudo (nome novo = arquivo novo).
+# Mesmo cache que estava no next.config.ts, repetido aqui porque na Netlify
+# os headers de arquivos estaticos passam por este arquivo.
+[[headers]]
+  for = "/novas-pecas/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
