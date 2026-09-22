@@ -8,7 +8,28 @@ import ProductImageZoom from "@/components/ProductImageZoom";
 import AddToCartSection from "@/components/AddToCartSection";
 import TrackViewContent from "@/components/TrackViewContent";
 
-export const dynamic = 'force-dynamic';
+// Pagina de produto fica pronta na CDN e so e refeita a cada 5 min.
+// O estoque final e sempre revalidado ao vivo em /api/cart/reserve,
+// entao nao ha risco de vender o que nao tem.
+export const revalidate = 300;
+
+// Gera as paginas dos produtos no momento do deploy. Assim a visita do
+// cliente e servida direto pela CDN, sem acordar servidor nem consultar o
+// banco. Produto novo criado depois do deploy continua funcionando: ele e
+// montado na primeira visita e guardado a partir dai.
+export async function generateStaticParams() {
+  try {
+    const produtos = await prisma.product.findMany({
+      where: { isDraft: false },
+      select: { id: true },
+    })
+    return produtos.map((p) => ({ id: p.id }))
+  } catch {
+    // Se o banco nao responder durante o build, nao quebra o deploy:
+    // as paginas passam a ser montadas sob demanda.
+    return []
+  }
+}
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;

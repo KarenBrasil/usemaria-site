@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        // Fotos enviadas pelo painel admin vao para o Storage do Supabase.
+        // Sem isto o next/image recusa a URL e a foto nao aparece.
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
     ],
     // Cache de 31 dias na imagem otimizada: evita reprocessar/retransferir
     // a mesma imagem a cada poucas horas (origin transfer).
@@ -29,6 +35,26 @@ const nextConfig: NextConfig = {
   },
   turbopack: {
     root: path.resolve(__dirname),
+  },
+
+  // As fotos do catalogo nunca mudam de conteudo (nome novo = arquivo novo),
+  // entao o navegador e a CDN podem guardar por 1 ano. Cada visita repetida
+  // deixa de baixar tudo de novo.
+  async headers() {
+    return [
+      {
+        source: '/novas-pecas/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
   },
 };
 

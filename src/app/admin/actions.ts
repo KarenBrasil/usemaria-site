@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { Resend } from 'resend'
+import { enviarImagem } from "@/lib/upload-imagem"
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder')
 
@@ -86,7 +87,6 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
   }).catch(console.error);
 }
 
-import { getSupabaseClient } from "@/lib/supabase"
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string
@@ -122,38 +122,8 @@ export async function createProduct(formData: FormData) {
   for (const file of newImages) {
     if (file && file.size > 0) {
       try {
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-        const filePath = `products/${fileName}`
-
-        let uploadedToSupabase = false;
-        try {
-          const supabase = getSupabaseClient()
-          const { data, error } = await supabase.storage
-            .from('products')
-            .upload(filePath, file, {
-              cacheControl: '3600',
-              upsert: false,
-            })
-
-          if (!error) {
-            const { data: publicUrlData } = supabase.storage
-              .from('products')
-              .getPublicUrl(filePath)
-            uploadedUrls.push(publicUrlData.publicUrl)
-            uploadedToSupabase = true;
-          }
-        } catch (e) {
-          console.warn("Aviso: Falha ao acessar Supabase Storage (provável falta de senhas na Vercel). Usando armazenamento em Banco de Dados como fallback seguro.");
-        }
-
-        if (!uploadedToSupabase) {
-          const arrayBuffer = await file.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-          const base64Data = buffer.toString('base64');
-          const dataUrl = `data:${file.type || 'image/jpeg'};base64,${base64Data}`;
-          uploadedUrls.push(dataUrl);
-        }
+        const url = await enviarImagem(file)
+        if (url) uploadedUrls.push(url)
       } catch (e) {
         console.error("Erro fatal no processamento da imagem:", e)
       }
@@ -197,6 +167,8 @@ export async function deleteProduct(id: string) {
   })
   revalidatePath("/admin/produtos")
   revalidatePath("/")
+  revalidatePath("/colecoes")
+  revalidatePath(`/product/${id}`)
 }
 
 export async function updateProduct(id: string, formData: FormData) {
@@ -239,38 +211,8 @@ export async function updateProduct(id: string, formData: FormData) {
   for (const file of newImages) {
     if (file && file.size > 0) {
       try {
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-        const filePath = `products/${fileName}`
-
-        let uploadedToSupabase = false;
-        try {
-          const supabase = getSupabaseClient()
-          const { data, error } = await supabase.storage
-            .from('products')
-            .upload(filePath, file, {
-              cacheControl: '3600',
-              upsert: false,
-            })
-
-          if (!error) {
-            const { data: publicUrlData } = supabase.storage
-              .from('products')
-              .getPublicUrl(filePath)
-            uploadedUrls.push(publicUrlData.publicUrl)
-            uploadedToSupabase = true;
-          }
-        } catch (e) {
-          console.warn("Aviso: Falha ao acessar Supabase Storage (provável falta de senhas na Vercel). Usando armazenamento em Banco de Dados como fallback seguro.");
-        }
-
-        if (!uploadedToSupabase) {
-          const arrayBuffer = await file.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-          const base64Data = buffer.toString('base64');
-          const dataUrl = `data:${file.type || 'image/jpeg'};base64,${base64Data}`;
-          uploadedUrls.push(dataUrl);
-        }
+        const url = await enviarImagem(file)
+        if (url) uploadedUrls.push(url)
       } catch (e) {
         console.error("Erro fatal no processamento da imagem:", e)
       }
@@ -313,6 +255,10 @@ export async function updateProduct(id: string, formData: FormData) {
 
   revalidatePath("/admin/produtos")
   revalidatePath("/")
+  revalidatePath("/colecoes")
+  // A pagina do produto fica guardada na CDN; sem isto a edicao demoraria
+  // ate 5 min para aparecer para o cliente.
+  revalidatePath(`/product/${id}`)
   redirect("/admin/produtos?success=updated")
 }
 
