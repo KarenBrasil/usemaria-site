@@ -86,9 +86,9 @@ export default async function AdminOverview({ searchParams }: { searchParams: Pr
   const revenue = approvedOrders.reduce((acc, o) => acc + o.total, 0);
   const ticket = approvedOrders.length > 0 ? revenue / approvedOrders.length : 0;
   const itemsSold = approvedOrders.reduce((acc, o) => acc + o.items.reduce((a, i) => a + i.quantity, 0), 0);
-  const valorPendente = pendentes.reduce((acc, o) => acc + o.total, 0);
   const taxaAprovacao = orders.length > 0 ? Math.round((approvedOrders.length / orders.length) * 100) : 0;
-  const recentOrders = orders.slice(0, 6);
+  const LINHAS = 3; // cada painel mostra só as 3 primeiras
+  const recentOrders = orders.slice(0, LINHAS);
 
   const salesByProduct = new Map<string, { name: string; qty: number; revenue: number }>();
   for (const o of approvedOrders) {
@@ -100,7 +100,7 @@ export default async function AdminOverview({ searchParams }: { searchParams: Pr
       salesByProduct.set(key, entry);
     }
   }
-  const topProducts = [...salesByProduct.values()].sort((a, b) => b.qty - a.qty).slice(0, 6);
+  const topProducts = [...salesByProduct.values()].sort((a, b) => b.qty - a.qty).slice(0, LINHAS);
 
   // ---------- Catálogo e estoque (não depende do período) ----------
   const ativos = produtos.filter(p => !p.isDraft);
@@ -116,16 +116,8 @@ export default async function AdminOverview({ searchParams }: { searchParams: Pr
         .filter(s => s.stock > 0)
         .sort((a, b) => (ORDEM_TAM[a.size] || 99) - (ORDEM_TAM[b.size] || 99)),
     }));
-  const semFoto = ativos.filter(p => !p.image).length;
   const rascunhos = produtos.length - ativos.length;
   const unidadesEmEstoque = ativos.reduce((acc, p) => acc + totalDe(p), 0);
-
-  const alertas = [
-    pendentes.length > 0 && { href: '/admin/vendas?status=PENDING', cls: 'bg-amber-50 border-amber-200 text-amber-800', texto: `${pendentes.length} ${pendentes.length === 1 ? 'pedido aguardando' : 'pedidos aguardando'} pagamento (${money(valorPendente)})` },
-    esgotadas.length > 0 && { href: '/admin/produtos?filter=esgotados', cls: 'bg-red-50 border-red-200 text-red-700', texto: `${esgotadas.length} ${esgotadas.length === 1 ? 'peça esgotada' : 'peças esgotadas'}` },
-    baixoEstoque.length > 0 && { href: '/admin/produtos?filter=baixo_estoque', cls: 'bg-orange-50 border-orange-200 text-orange-800', texto: `${baixoEstoque.length} ${baixoEstoque.length === 1 ? 'peça' : 'peças'} na última unidade` },
-    semFoto > 0 && { href: '/admin/produtos', cls: 'bg-zinc-50 border-zinc-200 text-zinc-700', texto: `${semFoto} ${semFoto === 1 ? 'peça' : 'peças'} sem foto` },
-  ].filter(Boolean) as { href: string; cls: string; texto: string }[];
 
   return (
     <div className="max-w-[1200px] flex flex-col gap-6">
@@ -176,17 +168,6 @@ export default async function AdminOverview({ searchParams }: { searchParams: Pr
         <Kpi titulo="Não concluídos" valor={String(pendentes.length + cancelados.length)} detalhe={`${pendentes.length} aguardando · ${cancelados.length} cancelados`} href="/admin/vendas?status=CANCELLED" />
       </div>
 
-      {/* PRECISA DE ATENÇÃO */}
-      {alertas.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {alertas.map(a => (
-            <Link key={a.texto} href={a.href} className={`text-xs font-semibold border rounded-full px-4 py-2 hover:shadow-sm transition-shadow ${a.cls}`}>
-              {a.texto} →
-            </Link>
-          ))}
-        </div>
-      )}
-
       {/* PEDIDOS + MAIS VENDIDOS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
         <Painel titulo="Últimos pedidos" acao={{ href: '/admin/vendas', label: 'Ver todos' }}>
@@ -236,7 +217,7 @@ export default async function AdminOverview({ searchParams }: { searchParams: Pr
         <Painel titulo={`Esgotadas (${esgotadas.length})`} acao={{ href: '/admin/produtos?filter=esgotados', label: 'Ver todas' }}>
           {esgotadas.length === 0 ? <Vazio texto="Nenhuma peça esgotada." /> : (
             <ul className="divide-y divide-zinc-100">
-              {esgotadas.slice(0, 6).map(p => (
+              {esgotadas.slice(0, LINHAS).map(p => (
                 <li key={p.id}>
                   <Link href={`/admin/produtos/${p.id}/editar`} className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-zinc-50">
                     <p className="text-sm font-medium text-zinc-900 truncate">{p.name}</p>
@@ -253,7 +234,7 @@ export default async function AdminOverview({ searchParams }: { searchParams: Pr
         <Painel titulo={`Última unidade (${baixoEstoque.length})`} acao={{ href: '/admin/produtos?filter=baixo_estoque', label: 'Ver todas' }}>
           {baixoEstoque.length === 0 ? <Vazio texto="Nenhuma peça na última unidade." /> : (
             <ul className="divide-y divide-zinc-100">
-              {baixoEstoque.slice(0, 6).map(p => (
+              {baixoEstoque.slice(0, LINHAS).map(p => (
                 <li key={p.id}>
                   <Link href={`/admin/produtos/${p.id}/editar`} className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-zinc-50">
                     <p className="text-sm font-medium text-zinc-900 truncate">{p.name}</p>
