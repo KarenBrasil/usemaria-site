@@ -189,19 +189,16 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
       {situacao === 'indisponivel' && (
         <div className="mb-6 border border-zinc-200 bg-zinc-50 rounded-xl p-5 text-center">
           <p className="text-sm font-bold text-zinc-900 uppercase tracking-widest">Peça indisponível no momento</p>
-          <p className="text-xs text-zinc-500 mt-2">Em breve ela volta. Fale com a gente no WhatsApp para saber quando.</p>
         </div>
       )}
       {situacao === 'esgotada' && (
         <div className="mb-6 border border-red-200 bg-red-50 rounded-xl p-5 text-center">
           <p className="text-sm font-bold text-red-600 uppercase tracking-widest">Esgotada</p>
-          <p className="text-xs text-red-500/80 mt-2">Todos os tamanhos desta estampa acabaram. Fale com a gente no WhatsApp para saber da reposição.</p>
         </div>
       )}
       {situacao === 'so_atacado' && (
         <div className="mb-6 border border-amber-200 bg-amber-50 rounded-xl p-5 text-center">
-          <p className="text-sm font-bold text-amber-800 uppercase tracking-widest">Apenas no atacado, sob encomenda</p>
-          <p className="text-xs text-amber-700 mt-2">Esta estampa está sem estoque no varejo. No atacado ela é produzida sob encomenda (mínimo de 10 peças, produção em 5 dias).</p>
+          <p className="text-sm font-bold text-amber-800 uppercase tracking-widest">Esgotada no varejo · apenas por encomenda no atacado</p>
         </div>
       )}
 
@@ -249,6 +246,11 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
             <span className="text-xs uppercase tracking-widest font-semibold">{multiColor ? "2. Escolha as Cores e Quantidade" : "2. Quantidade"}</span>
           </div>
 
+          {product.isWholesale && (sizesMap.get(selectedSize) || []).some(v => v.stock === 0) && (
+            <p className="mb-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              Sob encomenda: pedido mínimo de 10 peças no total e produção em 5 dias úteis.
+            </p>
+          )}
           <div className="flex flex-col gap-3 bg-zinc-50 border border-zinc-100 p-4 rounded-xl">
             {(sizesMap.get(selectedSize) || []).map((variant) => {
               const qty = colorQuantities[variant.color] || 0;
