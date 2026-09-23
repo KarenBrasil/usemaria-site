@@ -1,7 +1,8 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, updateTag } from "next/cache"
+import { TAG_CATALOGO } from "@/lib/catalogo"
 import { redirect } from "next/navigation"
 import { Resend } from 'resend'
 import { enviarImagem } from "@/lib/upload-imagem"
@@ -15,6 +16,7 @@ export async function createCategory(formData: FormData) {
   if (name) {
     await prisma.category.create({ data: { name } })
     revalidatePath("/admin/categorias")
+    updateTag(TAG_CATALOGO)
     revalidatePath("/")
   }
 }
@@ -23,6 +25,7 @@ export async function deleteCategory(id: string) {
   await exigirAdmin()
   await prisma.category.delete({ where: { id } })
   revalidatePath("/admin/categorias")
+  updateTag(TAG_CATALOGO)
   revalidatePath("/")
 }
 
@@ -32,6 +35,7 @@ export async function updateCategory(id: string, formData: FormData) {
   if (name) {
     await prisma.category.update({ where: { id }, data: { name } })
     revalidatePath("/admin/categorias")
+    updateTag(TAG_CATALOGO)
     revalidatePath("/")
   }
 }
@@ -126,12 +130,8 @@ export async function createProduct(formData: FormData) {
   
   for (const file of newImages) {
     if (file && file.size > 0) {
-      try {
-        const url = await enviarImagem(file)
-        if (url) uploadedUrls.push(url)
-      } catch (e) {
-        console.error("Erro fatal no processamento da imagem:", e)
-      }
+      // Se o upload falhar, o erro sobe e o produto NAO e salvo sem foto.
+      uploadedUrls.push(await enviarImagem(file))
     }
   }
 
@@ -162,6 +162,7 @@ export async function createProduct(formData: FormData) {
   })
   
   revalidatePath("/admin/produtos")
+  updateTag(TAG_CATALOGO)
   revalidatePath("/")
   redirect("/admin/produtos?success=created")
 }
@@ -172,6 +173,7 @@ export async function deleteProduct(id: string) {
     where: { id }
   })
   revalidatePath("/admin/produtos")
+  updateTag(TAG_CATALOGO)
   revalidatePath("/")
   revalidatePath("/colecoes")
   revalidatePath(`/product/${id}`)
@@ -217,12 +219,8 @@ export async function updateProduct(id: string, formData: FormData) {
   
   for (const file of newImages) {
     if (file && file.size > 0) {
-      try {
-        const url = await enviarImagem(file)
-        if (url) uploadedUrls.push(url)
-      } catch (e) {
-        console.error("Erro fatal no processamento da imagem:", e)
-      }
+      // Se o upload falhar, o erro sobe e o produto NAO e salvo sem foto.
+      uploadedUrls.push(await enviarImagem(file))
     }
   }
 
@@ -261,6 +259,7 @@ export async function updateProduct(id: string, formData: FormData) {
   }
 
   revalidatePath("/admin/produtos")
+  updateTag(TAG_CATALOGO)
   revalidatePath("/")
   revalidatePath("/colecoes")
   // A pagina do produto fica guardada na CDN; sem isto a edicao demoraria

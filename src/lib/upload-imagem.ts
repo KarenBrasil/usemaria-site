@@ -8,15 +8,13 @@ import { getSupabaseClient } from '@/lib/supabase'
  * Uma foto em base64 no banco viaja inteira dentro do HTML em TODA visita do
  * site, o que estoura a cota de transferencia da Vercel muito rapido.
  *
- * Ordem: 1) comprime  2) manda pro Supabase Storage  3) se falhar, base64 pequeno.
+ * Ordem: 1) comprime  2) manda pro Supabase Storage  3) se falhar, da erro.
  */
 
 const LARGURA_MAX = 1200
 const QUALIDADE = 80
-// Acima disso NAO vai para o banco de jeito nenhum.
-const LIMITE_BASE64 = 200 * 1024
 
-export async function enviarImagem(file: File): Promise<string | null> {
+export async function enviarImagem(file: File): Promise<string> {
   const original = Buffer.from(await file.arrayBuffer())
 
   // 1) Comprime: reduz para no maximo 1200px de largura e converte para webp.
@@ -58,12 +56,8 @@ export async function enviarImagem(file: File): Promise<string | null> {
     console.error('[upload] Supabase Storage indisponivel:', e instanceof Error ? e.message : e)
   }
 
-  // 3) Ultimo recurso: base64, e somente se ficou pequeno depois da compressao.
-  if (imagem.length <= LIMITE_BASE64) {
-    console.warn(`[upload] Salvando em base64 (${Math.round(imagem.length / 1024)} KB). Configure o bucket "products" no Supabase para parar com isto.`)
-    return `data:image/webp;base64,${imagem.toString('base64')}`
-  }
-
-  console.error(`[upload] Foto descartada: ${Math.round(imagem.length / 1024)} KB e grande demais para o banco e o Supabase Storage falhou.`)
-  return null
+  // Sem fallback em base64: foto dentro do banco estoura a cota de saida do
+  // Supabase (foi o que bloqueou o projeto). Melhor falhar alto e o admin
+  // tentar de novo do que engordar cada visita do site.
+  throw new Error('Nao foi possivel salvar a foto no Supabase Storage. Confira se o bucket "products" existe e e publico, e tente de novo.')
 }

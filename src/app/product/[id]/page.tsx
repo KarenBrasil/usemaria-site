@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
+import { getConfiguracoes } from "@/lib/catalogo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductImageZoom from "@/components/ProductImageZoom";
@@ -42,7 +43,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     notFound();
   }
 
-  const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
+  const settings = await getConfiguracoes()
   const defaultSettings = settings || {
     storeName: "USE MARIA",
     whatsappNumber: "5585992659192"

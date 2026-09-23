@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import prisma from "@/lib/prisma";
+import { getCatalogo, getCategorias, getConfiguracoes, filtrarCatalogo } from "@/lib/catalogo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoryFilters from "@/components/CategoryFilters";
@@ -18,45 +18,21 @@ export default async function ColecoesPage({
   const categoryId = resolvedSearchParams?.cat;
   const filterType = resolvedSearchParams?.filter;
 
-  const allProducts = await prisma.product.findMany({
-    where: {
-      ...(categoryId ? { categoryId } : {}),
-      ...(filterType === 'atacado' ? { isWholesale: true } : {}),
-      ...(filterType === 'promocao' ? { isPromotion: true } : {}),
-      ...(filterType === 'novidade' ? { isNew: true } : {}),
-      isDraft: false
-    },
-    // Só os campos que o card usa. Puxar sizes/images[] inflava o payload
-    // de cada resposta sem nada disso aparecer na tela.
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      image: true,
-      price: true,
-      wholesalePrice: true,
-      isNew: true,
-      isWholesale: true,
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+  // Catálogo vem do cache (src/lib/catalogo.ts): o banco não é consultado a cada visita.
+  const [catalogo, categories, settings] = await Promise.all([getCatalogo(), getCategorias(), getConfiguracoes()]);
+  const allProducts = filtrarCatalogo(catalogo, { categoryId, filterType });
 
   // Busca em memória ignorando acentos ("sao miguel" acha "SÃO MIGUEL")
   const products = query
     ? allProducts.filter(p => matchesSearch(`${p.name} ${p.description || ''}`, query))
     : allProducts;
 
-  const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
   const defaultSettings = settings || {
     storeName: "USE MARIA",
     whatsappNumber: "5585992659192",
     instagramUrl: "#",
     tiktokUrl: "#"
   }
-
-  const categories = await prisma.category.findMany({
-    orderBy: { name: 'asc' }
-  });
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white text-black">

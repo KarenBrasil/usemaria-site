@@ -44,3 +44,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# Chaves para colar na Netlify (nunca subir)
+CHAVES-NETLIFY-*

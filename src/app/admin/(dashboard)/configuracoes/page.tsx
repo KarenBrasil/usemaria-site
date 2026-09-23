@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, updateTag } from "next/cache"
+import { TAG_CONFIG } from "@/lib/catalogo"
 import { redirect } from "next/navigation"
 import SubmitButton from "@/components/admin/SubmitButton"
 
@@ -66,6 +67,7 @@ export default async function SettingsPage() {
       create: { id: "default", ...data } as any
     })
 
+    updateTag(TAG_CONFIG)
     revalidatePath('/') // Revalida a home pública
     revalidatePath('/admin/configuracoes') // Revalida a página atual
   }

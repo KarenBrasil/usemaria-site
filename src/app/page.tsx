@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import prisma from "@/lib/prisma";
+import { getCatalogo, getCategorias, getConfiguracoes, filtrarCatalogo } from "@/lib/catalogo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoryFilters from "@/components/CategoryFilters";
@@ -14,43 +14,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
   const searchQuery = resolvedParams.q;
   const filterType = resolvedParams.filter; // 'atacado', 'promocao', 'novidade'
 
-  const allProducts = await prisma.product.findMany({
-    where: {
-      ...(categoryId ? { categoryId } : {}),
-      ...(filterType === 'atacado' ? { isWholesale: true } : {}),
-      ...(filterType === 'promocao' ? { isPromotion: true } : {}),
-      ...(filterType === 'novidade' ? { isNew: true } : {}),
-      isDraft: false
-    },
-    // Só os campos que o card usa. Puxar sizes/category/images[] inflava o
-    // payload de cada resposta sem nada disso aparecer na tela.
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      image: true,
-      price: true,
-      oldPrice: true,
-      wholesalePrice: true,
-      isNew: true,
-      isPromotion: true,
-      isWholesale: true,
-    },
-    orderBy: { createdAt: 'desc' },
-    // Sem busca, limita a 50. Com busca, filtra o catálogo inteiro para não perder resultados.
-    ...(searchQuery ? {} : { take: 50 })
-  });
+  // Catálogo vem do cache (src/lib/catalogo.ts): o banco não é consultado a cada visita.
+  const [catalogo, categories, settings] = await Promise.all([getCatalogo(), getCategorias(), getConfiguracoes()]);
+  const allProducts = filtrarCatalogo(catalogo, { categoryId, filterType });
 
-  // Busca em memória ignorando acentos ("sao miguel" acha "SÃO MIGUEL")
-  const products = searchQuery
-    ? allProducts.filter(p => matchesSearch(`${p.name} ${p.description || ''}`, searchQuery)).slice(0, 50)
-    : allProducts;
-
-  const categories = await prisma.category.findMany({
-    orderBy: { name: 'asc' }
-  });
-
-  const settings = await prisma.storeSettings.findUnique({ where: { id: "default" } })
+  // Busca em memória ignorando acentos ("sao miguel" acha "SÃO MIGUEL"). Limite de 50 cards.
+  const products = (searchQuery
+    ? allProducts.filter(p => matchesSearch(`${p.name} ${p.description || ''}`, searchQuery))
+    : allProducts
+  ).slice(0, 50);
   const defaultSettings = settings || {
     storeName: "USE MARIA",
     hero1Title: "Vista Sua Fé",

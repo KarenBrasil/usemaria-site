@@ -72,9 +72,13 @@ export default function ProductForm({ initialData = null, action, categories = [
       formData.append("variants", JSON.stringify(variants));
       formData.append("existingImages", JSON.stringify(previewUrls.filter(url => !url.startsWith("blob:"))));
       
+      // Comprime no celular/computador antes de enviar: o servidor tem limite
+      // de tamanho por envio e a foto final nunca passa de 1200px mesmo.
       const compressOptions = {
-        maxSizeMB: 0.8,
-        maxWidthOrHeight: 1920,
+        maxSizeMB: 0.4,
+        maxWidthOrHeight: 1200,
+        fileType: 'image/webp',
+        initialQuality: 0.85,
         useWebWorker: true
       };
 
