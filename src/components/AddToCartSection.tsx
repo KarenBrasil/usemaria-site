@@ -71,7 +71,9 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
 
   const handleSizeSelect = (size: string) => {
     setSelectedSize(size);
-    setColorQuantities({});
+    // Cor única: já deixa 1 unidade pronta para ir ao carrinho.
+    const unica = !multiColor ? (sizesMap.get(size) || [])[0] : undefined;
+    setColorQuantities(unica && (unica.stock > 0 || product.isWholesale) ? { [unica.color]: 1 } : {});
     setError(null);
   };
 
@@ -241,43 +243,51 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
       )}
 
       {selectedSize && (
-        <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-xs uppercase tracking-widest font-semibold">{multiColor ? "2. Escolha as Cores e Quantidade" : "2. Quantidade"}</span>
-          </div>
-
+        <div className="mb-6 animate-in fade-in duration-200">
           {product.isWholesale && (sizesMap.get(selectedSize) || []).some(v => v.stock === 0) && (
             <p className="mb-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
               Sob encomenda: pedido mínimo de 10 peças no total e produção em 5 dias úteis.
             </p>
           )}
-          <div className="flex flex-col gap-3 bg-zinc-50 border border-zinc-100 p-4 rounded-xl">
+
+          {multiColor && (
+            <span className="block text-xs uppercase tracking-widest font-semibold mb-2">2. Cor e quantidade</span>
+          )}
+
+          <div className={multiColor ? "border border-zinc-200 rounded-xl divide-y divide-zinc-100" : ""}>
             {(sizesMap.get(selectedSize) || []).map((variant) => {
               const qty = colorQuantities[variant.color] || 0;
               const max = product.isWholesale ? 100 : variant.stock;
               const semEstoque = variant.stock === 0;
+              const bloqueado = semEstoque && !product.isWholesale;
               return (
-                <div key={variant.id} className={`flex items-center justify-between bg-white border border-zinc-200 p-3 rounded-lg shadow-sm ${semEstoque && !product.isWholesale ? 'opacity-50' : ''}`}>
-                  <div className="flex flex-col">
-                    {multiColor && <span className="text-sm font-bold text-zinc-900 capitalize">{variant.color}</span>}
-                    <span className={`text-[10px] uppercase tracking-wider ${semEstoque ? (product.isWholesale ? 'text-amber-600 font-bold' : 'text-red-500 font-bold') : 'text-zinc-400'}`}>
-                      {semEstoque ? (product.isWholesale ? "Sob Encomenda (Atacado)" : "Esgotado") : "Disponível"}
+                <div key={variant.id} className={`flex items-center justify-between gap-4 ${multiColor ? 'px-4 py-2.5' : ''} ${bloqueado ? 'opacity-50' : ''}`}>
+                  <div className="flex items-baseline gap-2 min-w-0">
+                    <span className={`text-sm capitalize truncate ${multiColor ? 'font-semibold text-zinc-900' : 'text-xs uppercase tracking-widest font-semibold'}`}>
+                      {multiColor ? variant.color : '2. Quantidade'}
                     </span>
+                    {semEstoque && (
+                      <span className={`text-[10px] uppercase tracking-wider font-bold ${product.isWholesale ? 'text-amber-600' : 'text-red-500'}`}>
+                        {product.isWholesale ? 'encomenda' : 'esgotado'}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="inline-flex items-center border border-zinc-200 rounded-full h-9 shrink-0">
                     <button
                       onClick={() => handleQuantityChange(variant.color, -1, variant.stock)}
                       disabled={qty === 0}
-                      className="w-8 h-8 flex items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-zinc-600 disabled:opacity-50"
+                      aria-label="Diminuir"
+                      className="w-9 h-full flex items-center justify-center text-zinc-600 hover:text-black disabled:opacity-30"
                     >
-                      -
+                      −
                     </button>
-                    <span className="text-sm font-bold w-4 text-center">{qty}</span>
+                    <span className="text-sm font-bold w-6 text-center">{qty}</span>
                     <button
                       onClick={() => handleQuantityChange(variant.color, 1, variant.stock)}
                       disabled={qty >= max}
-                      className="w-8 h-8 flex items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-zinc-600 disabled:opacity-50"
+                      aria-label="Aumentar"
+                      className="w-9 h-full flex items-center justify-center text-zinc-600 hover:text-black disabled:opacity-30"
                     >
                       +
                     </button>

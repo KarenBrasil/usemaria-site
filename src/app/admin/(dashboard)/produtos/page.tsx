@@ -21,12 +21,12 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   // Métricas contam PEÇAS (produtos), não linhas de tamanho.
   // Esgotada: soma do estoque (no tamanho filtrado) = 0, inclusive peça sem tamanho cadastrado.
-  // Baixo estoque: não esgotada, mas algum tamanho com 1 ou 2 unidades.
+  // Última unidade: só 1 unidade no total (no tamanho filtrado).
   const doFiltro = (s: { size: string }) => sizeFilter === 'all' || s.size === sizeFilter;
   const estaEsgotada = (p: typeof allProducts[number]) =>
     p.sizes.filter(doFiltro).reduce((acc, s) => acc + s.stock, 0) <= 0;
   const temBaixoEstoque = (p: typeof allProducts[number]) =>
-    !estaEsgotada(p) && p.sizes.some(s => doFiltro(s) && s.stock > 0 && s.stock < 3);
+    p.sizes.filter(doFiltro).reduce((acc, s) => acc + s.stock, 0) === 1;
 
   let totalItems = 0;
   const sizeCounts: Record<string, number> = {};
@@ -105,7 +105,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <p className="text-3xl font-black tracking-tighter">{outOfStock}</p>
         </Link>
         <Link href={`/admin/produtos?filter=baixo_estoque&size=${sizeFilter}&q=${searchQuery}`} className={`border p-5 rounded-xl shadow-sm transition-all ${typeFilter === 'baixo_estoque' ? 'bg-amber-900 border-amber-900 text-white' : 'bg-amber-50 border-amber-200 text-amber-800 hover:border-amber-300'}`}>
-          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'baixo_estoque' ? 'text-amber-300' : 'text-amber-800'}`}>Peças com estoque baixo</p>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'baixo_estoque' ? 'text-amber-300' : 'text-amber-800'}`}>Última unidade</p>
           <p className="text-3xl font-black tracking-tighter">{lowStock}</p>
         </Link>
       </div>
