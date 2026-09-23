@@ -46,7 +46,9 @@ export async function POST(request: Request) {
           return NextResponse.json({ error: `Tamanho ${item.size} / Cor ${itemColor} do produto não encontrado.` }, { status: 404 });
         }
 
-        const isItemWholesale = isWholesaleOrder && product?.isWholesale;
+        // Encomenda de atacado (peça esgotada) entra no carrinho sem reservar
+        // estoque; o checkout só libera quando o carrinho chega a 10 peças.
+        const isItemWholesale = product?.isWholesale && (isWholesaleOrder || item.isPreOrder);
 
         if (!isItemWholesale) {
           // Soma as reservas ATIVAS de OUTROS usuários para este productSizeId

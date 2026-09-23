@@ -52,12 +52,23 @@ export default function ProductForm({ initialData = null, action, categories = [
     }
   };
 
+  // Estoque 0 e permitido: a peca aparece como esgotada no varejo e fica
+  // disponivel por encomenda se for de atacado.
+  // Mesmo tamanho + cor nao pode repetir (o banco recusa), entao atualiza o existente.
   const addVariant = () => {
-    if (newStock > 0) {
-      setVariants(prev => [...prev, { size: selectedSize, color: newColor.trim() || "Padrão", stock: newStock }]);
-      setNewColor("Padrão");
-      setNewStock(1);
-    }
+    const color = newColor.trim() || "Padrão";
+    const stock = Math.max(0, newStock);
+    setVariants(prev => {
+      const i = prev.findIndex(v => v.size === selectedSize && v.color.toLowerCase() === color.toLowerCase());
+      if (i >= 0) return prev.map((v, j) => (j === i ? { ...v, stock } : v));
+      return [...prev, { size: selectedSize, color, stock }];
+    });
+    setNewColor("Padrão");
+    setNewStock(1);
+  };
+
+  const updateVariantStock = (index: number, stock: number) => {
+    setVariants(prev => prev.map((v, i) => (i === index ? { ...v, stock: Math.max(0, stock) } : v)));
   };
 
   const removeVariant = (index: number) => {
@@ -178,8 +189,17 @@ export default function ProductForm({ initialData = null, action, categories = [
                   <span className="w-8 h-8 flex items-center justify-center bg-white border border-zinc-200 rounded-lg text-xs font-bold shadow-sm">{v.size}</span>
                   <span className="text-sm font-medium text-zinc-700">{v.color}</span>
                 </div>
-                <div className="flex gap-4 items-center">
-                  <span className="text-xs font-bold text-zinc-500">{v.stock} unid.</span>
+                <div className="flex gap-3 items-center">
+                  {v.stock === 0 && <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded">Esgotado</span>}
+                  <input
+                    type="number"
+                    min="0"
+                    value={v.stock}
+                    onChange={(e) => updateVariantStock(i, parseInt(e.target.value) || 0)}
+                    className="w-16 p-1.5 bg-white border border-zinc-200 rounded-lg text-xs font-bold text-center outline-none"
+                    aria-label={`Estoque ${v.size} ${v.color}`}
+                  />
+                  <span className="text-xs text-zinc-500">unid.</span>
                   <button type="button" onClick={() => removeVariant(i)} className="text-red-500 hover:text-red-700 p-1">
                     &times;
                   </button>
@@ -204,7 +224,7 @@ export default function ProductForm({ initialData = null, action, categories = [
             </div>
             <div className="flex flex-col gap-2 md:col-span-2">
               <label className="text-[11px] font-semibold text-zinc-600">Qtd</label>
-              <input type="number" min="1" value={newStock} onChange={(e) => setNewStock(parseInt(e.target.value) || 1)} className="p-2.5 bg-white border border-zinc-200 rounded-lg outline-none text-sm text-center" />
+              <input type="number" min="0" value={newStock} onChange={(e) => setNewStock(parseInt(e.target.value) || 0)} className="p-2.5 bg-white border border-zinc-200 rounded-lg outline-none text-sm text-center" />
             </div>
             <div className="md:col-span-3">
               <button type="button" onClick={addVariant} className="w-full bg-black text-white px-3 py-2.5 rounded-lg text-xs tracking-widest font-bold hover:bg-zinc-800 transition-colors uppercase border border-black h-full flex items-center justify-center">
@@ -212,7 +232,7 @@ export default function ProductForm({ initialData = null, action, categories = [
               </button>
             </div>
           </div>
-          <p className="text-[10px] text-amber-700 italic">Preencha o tamanho/cor e clique em "Adicionar +" para inserir na grade antes de salvar o produto.</p>
+          <p className="text-[10px] text-amber-700 italic">Preencha o tamanho/cor e clique em "Adicionar +" para inserir na grade antes de salvar o produto. Pode cadastrar com quantidade 0: a peça aparece esgotada no varejo e, se for de atacado, fica disponível por encomenda. Deixe a cor como "Padrão" quando a estampa tiver uma cor só.</p>
         </div>
       </section>
 

@@ -36,22 +36,27 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
   const [showWholesaleWarning, setShowWholesaleWarning] = useState(false);
   const [pendingCartAdd, setPendingCartAdd] = useState(false);
 
-  // Filter sizes that have actual physical availability OR are wholesale
-  const availableSizesMap = useMemo(() => {
+  // Todos os tamanhos cadastrados aparecem, mesmo com estoque 0.
+  // Varejo: tamanho sem estoque fica riscado. Atacado: fica disponível por encomenda.
+  const ORDEM: Record<string, number> = { PP: 1, P: 2, M: 3, G: 4, GG: 5, XG: 6 };
+  const sizesMap = useMemo(() => {
     const map = new Map<string, ProductSize[]>();
     for (const s of sizes) {
       const reserved = reservationMap.get(s.id) || 0;
       const available = Math.max(0, s.stock - reserved);
-      
-      if (available > 0 || product.isWholesale) {
-        if (!map.has(s.size)) map.set(s.size, []);
-        map.get(s.size)!.push({ ...s, stock: available });
-      }
+      if (!map.has(s.size)) map.set(s.size, []);
+      map.get(s.size)!.push({ ...s, stock: available });
     }
-    return map;
-  }, [sizes, reservationMap, product.isWholesale]);
+    return new Map([...map.entries()].sort((a, b) => (ORDEM[a[0]] || 99) - (ORDEM[b[0]] || 99)));
+  }, [sizes, reservationMap]);
 
-  const availableSizeKeys = Array.from(availableSizesMap.keys());
+  // Estampa de cor única: não mostra escolha de cor, só a quantidade.
+  const multiColor = new Set(sizes.map(s => (s.color || 'Padrão').trim().toLowerCase())).size > 1;
+
+  const sizeHasStock = (size: string) => (sizesMap.get(size) || []).some(v => v.stock > 0);
+  const sizeSelectable = (size: string) => product.isWholesale || sizeHasStock(size);
+  const sizeKeys = Array.from(sizesMap.keys());
+  const anySelectable = sizeKeys.some(sizeSelectable);
 
   const handleSizeSelect = (size: string) => {
     setSelectedSize(size);
@@ -124,7 +129,7 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
 
     // Check if they are trying to order more than physical stock
     let needsPreOrder = false;
-    const variants = availableSizesMap.get(selectedSize) || [];
+    const variants = sizesMap.get(selectedSize) || [];
     
     for (const [color, qty] of Object.entries(colorQuantities)) {
       const variant = variants.find(v => v.color === color);
@@ -174,49 +179,67 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
         <span className="text-xs uppercase tracking-widest font-semibold">1. Escolha o Tamanho</span>
       </div>
       
-      <div className="flex gap-3 mb-6">
+      <div className="flex flex-wrap gap-3 mb-6">
         {sizes.length === 0 ? (
-          <span className="text-sm font-bold text-amber-600 bg-amber-50 px-4 py-2 border border-amber-200 w-full text-center">NENHUM TAMANHO CADASTRADO NO PAINEL</span>
-        ) : availableSizeKeys.length > 0 ? (
-          availableSizeKeys.map((size) => (
-            <button 
-              key={size}
-              onClick={() => handleSizeSelect(size)}
-              className={`w-12 h-12 border flex items-center justify-center text-sm font-bold transition-all ${
-                selectedSize === size 
-                  ? "border-black bg-black text-white" 
-                  : "border-zinc-200 hover:border-black text-zinc-700"
-              }`}
-            >
-              {size}
-            </button>
-          ))
-        ) : (
           <span className="text-sm font-bold text-red-500 bg-red-50 px-4 py-2 border border-red-200 w-full text-center">ESGOTADO NO MOMENTO</span>
+        ) : (
+          <>
+            {sizeKeys.map((size) => {
+              const selectable = sizeSelectable(size);
+              const encomenda = selectable && !sizeHasStock(size);
+              return (
+                <button
+                  key={size}
+                  onClick={() => selectable && handleSizeSelect(size)}
+                  disabled={!selectable}
+                  title={!selectable ? "Esgotado" : encomenda ? "Sob encomenda (atacado)" : undefined}
+                  className={`relative w-12 h-12 border flex items-center justify-center text-sm font-bold transition-all ${
+                    !selectable
+                      ? "border-zinc-100 text-zinc-300 line-through cursor-not-allowed"
+                      : selectedSize === size
+                        ? "border-black bg-black text-white"
+                        : "border-zinc-200 hover:border-black text-zinc-700"
+                  }`}
+                >
+                  {size}
+                  {encomenda && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500" />}
+                </button>
+              );
+            })}
+            {!anySelectable && (
+              <span className="text-sm font-bold text-red-500 bg-red-50 px-4 py-2 border border-red-200 w-full text-center">ESGOTADO NO MOMENTO</span>
+            )}
+            {product.isWholesale && sizeKeys.some(sz => !sizeHasStock(sz)) && (
+              <p className="w-full text-[11px] text-amber-700 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> Sem estoque: disponível sob encomenda no atacado
+              </p>
+            )}
+          </>
         )}
       </div>
 
       {selectedSize && (
         <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-xs uppercase tracking-widest font-semibold">2. Escolha as Cores e Quantidade</span>
+            <span className="text-xs uppercase tracking-widest font-semibold">{multiColor ? "2. Escolha as Cores e Quantidade" : "2. Quantidade"}</span>
           </div>
-          
+
           <div className="flex flex-col gap-3 bg-zinc-50 border border-zinc-100 p-4 rounded-xl">
-            {availableSizesMap.get(selectedSize)?.map((variant) => {
+            {(sizesMap.get(selectedSize) || []).map((variant) => {
               const qty = colorQuantities[variant.color] || 0;
               const max = product.isWholesale ? 100 : variant.stock;
+              const semEstoque = variant.stock === 0;
               return (
-                <div key={variant.id} className="flex items-center justify-between bg-white border border-zinc-200 p-3 rounded-lg shadow-sm">
+                <div key={variant.id} className={`flex items-center justify-between bg-white border border-zinc-200 p-3 rounded-lg shadow-sm ${semEstoque && !product.isWholesale ? 'opacity-50' : ''}`}>
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold text-zinc-900 capitalize">{variant.color}</span>
-                    <span className={`text-[10px] uppercase tracking-wider ${variant.stock === 0 ? 'text-amber-600 font-bold' : 'text-zinc-400'}`}>
-                      {variant.stock === 0 ? "Sob Encomenda (Atacado)" : "Disponível"}
+                    {multiColor && <span className="text-sm font-bold text-zinc-900 capitalize">{variant.color}</span>}
+                    <span className={`text-[10px] uppercase tracking-wider ${semEstoque ? (product.isWholesale ? 'text-amber-600 font-bold' : 'text-red-500 font-bold') : 'text-zinc-400'}`}>
+                      {semEstoque ? (product.isWholesale ? "Sob Encomenda (Atacado)" : "Esgotado") : "Disponível"}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
-                    <button 
+                    <button
                       onClick={() => handleQuantityChange(variant.color, -1, variant.stock)}
                       disabled={qty === 0}
                       className="w-8 h-8 flex items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-zinc-600 disabled:opacity-50"
@@ -224,7 +247,7 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
                       -
                     </button>
                     <span className="text-sm font-bold w-4 text-center">{qty}</span>
-                    <button 
+                    <button
                       onClick={() => handleQuantityChange(variant.color, 1, variant.stock)}
                       disabled={qty >= max}
                       className="w-8 h-8 flex items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-zinc-600 disabled:opacity-50"

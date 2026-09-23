@@ -59,6 +59,10 @@ export default async function AdminOverview({ searchParams }: { searchParams: Pr
     orderBy: { stock: 'asc' }
   })
 
+  // Peças esgotadas: estoque total 0, inclusive as que não têm tamanho cadastrado
+  const estoquePorPeca = await prisma.product.findMany({ select: { sizes: { select: { stock: true } } } })
+  const pecasEsgotadas = estoquePorPeca.filter(p => p.sizes.reduce((acc, s) => acc + s.stock, 0) <= 0).length
+
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -212,6 +216,10 @@ export default async function AdminOverview({ searchParams }: { searchParams: Pr
             <h3 className="text-lg font-bold tracking-tight">Estoque Baixo</h3>
             <Link href="/admin/produtos" className="text-xs text-zinc-500 hover:text-black uppercase font-bold tracking-widest transition-colors">Ver todos</Link>
           </div>
+          <Link href="/admin/produtos?filter=esgotados" className="mb-4 flex items-center justify-between bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 hover:border-red-300 transition-colors">
+            <span className="text-[11px] uppercase tracking-widest font-bold">Peças esgotadas</span>
+            <span className="text-2xl font-black">{pecasEsgotadas}</span>
+          </Link>
           <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
             {lowStockProducts.length === 0 ? (
               <p className="p-8 text-sm text-zinc-500 text-center bg-zinc-50/50">Nenhum produto com estoque baixo.</p>

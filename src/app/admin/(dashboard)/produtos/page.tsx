@@ -19,25 +19,28 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     orderBy: { createdAt: 'desc' }
   });
 
-  // Calculate Metrics
+  // Métricas contam PEÇAS (produtos), não linhas de tamanho.
+  // Esgotada: soma do estoque (no tamanho filtrado) = 0, inclusive peça sem tamanho cadastrado.
+  // Baixo estoque: não esgotada, mas algum tamanho com 1 ou 2 unidades.
+  const doFiltro = (s: { size: string }) => sizeFilter === 'all' || s.size === sizeFilter;
+  const estaEsgotada = (p: typeof allProducts[number]) =>
+    p.sizes.filter(doFiltro).reduce((acc, s) => acc + s.stock, 0) <= 0;
+  const temBaixoEstoque = (p: typeof allProducts[number]) =>
+    !estaEsgotada(p) && p.sizes.some(s => doFiltro(s) && s.stock > 0 && s.stock < 3);
+
   let totalItems = 0;
-  let outOfStock = 0;
-  let lowStock = 0;
   const sizeCounts: Record<string, number> = {};
 
   allProducts.forEach(p => {
     p.sizes.forEach(s => {
       // Sempre conta para os botões de tamanho
       sizeCounts[s.size] = (sizeCounts[s.size] || 0) + s.stock;
-
-      // Conta para os cards superiores se o tamanho bater com o filtro (ou se for 'all')
-      if (sizeFilter === 'all' || s.size === sizeFilter) {
-        totalItems += s.stock;
-        if (s.stock === 0) outOfStock++;
-        else if (s.stock < 3 && s.stock > 0) lowStock++;
-      }
+      if (doFiltro(s)) totalItems += s.stock;
     });
   });
+
+  const outOfStock = allProducts.filter(estaEsgotada).length;
+  const lowStock = allProducts.filter(temBaixoEstoque).length;
 
   const sortedSizes = Object.entries(sizeCounts).sort((a, b) => {
     const order = { 'PP': 1, 'P': 2, 'M': 3, 'G': 4, 'GG': 5, 'XG': 6 };
@@ -52,12 +55,12 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   }
 
   if (typeFilter === 'esgotados') {
-    products = products.filter(p => p.sizes.some(s => s.stock === 0 && (sizeFilter === 'all' || s.size === sizeFilter)));
+    products = products.filter(estaEsgotada);
   } else if (typeFilter === 'baixo_estoque') {
-    products = products.filter(p => p.sizes.some(s => s.stock > 0 && s.stock < 3 && (sizeFilter === 'all' || s.size === sizeFilter)));
+    products = products.filter(temBaixoEstoque);
   }
 
-  if (sizeFilter !== 'all') {
+  if (sizeFilter !== 'all' && typeFilter !== 'esgotados') {
     products = products.filter(p => p.sizes.some(s => s.size === sizeFilter));
   }
   
@@ -98,11 +101,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <p className="text-3xl font-black tracking-tighter">{totalItems}</p>
         </Link>
         <Link href={`/admin/produtos?filter=esgotados&size=${sizeFilter}&q=${searchQuery}`} className={`border p-5 rounded-xl shadow-sm transition-all ${typeFilter === 'esgotados' ? 'bg-red-900 border-red-900 text-white' : 'bg-red-50 border-red-200 text-red-800 hover:border-red-300'}`}>
-          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'esgotados' ? 'text-red-300' : 'text-red-800'}`}>Esgotados</p>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'esgotados' ? 'text-red-300' : 'text-red-800'}`}>Peças esgotadas</p>
           <p className="text-3xl font-black tracking-tighter">{outOfStock}</p>
         </Link>
         <Link href={`/admin/produtos?filter=baixo_estoque&size=${sizeFilter}&q=${searchQuery}`} className={`border p-5 rounded-xl shadow-sm transition-all ${typeFilter === 'baixo_estoque' ? 'bg-amber-900 border-amber-900 text-white' : 'bg-amber-50 border-amber-200 text-amber-800 hover:border-amber-300'}`}>
-          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'baixo_estoque' ? 'text-amber-300' : 'text-amber-800'}`}>Baixo Estoque</p>
+          <p className={`text-[10px] uppercase tracking-widest font-bold mb-2 ${typeFilter === 'baixo_estoque' ? 'text-amber-300' : 'text-amber-800'}`}>Peças com estoque baixo</p>
           <p className="text-3xl font-black tracking-tighter">{lowStock}</p>
         </Link>
       </div>
@@ -152,15 +155,17 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                   
                   {/* Estoque */}
                   <div className="flex flex-wrap gap-1">
-                    {p.sizes.length === 0 ? (
+                    {p.sizes.reduce((acc: number, s: any) => acc + s.stock, 0) <= 0 && (
                       <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-100 uppercase tracking-wider">Esgotado</span>
-                    ) : (
-                      p.sizes.map((s: any) => (
-                        <span key={s.size} className="text-[10px] font-bold text-zinc-600 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200">
-                          {s.size} <span className="text-zinc-400 font-normal">({s.stock})</span>
-                        </span>
-                      ))
                     )}
+                    {p.sizes.length === 0 && (
+                      <span className="text-[10px] font-bold text-zinc-500 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200">Sem tamanho cadastrado</span>
+                    )}
+                    {p.sizes.map((s: any) => (
+                      <span key={s.id} className={`text-[10px] font-bold px-2 py-0.5 rounded border ${s.stock === 0 ? 'text-red-600 bg-red-50 border-red-100' : 'text-zinc-600 bg-zinc-50 border-zinc-200'}`}>
+                        {s.size}{s.color && s.color !== 'Padrão' ? ` ${s.color}` : ''} <span className="font-normal opacity-70">({s.stock})</span>
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
