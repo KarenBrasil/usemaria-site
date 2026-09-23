@@ -57,6 +57,17 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
   const sizeSelectable = (size: string) => product.isWholesale || sizeHasStock(size);
   const sizeKeys = Array.from(sizesMap.keys());
   const anySelectable = sizeKeys.some(sizeSelectable);
+  const algumComEstoque = sizeKeys.some(sizeHasStock);
+
+  // Aviso para a cliente, conforme a situação da peça:
+  // - sem tamanho cadastrado: indisponível
+  // - varejo sem estoque: esgotada
+  // - atacado sem estoque: só por encomenda no atacado
+  const situacao: 'indisponivel' | 'esgotada' | 'so_atacado' | 'parcial_atacado' | 'normal' =
+    sizes.length === 0 ? 'indisponivel'
+    : !algumComEstoque ? (product.isWholesale ? 'so_atacado' : 'esgotada')
+    : product.isWholesale && sizeKeys.some(sz => !sizeHasStock(sz)) ? 'parcial_atacado'
+    : 'normal';
 
   const handleSizeSelect = (size: string) => {
     setSelectedSize(size);
@@ -175,15 +186,32 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-xs uppercase tracking-widest font-semibold">1. Escolha o Tamanho</span>
-      </div>
-      
-      <div className="flex flex-wrap gap-3 mb-6">
-        {sizes.length === 0 ? (
-          <span className="text-sm font-bold text-red-500 bg-red-50 px-4 py-2 border border-red-200 w-full text-center">ESGOTADO NO MOMENTO</span>
-        ) : (
-          <>
+      {situacao === 'indisponivel' && (
+        <div className="mb-6 border border-zinc-200 bg-zinc-50 rounded-xl p-5 text-center">
+          <p className="text-sm font-bold text-zinc-900 uppercase tracking-widest">Peça indisponível no momento</p>
+          <p className="text-xs text-zinc-500 mt-2">Em breve ela volta. Fale com a gente no WhatsApp para saber quando.</p>
+        </div>
+      )}
+      {situacao === 'esgotada' && (
+        <div className="mb-6 border border-red-200 bg-red-50 rounded-xl p-5 text-center">
+          <p className="text-sm font-bold text-red-600 uppercase tracking-widest">Esgotada</p>
+          <p className="text-xs text-red-500/80 mt-2">Todos os tamanhos desta estampa acabaram. Fale com a gente no WhatsApp para saber da reposição.</p>
+        </div>
+      )}
+      {situacao === 'so_atacado' && (
+        <div className="mb-6 border border-amber-200 bg-amber-50 rounded-xl p-5 text-center">
+          <p className="text-sm font-bold text-amber-800 uppercase tracking-widest">Apenas no atacado, sob encomenda</p>
+          <p className="text-xs text-amber-700 mt-2">Esta estampa está sem estoque no varejo. No atacado ela é produzida sob encomenda (mínimo de 10 peças, produção em 5 dias).</p>
+        </div>
+      )}
+
+      {situacao !== 'indisponivel' && (
+        <>
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-xs uppercase tracking-widest font-semibold">1. Escolha o Tamanho</span>
+          </div>
+
+          <div className="flex flex-wrap gap-3 mb-6">
             {sizeKeys.map((size) => {
               const selectable = sizeSelectable(size);
               const encomenda = selectable && !sizeHasStock(size);
@@ -206,17 +234,14 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
                 </button>
               );
             })}
-            {!anySelectable && (
-              <span className="text-sm font-bold text-red-500 bg-red-50 px-4 py-2 border border-red-200 w-full text-center">ESGOTADO NO MOMENTO</span>
-            )}
-            {product.isWholesale && sizeKeys.some(sz => !sizeHasStock(sz)) && (
+            {situacao === 'parcial_atacado' && (
               <p className="w-full text-[11px] text-amber-700 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> Sem estoque: disponível sob encomenda no atacado
+                <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> Tamanho sem estoque: apenas no atacado, sob encomenda
               </p>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
 
       {selectedSize && (
         <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
@@ -268,6 +293,7 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
         </div>
       )}
 
+      {anySelectable && (
       <button 
         onClick={handleAddToCartClick}
         disabled={totalSelectedQuantity === 0 || loading}
@@ -281,6 +307,7 @@ export default function AddToCartSection({ product, sizes, reservationMap }: Add
       >
         {loading ? "Processando..." : added ? "Adicionado ao Carrinho!" : "ADICIONAR AO CARRINHO"}
       </button>
+      )}
 
       {added && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top-10 fade-in duration-300">
