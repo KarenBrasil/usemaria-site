@@ -40,6 +40,17 @@ const nextConfig: NextConfig = {
   // As fotos do catalogo nunca mudam de conteudo (nome novo = arquivo novo),
   // entao o navegador e a CDN podem guardar por 1 ano. Cada visita repetida
   // deixa de baixar tudo de novo.
+  // A home virou estatica; filtros e busca vivem em /colecoes. Links antigos
+  // (anuncios, favoritos) com ?filter= / ?cat= / ?q= na home vao para la.
+  async redirects() {
+    return ['filter', 'cat', 'q'].map((key) => ({
+      source: '/',
+      has: [{ type: 'query' as const, key }],
+      destination: '/colecoes',
+      permanent: false,
+    }));
+  },
+
   async headers() {
     return [
       {

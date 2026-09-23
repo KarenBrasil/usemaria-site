@@ -6,13 +6,15 @@ import Footer from "@/components/Footer";
 import CategoryFilters from "@/components/CategoryFilters";
 import { matchesSearch } from "@/lib/search";
 
-export const dynamic = 'force-dynamic';
+// Home estatica na CDN: a visita (inclusive de anuncio) nao acorda servidor
+// nem banco. E refeita quando o admin muda algo (revalidatePath('/') nas
+// actions) ou, no maximo, 1x por hora. Filtros e busca ficam em /colecoes.
+export const revalidate = 3600;
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ cat?: string, q?: string, filter?: string }> }) {
-  const resolvedParams = await searchParams;
-  const categoryId = resolvedParams.cat;
-  const searchQuery = resolvedParams.q;
-  const filterType = resolvedParams.filter; // 'atacado', 'promocao', 'novidade'
+export default async function Home() {
+  const categoryId = undefined;
+  const searchQuery = undefined as string | undefined;
+  const filterType = undefined;
 
   // Catálogo vem do cache (src/lib/catalogo.ts): o banco não é consultado a cada visita.
   const [catalogo, categories, settings] = await Promise.all([getCatalogo(), getCategorias(), getConfiguracoes()]);
@@ -164,7 +166,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-16">
           {products.map((product) => (
             <div key={product.id} className="group flex flex-col text-center">
-              <Link href={`/product/${product.id}`} className="relative aspect-[4/5] bg-white mb-5 overflow-hidden block border border-zinc-100">
+              <Link prefetch={false} href={`/product/${product.id}`} className="relative aspect-[4/5] bg-white mb-5 overflow-hidden block border border-zinc-100">
                 <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
                   {product.isNew && (
                     <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-white text-zinc-800 px-3 py-1 shadow-sm">
@@ -195,7 +197,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
               </Link>
               
               <div className="flex flex-col items-center flex-1 px-2">
-                <Link href={`/product/${product.id}`} className="block w-full">
+                <Link prefetch={false} href={`/product/${product.id}`} className="block w-full">
                   <h3 className="text-[13px] font-serif text-zinc-800 mb-1 line-clamp-1">
                     {product.name}
                   </h3>

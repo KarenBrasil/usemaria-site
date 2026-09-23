@@ -81,7 +81,7 @@ export default async function ColecoesPage({
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {products.map((product) => (
               <div key={product.id} className="group flex flex-col text-center">
-                <Link href={`/product/${product.id}`} className="relative aspect-[4/5] bg-[#f5f5f5] mb-4 overflow-hidden block">
+                <Link prefetch={false} href={`/product/${product.id}`} className="relative aspect-[4/5] bg-[#f5f5f5] mb-4 overflow-hidden block">
                   {product.isNew && (
                     <span className="absolute top-3 left-3 z-10 text-[9px] font-bold uppercase tracking-widest bg-white px-3 py-1 shadow-sm">
                       Novo
@@ -95,7 +95,7 @@ export default async function ColecoesPage({
                     className="object-cover object-[center_20%] scale-[1.3] mix-blend-multiply group-hover:scale-[1.4] transition-transform duration-700 ease-in-out"
                   />
                 </Link>
-                <Link href={`/product/${product.id}`} className="flex flex-col items-center">
+                <Link prefetch={false} href={`/product/${product.id}`} className="flex flex-col items-center">
                   <h3 className="text-xs font-bold text-zinc-900 mb-1 tracking-widest uppercase">{product.name}</h3>
                   <div className="flex flex-col items-center gap-1 mb-4">
                     <p className="text-xs text-zinc-500 font-medium">R$ {product.price.toFixed(2).replace('.', ',')}</p>
